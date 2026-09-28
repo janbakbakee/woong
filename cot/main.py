@@ -19,7 +19,7 @@ import sys
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
-from . import analyze, config, fetch, metrics as mx, prompt, render, rss
+from . import analyze, config, fetch, metrics as mx, prompt, record, render, rss
 
 log = logging.getLogger("cot")
 KST = timezone(timedelta(hours=9))
@@ -62,19 +62,6 @@ def load_records(out: Path) -> list[dict]:
         except (json.JSONDecodeError, KeyError):
             log.warning("메타 파일 손상: %s", p)
     return recs
-
-
-def write_history_csv(out: Path, records: list[dict]) -> None:
-    keys = [m.key for m in config.MARKETS]
-    header = ["날짜"] + [f"{k} Net" for k in keys] + [f"{k}점수" for k in keys] + ["투자의견", "핵심메모"]
-    lines = [",".join(header)]
-    for r in sorted(records, key=lambda r: r["report_date"]):
-        vals = [r["report_date"]]
-        vals += [str(r.get("nets", {}).get(k, "")) for k in keys]
-        vals += [str(r.get("scores", {}).get(k, "")) for k in keys]
-        vals += [r.get("sheet_opinion", ""), r.get("sheet_memo", "")]
-        lines.append(",".join('"' + v.replace('"', '""') + '"' if ("," in v or '"' in v) else v for v in vals))
-    (out / "data" / "history.csv").write_text("﻿" + "\n".join(lines) + "\n", encoding="utf-8")
 
 
 # --------------------------------------------------------------------------
@@ -223,9 +210,13 @@ def publish(state: dict, analysis: dict, news: dict | None, out: Path, model: st
                                      "news": news, "rss": state.get("rss", [])},
                                     ensure_ascii=False, indent=1, default=str), encoding="utf-8")
 
+    # 주차별 수치 기록 누적 (구글 시트와 같은 열 구성)
+    record_rows = record.upsert(out / "data" / "cot_record.csv", record.make_row(
+        target.isoformat(), meta["nets"], meta["scores"], meta["sheet_opinion"], meta["sheet_memo"]))
+    (out / "data" / "history.csv").unlink(missing_ok=True)  # 구 형식 파일 정리
+
     records = load_records(out)
-    (out / "index.html").write_text(render.render_index(records), encoding="utf-8")
-    write_history_csv(out, records)
+    (out / "index.html").write_text(render.render_index(records, record_rows), encoding="utf-8")
     (out / ".nojekyll").touch()
 
     header, row = render.sheet_row(target, metrics, analysis)

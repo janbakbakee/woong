@@ -104,7 +104,9 @@ def test_pipeline_no_ai(tmp_path, fake_fetch):
     meta = json.loads((tmp_path / "data" / "reports" / f"{TARGET}.json").read_text(encoding="utf-8"))["meta"]
     assert meta["complete"] and set(meta["scores"]) == {m.key for m in config.MARKETS}
     assert (tmp_path / "index.html").exists()
-    assert "ES Net" in (tmp_path / "data" / "history.csv").read_text(encoding="utf-8")
+    rec = (tmp_path / "data" / "cot_record.csv").read_text(encoding="utf-8-sig")
+    assert rec.splitlines()[0].startswith("날짜,ES Net,NQ Net,WTI Net,EUR Net,JPY Net,BTC Net,ES점수")
+    assert rec.count(TARGET.isoformat()) == 1
 
     # 완성된 주차는 재실행 시 건너뜀
     mtime = (tmp_path / "index.html").stat().st_mtime_ns
@@ -286,3 +288,45 @@ def test_week_label_and_cli(tmp_path, fake_fetch):
     with pytest.raises(SystemExit) as e:
         main.main(["--date", "아무거나", "--out", str(tmp_path)])
     assert e.value.code == 2
+
+
+def test_notify_message_and_channels(tmp_path, fake_fetch, monkeypatch):
+    from cot import notify
+    main.main(["--date", TARGET.isoformat(), "--out", str(tmp_path)])
+    sent = []
+
+    class Resp:
+        def raise_for_status(self):
+            pass
+
+    monkeypatch.setattr(notify.requests, "post", lambda url, **kw: sent.append((url, kw["json"])) or Resp())
+    monkeypatch.setenv("GITHUB_REPOSITORY", "janbakbakee/woong")
+    monkeypatch.delenv("TELEGRAM_BOT_TOKEN", raising=False)
+    monkeypatch.delenv("NTFY_TOPIC", raising=False)
+    assert notify.main(["--date", TARGET.isoformat(), "--out", str(tmp_path)]) == 0
+    assert sent == []  # 채널 미설정 → 전송 안 함
+
+    monkeypatch.setenv("TELEGRAM_BOT_TOKEN", "t")
+    monkeypatch.setenv("TELEGRAM_CHAT_ID", "1")
+    monkeypatch.setenv("NTFY_TOPIC", "my-topic")
+    notify.main(["--date", TARGET.isoformat(), "--out", str(tmp_path)])
+    (tg_url, tg), (ntfy_url, nt) = sent
+    assert "api.telegram.org/bott/sendMessage" in tg_url
+    assert "2026년 7월 4주차" in tg["text"]
+    assert "https://janbakbakee.github.io/woong/reports/2026-07-28.html" in tg["text"]
+    assert nt["topic"] == "my-topic" and nt["click"].endswith("2026-07-28.html")
+
+    sent.clear()
+    notify.main(["--failure", "--run-url", "https://github.com/x/runs/1"])
+    assert "실패" in sent[0][1]["text"]
+
+
+def test_record_upsert_keeps_manual_rows(tmp_path):
+    from cot import record
+    path = tmp_path / "cot_record.csv"
+    manual = record.make_row("2026-06-23", {"ES": "-374569"}, {"ES": "31"}, "JPY Buy", "수기, 메모")
+    record.save(path, [manual])
+    rows = record.upsert(path, record.make_row("2026-09-22", {"ES": -375616}, {"ES": 35}, "a", "b"))
+    rows = record.upsert(path, record.make_row("2026-09-22", {"ES": -1}, {"ES": 40}, "c", "d"))
+    assert [r["날짜"] for r in rows] == ["2026-09-22", "2026-06-23"]
+    assert rows[0]["ES Net"] == "-1" and rows[1]["핵심메모"] == "수기, 메모"

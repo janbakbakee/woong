@@ -55,7 +55,23 @@ td a { color: #185FA5; text-decoration: none; font-weight: 500; }
     <div class="legend">초록 = 60점 이상(강세 우위) · 주황 = 40~59(중립) · 빨강 = 40 미만(약세 우위)</div>
   </div>
 
-  <div class="sub">데이터: CFTC Commitments of Traders (Futures Only). 누적 수치: <a href="data/history.csv" style="color:#185FA5;">history.csv</a> · 본 자료는 투자 참고용이며 투자 권유가 아닙니다.</div>
+  <div class="section-title">COT 주차별 수치 기록 (누적)</div>
+  <div class="panel table-scroll">
+    <table>
+      <tr><th class="l">날짜</th>{% for k in record_order %}<th>{{ k }} Net</th>{% endfor %}{% for k in record_order %}<th>{{ k }}</th>{% endfor %}<th class="l">투자의견 / 핵심메모</th></tr>
+      {% for r in record_rows %}
+      <tr>
+        <td class="l">{% if r.link %}<a href="{{ r.link }}">{{ r['날짜'] }}</a>{% else %}{{ r['날짜'] }}{% endif %}</td>
+        {% for k in record_order %}<td>{{ r[k ~ ' Net']|netfmt }}</td>{% endfor %}
+        {% for k in record_order %}{% set s = r[k ~ '점수']|toint %}<td>{% if s is not none %}<span class="sc" style="background:{{ s|scorebg }};color:{{ s|scorefg }};">{{ s }}</span>{% else %}—{% endif %}</td>{% endfor %}
+        <td class="memo">{{ r['투자의견'] }}{% if r['핵심메모'] %}<br>{{ r['핵심메모'] }}{% endif %}</td>
+      </tr>
+      {% endfor %}
+    </table>
+    <div class="legend">CSV 다운로드: <a href="data/cot_record.csv" style="color:#185FA5;">cot_record.csv</a> · 구글 시트 자동 연동: 빈 셀에 <code>=IMPORTDATA("{{ site_url }}/data/cot_record.csv")</code></div>
+  </div>
+
+  <div class="sub">데이터: CFTC Commitments of Traders (Futures Only) · 본 자료는 투자 참고용이며 투자 권유가 아닙니다.</div>
 </div>
 </body>
 </html>

@@ -1,6 +1,7 @@
 """분석 대상 시장 및 데이터 소스 설정."""
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass, field
 
 # CFTC 공개 API (Socrata). 금융선물 = TFF(Traders in Financial Futures),
@@ -76,3 +77,10 @@ COLORS = {
     "lev": "#2a78d6", "am": "#c2650a", "mm": "#2a78d6",
     "muted": "#888780", "grid": "#f0efec",
 }
+
+
+def site_url() -> str:
+    """GitHub Pages 주소 (Actions에서는 GITHUB_REPOSITORY로 계산)."""
+    repo = os.environ.get("GITHUB_REPOSITORY", "janbakbakee/woong")
+    owner, name = repo.split("/", 1)
+    return f"https://{owner.lower()}.github.io/{name}"

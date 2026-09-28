@@ -6,7 +6,7 @@ from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
-from . import charts, config, fetch, metrics as mx
+from . import charts, config, fetch, metrics as mx, record
 
 WEEKDAY_KR = "월화수목금토일"
 # ⑫ 구글 시트 행의 열 순서 (기존 시트와 동일하게 유지)
@@ -35,6 +35,8 @@ def _env() -> Environment:
         "vclass": lambda v: {"Strong Buy": "v-buy", "Buy": "v-buy", "Hold": "v-hold"}.get(v, "v-sell"),
         "scorebg": lambda s: "#eaf3de" if s >= 60 else ("#faeeda" if s >= 40 else "#fcebeb"),
         "scorefg": lambda s: "#3B6D11" if s >= 60 else ("#854F0B" if s >= 40 else "#A32D2D"),
+        "netfmt": record.fmt_net,
+        "toint": lambda v: int(v) if str(v).lstrip("-").isdigit() else None,
     })
     return env
 
@@ -102,7 +104,7 @@ def _group_rss(items: list[dict]) -> list[dict]:
     return [{"name": k, "entries": v[:8]} for k, v in groups.items()]
 
 
-def render_index(records: list[dict]) -> str:
+def render_index(records: list[dict], record_rows: list[dict] | None = None) -> str:
     """records: 보고서 메타 목록 (최신순)."""
     keys = [m.key for m in config.MARKETS]
     rows = [{
@@ -114,4 +116,9 @@ def render_index(records: list[dict]) -> str:
     if rows:
         latest = {"date": rows[0]["date"], "week": rows[0]["week"], "link": rows[0]["link"],
                   "opinion": rows[0]["opinion"], "memo": rows[0]["memo"]}
-    return _env().get_template("index.html.j2").render(keys=keys, rows=rows, latest=latest)
+    reported = {r["date"] for r in rows}
+    rec = [{**r, "link": f"reports/{r['날짜']}.html" if r["날짜"] in reported else None}
+           for r in (record_rows or [])]
+    return _env().get_template("index.html.j2").render(
+        keys=keys, rows=rows, latest=latest, record_rows=rec, record_order=record.ORDER,
+        site_url=config.site_url())
