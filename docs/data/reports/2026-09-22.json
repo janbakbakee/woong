@@ -1,0 +1,1797 @@
+{
+ "meta": {
+  "report_date": "2026-09-22",
+  "release_date": "2026-09-25",
+  "week_label": "2026년 9월 4주차",
+  "generated_at": "2026-09-28T14:47:14.884046+00:00",
+  "complete": true,
+  "ai": true,
+  "missing": [],
+  "nets": {
+   "NQ": -35670,
+   "ES": -375616,
+   "WTI": 101828,
+   "BTC": -7953,
+   "EUR": 216483,
+   "JPY": 7423,
+   "USD": -4495
+  },
+  "scores": {
+   "NQ": 52,
+   "ES": 35,
+   "WTI": 51,
+   "BTC": 58,
+   "EUR": 27,
+   "JPY": 59,
+   "USD": 54
+  },
+  "verdicts": {
+   "NQ": "Hold",
+   "ES": "Reduce",
+   "WTI": "Hold",
+   "BTC": "Buy",
+   "EUR": "Reduce",
+   "JPY": "Buy",
+   "USD": "Hold"
+  },
+  "sheet_opinion": "NQ/WTI/USD Hold, ES/EUR Reduce, JPY/BTC Buy",
+  "sheet_memo": "Fed·BOJ 동시 인상/ES Lev숏 63.8천계약 급증/EUR AM롱 26주 최저/JPY 차익실현 15.7천계약/BTC ETF 7일 연속 유입"
+ },
+ "metrics": {
+  "NQ": {
+   "key": "NQ",
+   "name": "NQ (나스닥100)",
+   "code": "20974+",
+   "market_name": "NASDAQ-100 Consolidated - CHICAGO MERCANTILE EXCHANGE",
+   "report": "tff",
+   "date": "2026-09-22",
+   "prev_date": "2026-09-15",
+   "headline": "lev",
+   "headline_label": "Lev Funds",
+   "groups": {
+    "lev": {
+     "label": "Lev Funds",
+     "long": 52925,
+     "short": 88595,
+     "net": -35670,
+     "net_prev": -13052,
+     "net_chg": -22618,
+     "long_chg": 6840,
+     "short_chg": 29458,
+     "diag": "신규 Short 구축",
+     "streak": 1,
+     "pct_3y": 55
+    },
+    "am": {
+     "label": "Asset Mgr",
+     "long": 107285,
+     "short": 33993,
+     "net": 73292,
+     "net_prev": 67788,
+     "net_chg": 5504,
+     "long_chg": 1112,
+     "short_chg": -4392,
+     "diag": "Short Covering",
+     "streak": 1,
+     "pct_3y": 46
+    }
+   },
+   "net": -35670,
+   "net_prev": -13052,
+   "net_chg": -22618,
+   "diag": "신규 Short 구축",
+   "streak": 1,
+   "pct_3y": 55,
+   "pct_5y": 36,
+   "pct_3y_4w_ago": 39,
+   "cot_idx_26w": 74,
+   "cot_idx_156w": 56,
+   "min_3y": -100640,
+   "max_3y": 15648,
+   "history_weeks": 313,
+   "chg_z": -1.91,
+   "oi": 298319,
+   "oi_chg": -47567,
+   "agreement": "불일치",
+   "quant": {
+    "total": 56,
+    "direction": 22.1,
+    "agreement": 15.0,
+    "trend": 18.9,
+    "trend_z": 0.4
+   },
+   "quant_history": [
+    {
+     "date": "2026-07-07",
+     "score": 41
+    },
+    {
+     "date": "2026-07-14",
+     "score": 4
+    },
+    {
+     "date": "2026-07-21",
+     "score": 3
+    },
+    {
+     "date": "2026-07-28",
+     "score": 48
+    },
+    {
+     "date": "2026-08-04",
+     "score": 3
+    },
+    {
+     "date": "2026-08-11",
+     "score": 23
+    },
+    {
+     "date": "2026-08-18",
+     "score": 58
+    },
+    {
+     "date": "2026-08-25",
+     "score": 72
+    },
+    {
+     "date": "2026-09-01",
+     "score": 76
+    },
+    {
+     "date": "2026-09-08",
+     "score": 65
+    },
+    {
+     "date": "2026-09-15",
+     "score": 79
+    },
+    {
+     "date": "2026-09-22",
+     "score": 56
+    }
+   ]
+  },
+  "ES": {
+   "key": "ES",
+   "name": "ES (S&P500)",
+   "code": "13874+",
+   "market_name": "S&P 500 Consolidated - CHICAGO MERCANTILE EXCHANGE",
+   "report": "tff",
+   "date": "2026-09-22",
+   "prev_date": "2026-09-15",
+   "headline": "lev",
+   "headline_label": "Lev Funds",
+   "groups": {
+    "lev": {
+     "label": "Lev Funds",
+     "long": 119466,
+     "short": 495082,
+     "net": -375616,
+     "net_prev": -311831,
+     "net_chg": -63785,
+     "long_chg": -26797,
+     "short_chg": 36988,
+     "diag": "신규 Short 구축",
+     "streak": 1,
+     "pct_3y": 31
+    },
+    "am": {
+     "label": "Asset Mgr",
+     "long": 1121081,
+     "short": 184410,
+     "net": 936671,
+     "net_prev": 906654,
+     "net_chg": 30017,
+     "long_chg": -23427,
+     "short_chg": -53444,
+     "diag": "Short Covering",
+     "streak": 1,
+     "pct_3y": 53
+    }
+   },
+   "net": -375616,
+   "net_prev": -311831,
+   "net_chg": -63785,
+   "diag": "신규 Short 구축",
+   "streak": 1,
+   "pct_3y": 31,
+   "pct_5y": 22,
+   "pct_3y_4w_ago": 57,
+   "cot_idx_26w": 51,
+   "cot_idx_156w": 44,
+   "min_3y": -523882,
+   "max_3y": -184892,
+   "history_weeks": 313,
+   "chg_z": -1.35,
+   "oi": 1903696,
+   "oi_chg": -579666,
+   "agreement": "불일치",
+   "quant": {
+    "total": 37,
+    "direction": 12.6,
+    "agreement": 15.0,
+    "trend": 9.1,
+    "trend_z": -0.63
+   },
+   "quant_history": [
+    {
+     "date": "2026-07-07",
+     "score": 40
+    },
+    {
+     "date": "2026-07-14",
+     "score": 42
+    },
+    {
+     "date": "2026-07-21",
+     "score": 58
+    },
+    {
+     "date": "2026-07-28",
+     "score": 79
+    },
+    {
+     "date": "2026-08-04",
+     "score": 40
+    },
+    {
+     "date": "2026-08-11",
+     "score": 85
+    },
+    {
+     "date": "2026-08-18",
+     "score": 64
+    },
+    {
+     "date": "2026-08-25",
+     "score": 34
+    },
+    {
+     "date": "2026-09-01",
+     "score": 36
+    },
+    {
+     "date": "2026-09-08",
+     "score": 21
+    },
+    {
+     "date": "2026-09-15",
+     "score": 53
+    },
+    {
+     "date": "2026-09-22",
+     "score": 37
+    }
+   ]
+  },
+  "WTI": {
+   "key": "WTI",
+   "name": "WTI 원유",
+   "code": "067651",
+   "market_name": "WTI-PHYSICAL - NEW YORK MERCANTILE EXCHANGE",
+   "report": "disagg",
+   "date": "2026-09-22",
+   "prev_date": "2026-09-15",
+   "headline": "mm",
+   "headline_label": "Managed Money",
+   "groups": {
+    "mm": {
+     "label": "Managed Money",
+     "long": 223190,
+     "short": 121362,
+     "net": 101828,
+     "net_prev": 106279,
+     "net_chg": -4451,
+     "long_chg": 1294,
+     "short_chg": 5745,
+     "diag": "신규 Short 구축",
+     "streak": 2,
+     "pct_3y": 52
+    }
+   },
+   "net": 101828,
+   "net_prev": 106279,
+   "net_chg": -4451,
+   "diag": "신규 Short 구축",
+   "streak": 2,
+   "pct_3y": 52,
+   "pct_5y": 35,
+   "pct_3y_4w_ago": 35,
+   "cot_idx_26w": 80,
+   "cot_idx_156w": 42,
+   "min_3y": -38154,
+   "max_3y": 293235,
+   "history_weeks": 313,
+   "chg_z": -0.18,
+   "oi": 1841811,
+   "oi_chg": -113953,
+   "agreement": "단일그룹",
+   "quant": {
+    "total": 54,
+    "direction": 20.8,
+    "agreement": 15.0,
+    "trend": 18.3,
+    "trend_z": 0.34
+   },
+   "quant_history": [
+    {
+     "date": "2026-07-07",
+     "score": 25
+    },
+    {
+     "date": "2026-07-14",
+     "score": 16
+    },
+    {
+     "date": "2026-07-21",
+     "score": 27
+    },
+    {
+     "date": "2026-07-28",
+     "score": 47
+    },
+    {
+     "date": "2026-08-04",
+     "score": 48
+    },
+    {
+     "date": "2026-08-11",
+     "score": 45
+    },
+    {
+     "date": "2026-08-18",
+     "score": 49
+    },
+    {
+     "date": "2026-08-25",
+     "score": 34
+    },
+    {
+     "date": "2026-09-01",
+     "score": 48
+    },
+    {
+     "date": "2026-09-08",
+     "score": 66
+    },
+    {
+     "date": "2026-09-15",
+     "score": 56
+    },
+    {
+     "date": "2026-09-22",
+     "score": 54
+    }
+   ]
+  },
+  "BTC": {
+   "key": "BTC",
+   "name": "BTC (비트코인)",
+   "code": "133741",
+   "market_name": "BITCOIN - CHICAGO MERCANTILE EXCHANGE",
+   "report": "tff",
+   "date": "2026-09-22",
+   "prev_date": "2026-09-15",
+   "headline": "lev",
+   "headline_label": "Lev Funds",
+   "groups": {
+    "lev": {
+     "label": "Lev Funds",
+     "long": 4745,
+     "short": 12698,
+     "net": -7953,
+     "net_prev": -6354,
+     "net_chg": -1599,
+     "long_chg": -800,
+     "short_chg": 799,
+     "diag": "Long 청산",
+     "streak": 1,
+     "pct_3y": 86
+    },
+    "am": {
+     "label": "Asset Mgr",
+     "long": 4962,
+     "short": 1791,
+     "net": 3171,
+     "net_prev": 2760,
+     "net_chg": 411,
+     "long_chg": 434,
+     "short_chg": 23,
+     "diag": "신규 Long 구축",
+     "streak": 1,
+     "pct_3y": 10
+    }
+   },
+   "net": -7953,
+   "net_prev": -6354,
+   "net_chg": -1599,
+   "diag": "Long 청산",
+   "streak": 1,
+   "pct_3y": 86,
+   "pct_5y": 52,
+   "pct_3y_4w_ago": 86,
+   "cot_idx_26w": 59,
+   "cot_idx_156w": 85,
+   "min_3y": -23197,
+   "max_3y": -5313,
+   "history_weeks": 313,
+   "chg_z": -1.42,
+   "oi": 22315,
+   "oi_chg": 1542,
+   "agreement": "불일치",
+   "quant": {
+    "total": 65,
+    "direction": 34.4,
+    "agreement": 15.0,
+    "trend": 15.7,
+    "trend_z": 0.07
+   },
+   "quant_history": [
+    {
+     "date": "2026-07-07",
+     "score": 63
+    },
+    {
+     "date": "2026-07-14",
+     "score": 61
+    },
+    {
+     "date": "2026-07-21",
+     "score": 41
+    },
+    {
+     "date": "2026-07-28",
+     "score": 60
+    },
+    {
+     "date": "2026-08-04",
+     "score": 64
+    },
+    {
+     "date": "2026-08-11",
+     "score": 69
+    },
+    {
+     "date": "2026-08-18",
+     "score": 69
+    },
+    {
+     "date": "2026-08-25",
+     "score": 58
+    },
+    {
+     "date": "2026-09-01",
+     "score": 78
+    },
+    {
+     "date": "2026-09-08",
+     "score": 61
+    },
+    {
+     "date": "2026-09-15",
+     "score": 74
+    },
+    {
+     "date": "2026-09-22",
+     "score": 65
+    }
+   ]
+  },
+  "EUR": {
+   "key": "EUR",
+   "name": "EUR/USD",
+   "code": "099741",
+   "market_name": "EURO FX - CHICAGO MERCANTILE EXCHANGE",
+   "report": "tff",
+   "date": "2026-09-22",
+   "prev_date": "2026-09-15",
+   "headline": "am",
+   "headline_label": "Asset Mgr",
+   "groups": {
+    "lev": {
+     "label": "Lev Funds",
+     "long": 114151,
+     "short": 140845,
+     "net": -26694,
+     "net_prev": -28156,
+     "net_chg": 1462,
+     "long_chg": 10891,
+     "short_chg": 9429,
+     "diag": "신규 Long 구축",
+     "streak": 6,
+     "pct_3y": 18
+    },
+    "am": {
+     "label": "Asset Mgr",
+     "long": 482229,
+     "short": 265746,
+     "net": 216483,
+     "net_prev": 251698,
+     "net_chg": -35215,
+     "long_chg": -4206,
+     "short_chg": 31009,
+     "diag": "신규 Short 구축",
+     "streak": 1,
+     "pct_3y": 13
+    }
+   },
+   "net": 216483,
+   "net_prev": 251698,
+   "net_chg": -35215,
+   "diag": "신규 Short 구축",
+   "streak": 1,
+   "pct_3y": 13,
+   "pct_5y": 16,
+   "pct_3y_4w_ago": 30,
+   "cot_idx_26w": 9,
+   "cot_idx_156w": 25,
+   "min_3y": 150321,
+   "max_3y": 413713,
+   "history_weeks": 313,
+   "chg_z": -2.33,
+   "oi": 821689,
+   "oi_chg": -98346,
+   "agreement": "불일치",
+   "quant": {
+    "total": 26,
+    "direction": 5.4,
+    "agreement": 15.0,
+    "trend": 5.2,
+    "trend_z": -1.18
+   },
+   "quant_history": [
+    {
+     "date": "2026-07-07",
+     "score": 17
+    },
+    {
+     "date": "2026-07-14",
+     "score": 17
+    },
+    {
+     "date": "2026-07-21",
+     "score": 15
+    },
+    {
+     "date": "2026-07-28",
+     "score": 10
+    },
+    {
+     "date": "2026-08-04",
+     "score": 43
+    },
+    {
+     "date": "2026-08-11",
+     "score": 32
+    },
+    {
+     "date": "2026-08-18",
+     "score": 55
+    },
+    {
+     "date": "2026-08-25",
+     "score": 68
+    },
+    {
+     "date": "2026-09-01",
+     "score": 67
+    },
+    {
+     "date": "2026-09-08",
+     "score": 46
+    },
+    {
+     "date": "2026-09-15",
+     "score": 59
+    },
+    {
+     "date": "2026-09-22",
+     "score": 26
+    }
+   ]
+  },
+  "JPY": {
+   "key": "JPY",
+   "name": "USD/JPY (엔)",
+   "code": "097741",
+   "market_name": "JAPANESE YEN - CHICAGO MERCANTILE EXCHANGE",
+   "report": "tff",
+   "date": "2026-09-22",
+   "prev_date": "2026-09-15",
+   "headline": "lev",
+   "headline_label": "Lev Funds",
+   "groups": {
+    "lev": {
+     "label": "Lev Funds",
+     "long": 92923,
+     "short": 85500,
+     "net": 7423,
+     "net_prev": 23170,
+     "net_chg": -15747,
+     "long_chg": -17379,
+     "short_chg": -1632,
+     "diag": "Long 청산",
+     "streak": 1,
+     "pct_3y": 88
+    },
+    "am": {
+     "label": "Asset Mgr",
+     "long": 110732,
+     "short": 69103,
+     "net": 41629,
+     "net_prev": 53845,
+     "net_chg": -12216,
+     "long_chg": -8141,
+     "short_chg": 4075,
+     "diag": "Long 청산",
+     "streak": 1,
+     "pct_3y": 70
+    }
+   },
+   "net": 7423,
+   "net_prev": 23170,
+   "net_chg": -15747,
+   "diag": "Long 청산",
+   "streak": 1,
+   "pct_3y": 88,
+   "pct_5y": 93,
+   "pct_3y_4w_ago": 19,
+   "cot_idx_26w": 89,
+   "cot_idx_156w": 80,
+   "min_3y": -115400,
+   "max_3y": 38497,
+   "history_weeks": 313,
+   "chg_z": -1.13,
+   "oi": 378701,
+   "oi_chg": -164101,
+   "agreement": "일치(악화)",
+   "quant": {
+    "total": 65,
+    "direction": 35.4,
+    "agreement": 0.0,
+    "trend": 29.6,
+    "trend_z": 3.31
+   },
+   "quant_history": [
+    {
+     "date": "2026-07-07",
+     "score": 53
+    },
+    {
+     "date": "2026-07-14",
+     "score": 21
+    },
+    {
+     "date": "2026-07-21",
+     "score": 18
+    },
+    {
+     "date": "2026-07-28",
+     "score": 23
+    },
+    {
+     "date": "2026-08-04",
+     "score": 69
+    },
+    {
+     "date": "2026-08-11",
+     "score": 75
+    },
+    {
+     "date": "2026-08-18",
+     "score": 51
+    },
+    {
+     "date": "2026-08-25",
+     "score": 47
+    },
+    {
+     "date": "2026-09-01",
+     "score": 5
+    },
+    {
+     "date": "2026-09-08",
+     "score": 68
+    },
+    {
+     "date": "2026-09-15",
+     "score": 99
+    },
+    {
+     "date": "2026-09-22",
+     "score": 65
+    }
+   ]
+  },
+  "USD": {
+   "key": "USD",
+   "name": "USD Index (DXY)",
+   "code": "098662",
+   "market_name": "USD INDEX - ICE FUTURES U.S.",
+   "report": "tff",
+   "date": "2026-09-22",
+   "prev_date": "2026-09-15",
+   "headline": "lev",
+   "headline_label": "Lev Funds",
+   "groups": {
+    "lev": {
+     "label": "Lev Funds",
+     "long": 12977,
+     "short": 17472,
+     "net": -4495,
+     "net_prev": -4909,
+     "net_chg": 414,
+     "long_chg": 859,
+     "short_chg": 445,
+     "diag": "신규 Long 구축",
+     "streak": 1,
+     "pct_3y": 42
+    },
+    "am": {
+     "label": "Asset Mgr",
+     "long": 18944,
+     "short": 2172,
+     "net": 16772,
+     "net_prev": 15802,
+     "net_chg": 970,
+     "long_chg": 1430,
+     "short_chg": 460,
+     "diag": "신규 Long 구축",
+     "streak": 1,
+     "pct_3y": 81
+    }
+   },
+   "net": -4495,
+   "net_prev": -4909,
+   "net_chg": 414,
+   "diag": "신규 Long 구축",
+   "streak": 1,
+   "pct_3y": 42,
+   "pct_5y": 39,
+   "pct_3y_4w_ago": 87,
+   "cot_idx_26w": 40,
+   "cot_idx_156w": 39,
+   "min_3y": -24785,
+   "max_3y": 26733,
+   "history_weeks": 313,
+   "chg_z": 0.09,
+   "oi": 46328,
+   "oi_chg": 2584,
+   "agreement": "일치(개선)",
+   "quant": {
+    "total": 51,
+    "direction": 16.9,
+    "agreement": 30.0,
+    "trend": 4.0,
+    "trend_z": -1.4
+   },
+   "quant_history": [
+    {
+     "date": "2026-07-07",
+     "score": 71
+    },
+    {
+     "date": "2026-07-14",
+     "score": 44
+    },
+    {
+     "date": "2026-07-21",
+     "score": 54
+    },
+    {
+     "date": "2026-07-28",
+     "score": 71
+    },
+    {
+     "date": "2026-08-04",
+     "score": 69
+    },
+    {
+     "date": "2026-08-11",
+     "score": 72
+    },
+    {
+     "date": "2026-08-18",
+     "score": 73
+    },
+    {
+     "date": "2026-08-25",
+     "score": 74
+    },
+    {
+     "date": "2026-09-01",
+     "score": 67
+    },
+    {
+     "date": "2026-09-08",
+     "score": 63
+    },
+    {
+     "date": "2026-09-15",
+     "score": 20
+    },
+    {
+     "date": "2026-09-22",
+     "score": 51
+    }
+   ]
+  }
+ },
+ "analysis": {
+  "markets": {
+   "NQ": {
+    "market": "NQ",
+    "rating": "Neutral",
+    "rating_label": "레버리지-AM 엇갈림, 중립",
+    "stars": 3,
+    "card_note": "Lev Funds 신규 숏 22,618계약 확대, AM은 숏커버 지속",
+    "change_note": "Lev Funds가 롱 6,840·숏 29,458계약 늘리며 순숏 -35,670로 급확대, AM은 숏 4,392계약 커버해 순롱 73,292로 반대 방향",
+    "smart_money": "Lev Funds는 신규 숏 구축, AM은 숏커버 지속 — 그룹 간 방향 불일치, 신뢰도 낮음",
+    "smart_money_icon": "⚠️",
+    "extreme_note": "3년 백분위 55·26주 지수 74 — 중립 상단, 극단 아님",
+    "contrarian": "Lev Funds 숏 확대가 아직 3년 평균 수준(55)에 머물러 극단적 비관은 아니다. Fed 긴축 우려로 인한 헤지성 숏으로 보이며, AM의 구조적 매수가 하단을 지지할 가능성이 있다.",
+    "contrarian_tone": "neut",
+    "score": 52,
+    "score_reason": "quant.total 56에서 Fed 9/16 인상 이후 국채금리 급등과 Lev 신규 숏 확대를 반영해 -4",
+    "prob_up": 42,
+    "prob_side": 33,
+    "prob_down": 25,
+    "verdict": "Hold",
+    "trend_short": "이번 주 Lev Funds 순숏 전주 대비 22,618계약 급증, quant 점수 79→56 급락",
+    "trend_mid": "최근 6주 quant 58→72→76→65→79→56, 8월 중순 이후 이어지던 강세 흐름이 이번 주 처음 꺾임",
+    "trend_long": "3년 백분위 39(4주 전)→55(현재)로 완만한 개선 추세였으나 이번 주 급변, 156주 지수 56으로 중립권"
+   },
+   "ES": {
+    "market": "ES",
+    "rating": "Bearish",
+    "rating_label": "Lev Funds 사상급 신규 숏",
+    "stars": 2,
+    "card_note": "Lev Funds 순숏 -375,616, 주간 -63,785 확대 — 전 시장 최대 변화",
+    "change_note": "Lev Funds 롱 26,797계약 축소·숏 36,988계약 확대로 순숏 63,785 급증, AM은 숏 53,444계약 커버해 순롱 936,671로 대응 — 방향 정반대",
+    "smart_money": "Lev Funds 공격적 숏 베팅 vs AM 완만한 숏커버 — 불일치, 규모 격차로 Lev 신호 무게감 큼",
+    "smart_money_icon": "🔴",
+    "extreme_note": "3년 백분위 57(4주 전)→31로 급락, 26주 지수 51 — 중립 하단 이탈 중",
+    "contrarian": "31은 아직 3년 역대 최저(min_3y -523,882)와는 거리가 있어 극단 국면은 아니다. 국채금리 급등·Fed 매파 전환이라는 펀더멘털에 부합하는 추세추종형 숏으로 판단, 당장 역발상 매수 신호로 보기는 이르다.",
+    "contrarian_tone": "bear",
+    "score": 35,
+    "score_reason": "quant.total 37에 국채 셀오프·Fed 인상 후 밸류에이션 부담을 반영해 -2",
+    "prob_up": 26,
+    "prob_side": 32,
+    "prob_down": 42,
+    "verdict": "Reduce",
+    "trend_short": "순숏 63,785계약 확대로 전 시장 중 최대 주간 변화, quant 53→37 급락",
+    "trend_mid": "최근 6주 64→34→36→21→53→37, 8월 말 이후 quant 점수가 40 안팎에서 등락하며 약세 우위 고착화",
+    "trend_long": "3년 백분위 57→31로 한 달 새 반전, 156주 지수 44로 중장기적으로도 중립 이하 정착"
+   },
+   "WTI": {
+    "market": "WTI",
+    "rating": "Neutral",
+    "rating_label": "롱 우위 유지 속 단기 차익실현",
+    "stars": 3,
+    "card_note": "MM 순롱 101,828, 2주 연속 신규 숏 구축으로 소폭 축소",
+    "change_note": "MM이 롱 1,294계약·숏 5,745계약 동시 확대하며 순롱 4,451 감소, 2주 연속 숏 비중 확대 — 롱 축소보다는 헤지성 숏 추가",
+    "smart_money": "Managed Money 단일 그룹만 보고돼 그룹 간 비교 불가, 자체 추세는 2주 연속 둔화",
+    "smart_money_icon": "⚪",
+    "extreme_note": "3년 백분위 52, 26주 지수 80으로 최근 반년 레인지 상단권",
+    "contrarian": "26주 기준으로는 상단(80)이지만 3년 기준으로는 중립(52)이라 극단적이지 않다. 유가가 '12개월래 최장 하락'을 겪는 가운데 롱 축소는 추세 추종적 리스크 관리로 해석되며, 급격한 반전 신호는 아니다.",
+    "contrarian_tone": "neut",
+    "score": 51,
+    "score_reason": "quant.total 54에서 OPEC+ 10월 쿼터 동결 및 유가 하락 압력을 반영해 -3",
+    "prob_up": 38,
+    "prob_side": 35,
+    "prob_down": 27,
+    "verdict": "Hold",
+    "trend_short": "2주 연속 신규 숏 구축, quant 56→54로 완만한 둔화",
+    "trend_mid": "최근 6주 49→34→48→66→56→54, 9월 초 고점(66) 이후 점진적 하락",
+    "trend_long": "3년 백분위 35(4주 전)→52로 개선됐으나 156주 지수는 42로 중장기 기준 중립"
+   },
+   "BTC": {
+    "market": "BTC",
+    "rating": "Bullish",
+    "rating_label": "상대적 강세, ETF 유입 vs 단기 숏 확대",
+    "stars": 3,
+    "card_note": "Lev Funds 순숏 -7,953로 확대(Long 청산), 3년 기준으론 여전히 상위권",
+    "change_note": "Lev Funds 롱 800계약 청산·숏 799계약 추가로 순숏 1,599 확대, AM은 신규 롱 411계약 추가로 순롱 3,171 — 방향 엇갈림",
+    "smart_money": "Lev Funds 단기 숏 확대 vs AM 신규 롱 — 불일치하나 AM 쪽은 ETF 자금 유입 흐름과 궤를 같이함",
+    "smart_money_icon": "⚠️",
+    "extreme_note": "3년 백분위 86, 156주 지수 85 — Lev Funds 기준 역대급 상위권(통상 상시 순숏 구조 감안)",
+    "contrarian": "Lev Funds는 절대 기준 순숏이지만 3년래 가장 덜 숏인 구간(86%ile)에 머물러 상대적으로는 강세 극단에 가깝다. 이번 주 소폭 되돌림은 매크로(금리·달러 강세) 경계성 숏 추가로 보이며, ETF 7일 연속 순유입이 하단을 지지한다.",
+    "contrarian_tone": "neut",
+    "score": 58,
+    "score_reason": "quant.total 65에서 Fed·BOJ 동시 인상에 따른 금리·달러 역풍('Bitcoin Drops as Rising Yields and Dollar Weigh on Crypto' Bloomberg 9/24)을 반영해 -7",
+    "prob_up": 45,
+    "prob_side": 30,
+    "prob_down": 25,
+    "verdict": "Buy",
+    "trend_short": "Lev Funds 순숏 1,599계약 확대(Long 청산), quant 74→65로 조정",
+    "trend_mid": "최근 6주 69→58→78→61→74→65, 9월 초 고점권 이후 완만한 조정 국면",
+    "trend_long": "3년 백분위 86으로 4주 전과 동일하게 고점권 유지, 156주 지수 85로 3년래 최상위 구간 지속"
+   },
+   "EUR": {
+    "market": "EUR",
+    "rating": "Bearish",
+    "rating_label": "AM 롱 3년래 최저권 근접",
+    "stars": 2,
+    "card_note": "AM 순롱 216,483, 주간 -35,215 — 6주 연속 롱 늘리던 Lev와 반대 방향",
+    "change_note": "AM이 숏 31,009계약 확대하며 순롱 35,215 급감, Lev Funds는 6주 연속 롱 1,462계약 순증 — 정반대 방향으로 괴리 확대",
+    "smart_money": "AM 급격한 숏 전환 vs Lev Funds 6주 연속 롱 확대 — 불일치, 헤드라인 그룹(AM) 비관이 시장 신호를 주도",
+    "smart_money_icon": "⚠️",
+    "extreme_note": "3년 백분위 13, 26주 지수 9 — 26주래 저점권 근접, 사실상 극단권 진입",
+    "contrarian": "26주 지수가 9까지 낮아져 최근 반년 기준 거의 최저치다. ECB가 이미 9월 인상을 단행하고 12월 추가 인상까지 예고한 만큼, AM의 과도한 롱 축소가 지속되면 숏스퀴즈성 반등 리스크가 있다. 다만 현재는 추세 추종이 우세하다.",
+    "contrarian_tone": "bull",
+    "score": 27,
+    "score_reason": "quant.total 26에서 ECB 12월 추가 인상 기대('BofA sees ECB rate hike in December' Reuters 9/24)를 반영해 +1",
+    "prob_up": 24,
+    "prob_side": 33,
+    "prob_down": 43,
+    "verdict": "Reduce",
+    "trend_short": "AM 순롱 35,215 급감, quant 59→26로 2주 연속 급락",
+    "trend_mid": "최근 6주 55→68→67→46→59→26, 9월 들어 고점 대비 반토막",
+    "trend_long": "3년 백분위 30(4주 전)→13으로 급락, 156주 지수 25로 중장기적으로도 약세권 진입"
+   },
+   "JPY": {
+    "market": "JPY",
+    "rating": "Bullish",
+    "rating_label": "엔화 강세 베팅 차익실현 속 우위 유지",
+    "stars": 4,
+    "card_note": "Lev Funds 순롱 7,423로 급감(-15,747), BOJ 인상 후 차익실현",
+    "change_note": "Lev Funds 롱 17,379계약 청산·숏 1,632계약 추가로 순롱 15,747 급감, AM도 롱 8,141계약 청산 — 양 그룹 동시 축소",
+    "smart_money": "Lev·AM 모두 롱 청산으로 방향 일치(악화) — 단기 차익실현이 뚜렷하나 절대 수준은 여전히 최상위권",
+    "smart_money_icon": "🔴",
+    "extreme_note": "3년 백분위 88, 5년 백분위 93 — 전 시장 최고 수준, 다만 26주 지수 99(9/15)에서 89로 소폭 하락",
+    "contrarian": "5년 기준 93은 역대급 극단으로, BOJ의 9/17~18 인상이라는 재료가 이미 소진된 '뉴스에 팔기' 되돌림 가능성이 크다. 엔화 개입 경계감(160엔 근접)과 트럼프의 엔저 우려 표명이 겹치며 단기 변동성 확대가 예상되나, 절대 포지션은 여전히 강세 우위다.",
+    "contrarian_tone": "bear",
+    "score": 59,
+    "score_reason": "quant.total 65에서 BOJ 인상 후 대규모 차익실현(순롱 -15,747)과 엔화 개입 리스크를 반영해 -6",
+    "prob_up": 46,
+    "prob_side": 30,
+    "prob_down": 24,
+    "verdict": "Buy",
+    "trend_short": "Lev Funds 순롱 15,747 급감(Long 청산), quant 99→65로 급락",
+    "trend_mid": "최근 6주 51→47→5→68→99→65, 9월 중순 BOJ 인상 기대 선반영 후 되돌림 중",
+    "trend_long": "3년 백분위 19(4주 전)→88로 폭등했던 포지션이 여전히 유지, 156주 지수 80으로 3년래 최상위권 지속"
+   },
+   "USD": {
+    "market": "USD",
+    "rating": "Neutral",
+    "rating_label": "Fed 인상 후 롱 재구축 초입",
+    "stars": 3,
+    "card_note": "Lev Funds 순숏 -4,495로 소폭 개선, AM과 함께 롱 확대",
+    "change_note": "Lev Funds 롱 859·AM 롱 1,430계약 동시 확대로 양 그룹 모두 롱 포지션 강화 — 방향 일치(개선)",
+    "smart_money": "Lev Funds·AM 모두 신규 롱 구축으로 일치, Fed 인상 직후 달러 강세 베팅 재개 시그널",
+    "smart_money_icon": "✅",
+    "extreme_note": "3년 백분위 42, 26주 지수 40 — 중립권, 4주 전(87) 대비 큰 폭 되돌림 이후 안정화 초입",
+    "contrarian": "한 달 전 87(3년 백분위)에서 42로 급락했던 포지션이 이번 주 반등 조짐을 보인다. Fed 9/16 인상이 확인된 이후 달러 롱 재구축이 시작된 것으로 판단되며, 극단 신호는 없다.",
+    "contrarian_tone": "neut",
+    "score": 54,
+    "score_reason": "quant.total 51에서 Fed 인상 확정 및 양 그룹 동시 롱 확대(quant.agreement 30.0)를 반영해 +3",
+    "prob_up": 43,
+    "prob_side": 33,
+    "prob_down": 24,
+    "verdict": "Hold",
+    "trend_short": "Lev Funds·AM 동시 롱 확대, quant 20→51로 큰 폭 반등",
+    "trend_mid": "최근 6주 73→74→67→63→20→51, 9/15 저점 이후 Fed 인상 확인되며 반등",
+    "trend_long": "3년 백분위 87(4주 전)→42로 급락 후 바닥 다지는 국면, 156주 지수 39로 중립 하단"
+   }
+  },
+  "smart_money_highlight": "ES는 Lev Funds가 사상급 신규 숏(-63,785)을 쌓은 반면 JPY는 BOJ 인상을 재료 삼아 Lev Funds가 대규모 차익실현(-15,747)에 나서는 등, 레버리지 펀드가 주식과 통화 양쪽에서 동시에 리스크를 줄이는 모습이 뚜렷하다.",
+  "sentiment": [
+   {
+    "label": "주식",
+    "text": "Fed가 9월 16일 25bp 인상을 단행하며 2023년 이후 첫 금리인상을 단행했음에도(federalreserve.gov), 나스닥은 AI 낙관론에 힘입어 주간 +2.06%로 사상 최고치(27,122.09)를 경신했다(Reuters 9/22). 그러나 Lev Funds는 ES에서 사상급 신규 숏(-63,785)을 쌓으며 가격과 포지셔닝이 괴리되는 모습을 보였다. 이는 국채 셀오프가 심화되며 밸류에이션 부담이 커진 데 대한 헤지성 대응으로 해석된다('Soaring bond yields not even close to cooling red-hot US economy' FT 9/25). NQ 역시 Lev Funds가 신규 숏을 확대했지만 AM은 반대로 숏커버를 이어가 그룹 간 시각차가 뚜렷하다. 결국 기관들은 AI 랠리의 지속성은 인정하면서도 금리 레벨이 높아진 데 따른 단기 조정 리스크를 레버리지 펀드 중심으로 헤지하고 있는 것으로 판단된다."
+   },
+   {
+    "label": "WTI",
+    "text": "유가는 9월 한 달간 '12개월래 최장 하락 랙'에 근접했다는 평가를 받았고(FT 9/23), Managed Money는 2주 연속 신규 숏을 쌓으며 순롱을 101,828로 소폭 줄였다. OPEC+는 9월 초 화상회의에서 10월 쿼터를 동결하며 연말까지 기존 증산 중단 로드맵을 유지하기로 했다(Bloomberg 9/6). 호르무즈 해협 리스크와 베네수엘라산 원유의 물류비용 상승(Reuters 9/22) 등 공급 차질 우려는 여전히 상존한다. quant 점수는 54로 중립권을 유지하고 있어, 이번 주의 숏 확대는 추세 반전이라기보다 가격 하락에 대응한 리스크 관리 성격이 강하다."
+   },
+   {
+    "label": "BTC",
+    "text": "비트코인 현물 ETF는 9월 17일부터 7거래일 연속 순유입을 기록하며 주간 약 29.8억 달러가 유입, 연초 이후 누적 흐름도 플러스로 전환됐다(Farside 기반 보도 9/26). 반면 CME 비트코인 선물에서 Lev Funds는 롱 800계약을 청산하고 숏을 799계약 늘려 순숏을 -7,953까지 확대했다. 배경에는 Fed·BOJ의 동시 인상에 따른 금리·달러 강세가 있다 — 'Bitcoin Drops as Rising Yields and Dollar Weigh on Crypto'(Bloomberg 9/24), 'Bitcoin Rally Wobbles as Macro Risks Overshadow ETF Demand'(Bloomberg 9/28)라는 제목이 이 흐름을 요약한다. 다만 Lev Funds의 3년 백분위는 86으로, 통상 상시 순숏 구조인 이 그룹 기준으로는 오히려 역사적으로 가장 덜 비관적인 구간에 속해 있어 추세 전환보다는 단기 헤지로 판단된다."
+   },
+   {
+    "label": "FX",
+    "text": "Fed(9/16, +25bp→3.75~4.00%)와 BOJ(9/17~18, 정책금리 1.00~1.25%), ECB(9월 회의 +25bp, 9/28 청문회 확인)가 모두 이번 주간 전후로 금리를 인상하며 주요 3대 중앙은행이 동시에 긴축 사이클에 들어간 점이 통화시장 포지셔닝의 핵심 배경이다. EUR는 AM이 순롱을 35,215계약 줄이며 3년 백분위 13, 26주 지수 9까지 낮아져 사실상 극단권에 진입했는데, 슈나벨 이사의 IMF 이직(Reuters 9/24)에 따른 ECB 내부 불확실성과 Fed의 동반 긴축으로 금리차 매력이 희석된 영향으로 풀이된다. JPY는 BOJ의 실제 인상 이후 Lev Funds가 순롱을 15,747계약 줄이는 대규모 차익실현에 나섰으며, 160엔 근접에 따른 개입 경계감(Bloomberg 9/24)과 트럼프 대통령의 엔저 우려 표명(WSJ 9/25)이 변동성을 키웠다. USD Index는 Lev Funds와 AM이 모처럼 방향을 일치시켜(일치·개선) 동시에 롱을 늘렸다 — Fed 인상 확인 이후 달러 강세 베팅이 재개되는 신호다."
+   }
+  ],
+  "top5": [
+   {
+    "title": "ES, Lev Funds 사상급 신규 숏",
+    "body": "S&P500 선물에서 Lev Funds 순숏이 주간 63,785계약 급증해 -375,616 — 7개 시장 중 최대 주간 변화. 국채금리 급등에 따른 헤지로 추정."
+   },
+   {
+    "title": "JPY, BOJ 인상 후 대규모 차익실현",
+    "body": "BOJ가 9/17~18일 정책금리를 1.00~1.25%로 인상했지만 Lev Funds는 순롱을 15,747계약 줄여 '뉴스에 팔기' 패턴을 시현했다."
+   },
+   {
+    "title": "EUR, AM 롱 26주 최저권 근접",
+    "body": "Asset Manager 순롱이 35,215계약 급감하며 26주 지수 9 기록 — 사실상 극단권, ECB 12월 추가 인상 기대와 상충된다."
+   },
+   {
+    "title": "Fed·BOJ 동시 금리 인상",
+    "body": "Fed는 9/16일 3.75~4.00%로, BOJ는 9/17~18일 1.00~1.25%로 각각 인상하며 G3 중 2곳이 동시 긴축 전환에 들어갔다."
+   },
+   {
+    "title": "BTC, ETF 유입과 선물 포지션 엇갈림",
+    "body": "현물 ETF는 7일 연속 순유입(약 29.8억달러)인 반면 CME Lev Funds는 순숏을 -7,953으로 확대, 현물·선물 시그널이 괴리됐다."
+   }
+  ],
+  "exec_theme": "Fed·BOJ 동시 긴축 전환 국면에서 레버리지 펀드는 주식(ES)과 엔화 롱에서 동시다발적으로 리스크를 줄이는 반면, 자산운용사와 ETF 자금은 상대적으로 견조한 매수세를 유지하는 이중 구조가 두드러진다.",
+  "exec_paragraphs": [
+   {
+    "label": "개요",
+    "text": "이번 주(COT 기준일 9/22, 발표 9/25) 가장 큰 특징은 미국·일본 중앙은행이 나란히 금리를 인상하며 긴축 사이클에 재진입했다는 점이다. Fed는 9월 16일 연방기금금리를 25bp 인상해 3.75~4.00%로 올렸고(2023년 이후 첫 인상, 12-0 만장일치, federalreserve.gov), BOJ는 9월 17~18일 정책금리를 1.00~1.25%로 인상했다(boj.or.jp). ECB 역시 9월 회의에서 25bp를 올렸다고 라가르드 총재가 9/28일 청문회에서 확인했다(ecb.europa.eu). 이런 동시다발적 긴축은 COT 상에서도 뚜렷한 흔적을 남겼다: 레버리지 펀드는 S&P500 선물과 엔화 선물에서 동시에 대규모 포지션을 축소했고, 자산운용사(AM)는 유로에서 3년래 최저권으로 롱을 줄이면서도 나스닥·달러에서는 반대로 매수 우위를 유지했다. 요약하면, '패스트머니'인 Lev Funds는 리스크를 줄이는 방어적 스탠스로 전환한 반면, '리얼머니'인 AM과 ETF 자금은 자산별로 선택적인 매수를 이어가는 이중적 국면이다."
+   },
+   {
+    "label": "주식 (ES/NQ)",
+    "text": "S&P500(ES)에서는 Lev Funds가 주간 순숏을 63,785계약 늘려 -375,616까지 확대했다 — 이번 주 COT 전체에서 가장 큰 포지션 변화다. AM은 반대로 숏 53,444계약을 커버하며 순롱을 936,671로 늘려 대조를 이뤘다(불일치). quant 점수는 53에서 37로 급락하며 중립선(50) 아래로 완연히 내려섰다. 나스닥(NQ) 역시 Lev Funds가 신규 숏(순숏 -35,670, 주간 -22,618)을 쌓았지만 절대 규모나 3년 백분위(55) 면에서는 ES보다 덜 극단적이다. 가격 측면에서는 나스닥이 AI 랠리에 힘입어 주간 +2.06%로 사상 최고치(27,122.09)를 기록했음에도(Reuters 9/22) 레버리지 펀드가 숏을 늘렸다는 점은, 기관들이 랠리의 지속성 자체보다는 국채금리 급등에 따른 밸류에이션 리스크를 헤지하고 있다는 해석을 뒷받침한다('Soaring bond yields not even close to cooling red-hot US economy' FT 9/25). Fed의 9/16 인상과 워시 신임 의장 체제에 대한 신뢰성 논쟁('Losing the plot?' Reuters 9/22)도 단기 변동성 확대 요인이다. 결론적으로 ES는 Reduce, NQ는 Hold로 대응하되, AM의 구조적 매수가 급락을 제한할 가능성에 유의한다."
+   },
+   {
+    "label": "WTI 원유",
+    "text": "WTI는 Managed Money가 2주 연속 신규 숏을 구축하며 순롱을 101,828로 소폭(-4,451) 줄였다. 유가는 9월 한 달간 12개월래 최장 하락 랙에 근접했다는 평가를 받았고(FT 9/23), 원유 흐름 개선 기대가 가격 하방 압력을 더했다(Reuters 9/23). OPEC+ 7개국(사우디·러시아 주도)은 9월 초 화상회의에서 10월 산유 쿼터를 동결하며 연말까지 기존 로드맵을 유지하기로 했다(Bloomberg 9/6) — 공급 측면의 추가 변수는 제한적이다. 다만 호르무즈 해협 관련 지정학 리스크와 베네수엘라산 원유의 물류비용 상승(Reuters 9/22) 등 공급 차질 우려는 여전히 상존한다. quant 점수는 54로 중립권을 유지하고 있어, 이번 주의 숏 확대는 추세 반전이라기보다 가격 하락에 대응한 리스크 관리 성격이 강하다. Hold를 유지하되 26주 지수(80)가 여전히 상단권인 점을 감안해 추가 하락 시 숏커버 반등 가능성도 열어둔다."
+   },
+   {
+    "label": "통화 (EUR/JPY/USD)",
+    "text": "통화 시장은 G3 중앙은행의 동시 긴축이라는 공통 재료에도 불구하고 자산별로 상반된 포지셔닝 변화를 보였다. EUR에서는 헤드라인 그룹인 AM이 순롱을 35,215계약 줄이며 216,483까지 낮췄고, 3년 백분위는 13, 26주 지수는 9까지 떨어져 사실상 극단권에 진입했다. ECB가 이미 9월 인상을 단행하고 12월 추가 인상(2.75~3% 목표)까지 시사했음에도(Reuters 'BofA sees ECB rate hike in December' 9/24) AM이 롱을 대거 줄인 것은, 슈나벨 이사의 IMF 이직에 따른 ECB 내부 불확실성(Reuters 9/24)과 Fed의 동반 긴축으로 금리차 매력이 희석된 영향으로 풀이된다. JPY는 BOJ가 실제로 1.00~1.25%로 인상했음에도(boj.or.jp) Lev Funds가 순롱을 15,747계약이나 줄이는 대규모 차익실현에 나섰다 — 재료 소진에 따른 '뉴스에 팔기'다. 160엔 근접에 따른 개입 경계감(Bloomberg 9/24)과 트럼프 대통령의 엔저 우려 표명(WSJ 9/25)이 단기 변동성을 키웠지만, 5년 백분위 93은 전 시장 최고 수준으로 절대 포지션은 여전히 강세 우위다. USD Index는 Lev Funds와 AM이 모처럼 방향을 일치시켜(일치·개선) 동시에 롱을 늘렸다 — Fed 인상이 확정된 이후 달러 강세 베팅이 재개되는 신호로 판단된다. 종합하면 EUR는 Reduce, JPY는 Buy(단기 변동성 유의), USD는 Hold를 권고한다."
+   },
+   {
+    "label": "BTC",
+    "text": "비트코인은 현물과 선물 시장의 신호가 엇갈렸다. 현물 ETF는 9월 17일부터 7거래일 연속 순유입을 기록하며 주간 약 29.8억 달러가 유입, 연초 이후 누적 흐름도 플러스로 전환됐다(Farside 기반 보도 9/26). 반면 CME 비트코인 선물에서 Lev Funds는 롱 800계약을 청산하고 숏을 799계약 늘려 순숏을 -7,953까지 확대했다. 배경에는 Fed·BOJ의 동시 인상에 따른 금리·달러 강세가 있다 — 'Bitcoin Drops as Rising Yields and Dollar Weigh on Crypto'(Bloomberg 9/24), 'Bitcoin Rally Wobbles as Macro Risks Overshadow ETF Demand'(Bloomberg 9/28)라는 제목이 이 흐름을 요약한다. 다만 Lev Funds의 3년 백분위는 86으로, 통상 상시 순숏 구조인 이 그룹 기준으로는 오히려 역사적으로 가장 덜 비관적인 구간에 속해 있다. 즉 이번 주의 숏 확대는 극단적 약세 전환이 아니라 매크로 이벤트에 대응한 단기 헤지로 판단되며, ETF 자금의 구조적 유입이 하단을 지지할 것으로 예상돼 Buy 의견을 유지한다."
+   }
+  ],
+  "exec_recommendation": "Fed·BOJ 동시 긴축이라는 매크로 변곡점 속에서 ES·EUR는 비중 축소, NQ·WTI·USD는 관망(Hold), JPY·BTC는 단기 변동성을 감내하며 스마트머니의 구조적 강세 시그널에 편승하는 전략을 권고한다.",
+  "monitoring": [
+   "10/2 미국 9월 고용보고서 — Fed 추가 긴축 경로 판단의 핵심 변수",
+   "BOJ 추가 인상 시그널 및 엔화 실제 개입 여부(160엔 근접 경계)",
+   "ECB 12월 회의 — 2.75~3% 목표 인상 여부 및 슈나벨 후임 인선",
+   "미-중 관세 휴전 만료(2027-01-10)까지 이행 상황",
+   "VIX 변동성 확대 지속 여부(9/28 +10.83%) — 국채 셀오프 연계 리스크"
+  ],
+  "trend_overview": "지난 6주간 quant 점수 흐름을 보면 ES·EUR·USD는 9월 중순 저점을 찍고 반등하거나 고점에서 급락하는 등 변곡점이 뚜렷했던 반면, NQ·WTI·BTC는 완만한 레인지 흐름을 유지했다. 특히 JPY는 9/15 quant 99라는 사실상 극단치를 찍은 뒤 이번 주 65로 급락해 전 시장에서 가장 드라마틱한 되돌림을 보였다. 3년 장기 추세에서는 EUR(30→13)와 ES(57→31)가 한 달 새 뚜렷한 약세 전환을, JPY(19→88)와 USD(87→42, 이미 되돌림)가 극심한 변동성을 겪어 매크로 이벤트(Fed·BOJ 동시 인상)가 포지셔닝에 본격 반영되기 시작한 국면으로 판단된다.",
+  "sheet_opinion": "NQ/WTI/USD Hold, ES/EUR Reduce, JPY/BTC Buy",
+  "sheet_memo": "Fed·BOJ 동시 인상/ES Lev숏 63.8천계약 급증/EUR AM롱 26주 최저/JPY 차익실현 15.7천계약/BTC ETF 7일 연속 유입",
+  "ai": true
+ },
+ "news": {
+  "text": "① Fed — FOMC은 9/15~16일 회의에서 연방기금금리를 25bp 인상해 3.75~4.00%로 올렸다(2023년 이후 첫 인상, 12-0 만장일치). 지급준비금 금리는 3.90%로, 1차 신용금리는 4.00%로 각각 상향(9/17 발효). 성명은 \"경제활동 견조한 확장, 생산성·설비투자 강함, 고용은 노동력 증가에 부합, 인플레이션은 여전히 높음\"이라고 평가했다(federalreserve.gov, 2026-09-16). 이후 시장은 추가 긴축 가능성에 베팅하며 국채금리가 급등했고(\"Soaring bond yields 'not even close' to cooling red-hot US economy\" FT 9/25), 골드는 금리인상 베팅에 따른 달러 강세로 하락했다(\"Gold loses shine as rate hike bets foster a stronger dollar\" Reuters 9/23). 워시(Warsh) 신임 의장 체제의 정책 신뢰성에 대한 논쟁도 이어졌다(\"Losing the plot? Warsh's Fed more 'touchy-feely' than data-driven\" Reuters 9/22, \"The dying days of the Federal Reserve's dot plot\" FT 9/22).\n출처: https://www.federalreserve.gov/newsevents/pressreleases/monetary20260916a.htm / https://news.google.com/rss/articles/CBMihAFBVV95cUxNeEhLUFZtTkNDMS1jTFF2am1wTENnbk96c3d2OEVfbGJVaHlIbGg1YmRhNFhyOG9XbmN3VGs5cmc0SlF3TWk3cWwzaEN4MnVPZXkxQ1VzZVY5anBCWVhXSy11RHphcnJCNk4tN1dlekxIRFM5RFNSYjZmM1VDR082WWVjTWY?oc=5\n\n② BOJ — 9/17~18일 정책회의에서 정책금리를 1.00~1.25%로 인상했다(보완당좌예금제도 원칙 개정, 9/24 발효; boj.or.jp, 2026-09-18/09-25). 7월 30~31일 회의록은 위원들이 더 빠른 속도의 추가 인상 필요성을 논의했음을 공개했다(\"Bank of Japan debated need for faster rate hikes, July minutes show\" Reuters 9/28). 엔화는 160엔/달러 근접에 따른 개입 리스크가 재부각됐고(\"JPY/USD: Japanese Yen Intervention Risk Re-Emerges as 160 Per Dollar Level Nears\" Bloomberg 9/24), 일본 통화당국자 미무라는 시장에 \"매우 명확한\" 경고를 보냈다(Reuters 9/28). 트럼프 대통령은 일본 재무상에게 엔저 우려를 직접 표명했다(WSJ 9/25, FT 9/25). 일본 2년물 국채금리는 금리인상 기대 속 2%에 근접했다(Bloomberg 9/28).\n출처: https://www.boj.or.jp/en/mopo/mpmdeci/mpr_2026/mpr260918b.pdf / https://www.boj.or.jp/en/mopo/mpmdeci/mpr_2026/mpr260925a.pdf\n\n③ ECB — 라가르드 총재는 9/28일 유럽의회 경제금융위 청문회에서 3대 정책금리를 25bp 인상했다고 밝혔다. 근거로 8월 헤드라인 인플레이션 3.2% 상승, 에너지 인플레이션 14.3% 급등(임금 전이는 아직 제한적)을 들었고, \"충격이 크지만 측정된 대응\"이라는 중도 경로를 유지하겠다고 했다. 2026년 성장률 전망은 0.9%, 2027년 1.4%, 2028년 1.5%다(ecb.europa.eu, 2026-09-28). 12월 추가 인상(2.75~3% 목표) 기대가 형성돼 있다. 이사회 멤버 슈나벨은 IMF 고위직 이동을 위해 조기 사임했다(ecb.europa.eu / Reuters·FT 9/24). ECB의 부이치치는 에너지 가격이 \"더 오래 높게\" 유지될 것이라 전망했다(Bloomberg 9/25).\n출처: https://www.ecb.europa.eu//press/key/date/2026/html/ecb.sp260928~a875675544.en.html / https://www.ecb.europa.eu//press/pr/date/2026/html/ecb.pr260924~bea1dd9824.en.html\n\n④ S&P500/나스닥 — 9/21~25일 주간, S&P500은 7,743.41(주간 +1.21%), 나스닥종합은 27,068.72(주간 +2.06%, 장중 사상최고 27,122.09)로 마감했다. AI 종목 매수세와 국제유가 하락에 따른 압력 완화가 상승을 이끌었다(\"Wall Street ends higher as investors buy AI stocks; Microsoft rallies\" Reuters 9/25, \"Nasdaq reaches record high close, AI stocks rally\" Reuters 9/22). 다만 주 중반에는 국채금리 급등과 유가 반등으로 하락하는 날도 있었다(\"Wall Street ends down as oil prices, Treasury yields rise\" Reuters 9/23, \"U.S. Stocks Decline as Treasury Selloff Deepens\" WSJ 9/23).\n출처: https://news.google.com/rss/articles/CBMiwAFBVV95cUxOazZwSUsxTDltUG1palRCRG1iQnVRWFQxSGRoVFNKbnVoWExJYk13bVFFMEtkSndpTlh5eVNGYVJlTXpWSmtJZXpTVXRDazdBaUw1eFlUcjdob21NWF9hT2NNWDllOW1fc0lHdjBrQVBmeXY0ZWJLS25xdEJZMFJMUkVsa3NwRS0xSG1LUGVJVkVuSEVOVDlQR2pwWnZjRzliZXNQSTdyREhFVlBuQ185VEYxUWRab01zcThMWUtvOFI?oc=5\n\n⑤ AI/빅테크 — 마이크로소프트는 코파일럿 앱에 코딩 도구와 상시 작동 AI 에이전트 등 신기능을 공개하며 랠리를 이끌었다(Reuters 9/25). AI 낙관론이 재점화되며 나스닥 사상 최고 마감에 기여했고 국채금리는 소폭 되돌림을 보였다(\"Nasdaq notches record-high close, AI optimism reignites and Treasury yields retreat\" Reuters 9/21). 밸류에이션 관련 구체적 수치(멀티플 등)는 신뢰 소스 내 확인 불가.\n출처: https://news.google.com/rss/articles/CBMipwFBVV95cUxOOUI2bTZ5ZFhnZUozYjg5LXM1WHhuT24xUS0zYmRRZkViWVBreE05ZTNMWFBDSGhHTXUyQ3ZyMWhsUFdxSUlxUXVUUXVHWGRVelg3Z2RuVXo3bndwaXJfRXhEUEFERFNSUVZoaDNERnFxdnhuNkxLdVhnNDRpRGhxYndETzVJdVNnZXJESmpMNmw5QVFQODFGY2w2NzVCcFl0bXBSNjRaTQ?oc=5\n\n⑥ VIX — CBOE 공식 데이터 기준 9/28일 VIX 현물은 16.48로 전일 대비 +10.83%(+1.61pt) 급등했다(cboe.com, 2026-09-28). 국채 셀오프와 금리 인상 우려 속 주 후반 변동성이 확대된 것으로 해석된다.\n출처: https://www.cboe.com/tradable_products/vix/\n\n⑦ OPEC+ — 사우디·러시아가 주도하는 OPEC+ 7개국은 9월 초(9/2 잠정, 9/6 확정) 화상회의에서 10월 산유 쿼터를 동결하기로 했다. 연말까지 기존 증산 중단 로드맵을 유지한다는 방침이다(Bloomberg, 2026-09-06). 9/16~28일 구간 내 추가 공식 회동은 확인되지 않았다. 호르무즈 해협은 2/28일 전투 발발 이후 사실상 봉쇄 상태가 지속되고 있다는 보도가 있으나, 이 부분은 허용 소스(Reuters/Bloomberg/FT/WSJ) 내 직접 확인은 되지 않아 \"확인 불가\"로 남긴다.\n출처: https://www.bloomberg.com/news/articles/2026-09-06/opec-sticks-with-plan-to-keep-oil-production-quotas-unchanged\n\n⑧ WTI 스팟 가격 — 9월 한 달간 \"12개월래 최장 하락 랙\"에 근접했다는 보도가 있었고(\"Oil price on track for longest losing streak in more than 12 months\" FT 9/23), 9/23일에는 원유 흐름 개선 기대에 유가가 하락하며 나스닥 사상최고 마감을 도왔다(Reuters 9/23). 반면 9/23일 별도 세션에서는 유가 반등이 증시 하락 요인이 되기도 했다(Reuters 9/23). EIA 주간 재고 결과의 정확한 배럴 수치는 신뢰 소스 원문에서 확인하지 못해 \"확인 불가\"로 남긴다.\n출처: https://www.eia.gov/petroleum/supply/weekly/ / https://news.google.com/rss/articles/CBMihAFBVV95cUxQNHA5S3JZSEotVXc3eUFETE5GTkVuWlVzSmxRRUVBYW9MMjRQRWNvbTB5eDUzb2x4RG5pYzVTVUZEN1F2bUdBaVJoMGx6Z0hySVE2OHpXNWR3X0ttMDlIRnJlSE9EUXJmcGdVb2prOEFqWFgtcUdydHpOWGxqa1hfc1RmQU4?oc=5\n\n⑨ BTC 현물 ETF — Farside 집계 기준 9월 17일부터 7거래일 연속 순유입이 이어졌고, 9/26일까지 주간 약 29.8억 달러 순유입이 누적됐다. 연초 이후 누적 순유입은 8.868억 달러로 플러스 전환됐다(farside.co.uk 기반 보도, 2026-09-26). 다만 이 수치는 Farside 사이트 직접 접속이 차단되어 2차 보도를 통해 교차 확인한 것으로, 정밀한 일별 수치는 \"참고용\"으로 처리한다.\n출처: https://farside.co.uk/btc/\n\n⑩ BTC 가격 — 비트코인은 9/23일 기준 8만6천 달러대에서 거래됐으며, $85,000~$87,000 구간이 주요 저항으로 거론된다. 8월 저점 대비 반등 국면에서 $83,400~$84,000대가 지지선으로 언급된다. 다만 이 수치는 허용된 4개 매체(Reuters/Bloomberg/FT/WSJ) 원문에서 직접 확인되지 않아 참고 수준으로만 인용하며, 확정치는 \"확인 불가\"로 처리한다.\n출처: 확인 불가(비신뢰 소스만 확인됨)\n\n⑪ 미-중 관세 — 미-중은 시진핑 주석의 방미(9/24~9/28경) 계기 무역 휴전을 1/10일까지 2개월 연장하기로 합의했다. 300억 달러 규모 상품에 대한 상호 관세 인하 및 AI 대화체 신설에도 합의했다(Reuters 9/26·9/28, WSJ 9/26, FT 9/28, Bloomberg 9/28). 중국은 미국산 농산물 관세를 인하하되 대두는 목록에서 제외했다(Reuters 9/28).\n출처: https://news.google.com/rss/articles/CBMixAFBVV95cUxPaTBqVzRGcGNNZ2M5YWVLbUQxanlOVWhxYU5lWjNuYzJSWmtHV2lQTWdSUXlpTGM3M1UzU2JUckNLUGxIc3dFVWx5WlExNnotSmtQblE4UnM0Sk1OVnQycjVkR0ozUlpzMW5MMExHNll4NDR2dXpfWTNCMVpQT0docjI1SHFDeFdwYnZGVlVocXhzTy10WWViRk54VklyNzNiRFczXy04aURCdVdmSEdNbjNrRHpXNXM5LWRCZzJQajZVMVBx?oc=5\n\n⑫ 주요 경제지표 — 8월 미국 CPI는 9/11일 발표되어 헤드라인 전년비 3.35%, 근원 2.45%를 기록했다(BLS 일정 기준). 8월 PCE는 9/30일 발표 예정(BEA)이며, 9월 고용보고서는 10/2일 발표 예정이다(bls.gov). 9/16~28일 구간 자체에는 신규 CPI/PCE/고용 발표가 없었다.\n출처: https://www.bls.gov/schedule/ / https://www.bea.gov/data/personal-consumption-expenditures-price-index",
+  "sources": [
+   {
+    "title": "Federal Reserve issues FOMC statement (Sept 16, 2026)",
+    "url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20260916a.htm"
+   },
+   {
+    "title": "BOJ, Change in Complementary Deposit Facility (Sept 18, 2026)",
+    "url": "https://www.boj.or.jp/en/mopo/mpmdeci/mpr_2026/mpr260918b.pdf"
+   },
+   {
+    "title": "BOJ, Financial Markets Department release (Sept 25, 2026)",
+    "url": "https://www.boj.or.jp/en/mopo/mpmdeci/mpr_2026/mpr260925a.pdf"
+   },
+   {
+    "title": "Christine Lagarde: Hearing of the Committee on Economic and Monetary Affairs (Sept 28, 2026)",
+    "url": "https://www.ecb.europa.eu//press/key/date/2026/html/ecb.sp260928~a875675544.en.html"
+   },
+   {
+    "title": "ECB Executive Board member Isabel Schnabel to resign to take senior role at IMF",
+    "url": "https://www.ecb.europa.eu//press/pr/date/2026/html/ecb.pr260924~bea1dd9824.en.html"
+   },
+   {
+    "title": "CBOE VIX Index",
+    "url": "https://www.cboe.com/tradable_products/vix/"
+   },
+   {
+    "title": "OPEC+ Sticks With Plan to Keep Oil Output Quotas Unchanged - Bloomberg",
+    "url": "https://www.bloomberg.com/news/articles/2026-09-06/opec-sticks-with-plan-to-keep-oil-production-quotas-unchanged"
+   },
+   {
+    "title": "Wall Street ends higher as investors buy AI stocks; Microsoft rallies - Reuters",
+    "url": "https://news.google.com/rss/articles/CBMiwAFBVV95cUxOazZwSUsxTDltUG1palRCRG1iQnVRWFQxSGRoVFNKbnVoWExJYk13bVFFMEtkSndpTlh5eVNGYVJlTXpWSmtJZXpTVXRDazdBaUw1eFlUcjdob21NWF9hT2NNWDllOW1fc0lHdjBrQVBmeXY0ZWJLS25xdEJZMFJMUkVsa3NwRS0xSG1LUGVJVkVuSEVOVDlQR2pwWnZjRzliZXNQSTdyREhFVlBuQ185VEYxUWRab01zcThMWUtvOFI?oc=5"
+   },
+   {
+    "title": "Oil price on track for longest losing streak in more than 12 months - FT",
+    "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxQNHA5S3JZSEotVXc3eUFETE5GTkVuWlVzSmxRRUVBYW9MMjRQRWNvbTB5eDUzb2x4RG5pYzVTVUZEN1F2bUdBaVJoMGx6Z0hySVE2OHpXNWR3X0ttMDlIRnJlSE9EUXJmcGdVb2prOEFqWFgtcUdydHpOWGxqa1hfc1RmQU4?oc=5"
+   },
+   {
+    "title": "Bank of Japan debated need for faster rate hikes, July minutes show - Reuters",
+    "url": "https://news.google.com/rss/articles/CBMisgFBVV95cUxNM0Rid1RQcVo2QlNMTTZDOGEyYmRtQnFYVVJDN1pBMGpwNGxzS19vN1VBMHVXbDFtWkZHOVJhZTNxaWptMGsxbkxDQ2ZSNjZkNFdMTUQwZEhuaW1FUGhHUnJhWGU1eU5NQ1QwRWpDUURJQS1HUUdNYmFZbldSdFk4VGRXSGhUTkVPbk1QSUxzMV9ZckpvMWJYaTNPaWswYnpCTkpEUk9xNUhFMjEyVDRJek93?oc=5"
+   },
+   {
+    "title": "JPY/USD: Japanese Yen Intervention Risk Re-Emerges as 160 Per Dollar Level Nears - Bloomberg",
+    "url": "https://news.google.com/rss/articles/CBMiswFBVV95cUxOZzU5RlZUczkxZUtLOFZVcXJrdHhiZkNVTDB3cWsxRi1TRklCclBhTFpDWk04NFdCelRQczNfOXpKQlhndWljcWVncUtEalZFdmFyLVc4NWNBa0thV2l4M1NQWXkyOVg3bE8wWUNqUmxtTjhnMFZQQ1hMbjR4cmh3ZG5LM0paT3NtRmgydmxCZHpNZnFnRXB0MERxcl9zRDhJTUhDNW9qbFg5N1A5Qjl0Q2Ytbw?oc=5"
+   },
+   {
+    "title": "Trump Expressed Concerns About Yen Weakness, Japan Finance Minister Says - WSJ",
+    "url": "https://news.google.com/rss/articles/CBMiuwFBVV95cUxOa3VnY0xlZ0NXQzJnSXFtQ0VQTnpnNk13cDA3aDBXWWQ2ckFvdjlqWi1fVGZDbDAwLUo2SFBEbldPRkJjNEhOM3BVZ3FpRkJ5dHBscFdEQUVpUndoR3NuWF9nUmc1OFR5S243Vm8xVmZaQ1luN2dlMkZjeHJYS3d4N3NIakE5NFlXb05KeGIyemoxYVQydlUwTHZpRjRYWHhxczIxRENxYzBvaHhDdU0tQXF2blZxcDkyZVZv?oc=5"
+   },
+   {
+    "title": "China, US agree to tariff cuts on $60 billion of goods including agriculture, household items - Reuters",
+    "url": "https://news.google.com/rss/articles/CBMixAFBVV95cUxPaTBqVzRGcGNNZ2M5YWVLbUQxanlOVWhxYU5lWjNuYzJSWmtHV2lQTWdSUXlpTGM3M1UzU2JUckNLUGxIc3dFVWx5WlExNnotSmtQblE4UnM0Sk1OVnQycjVkR0ozUlpzMW5MMExHNll4NDR2dXpfWTNCMVpQT0docjI1SHFDeFdwYnZGVlVocXhzTy10WWViRk54VklyNzNiRFczXy04aURCdVdmSEdNbjNrRHpXNXM5LWRCZzJQajZVMVBx?oc=5"
+   },
+   {
+    "title": "BLS Schedule of Selected Releases",
+    "url": "https://www.bls.gov/schedule/"
+   },
+   {
+    "title": "BEA Personal Consumption Expenditures Price Index",
+    "url": "https://www.bea.gov/data/personal-consumption-expenditures-price-index"
+   },
+   {
+    "title": "Farside Investors — Bitcoin ETF Flow",
+    "url": "https://farside.co.uk/btc/"
+   }
+  ]
+ },
+ "rss": [
+  {
+   "group": "EIA",
+   "title": "Henry Hub natural gas prices this summer were 6% lower than last summer",
+   "url": "https://www.eia.gov/todayinenergy/detail.php?id=68204",
+   "published": "2026-09-25"
+  },
+  {
+   "group": "EIA",
+   "title": "Public companies produce most U.S. crude oil and natural gas",
+   "url": "https://www.eia.gov/todayinenergy/detail.php?id=68184",
+   "published": "2026-09-22"
+  },
+  {
+   "group": "EIA",
+   "title": "What goes into diesel prices?",
+   "url": "https://www.eia.gov/todayinenergy/detail.php?id=68164",
+   "published": "2026-09-18"
+  },
+  {
+   "group": "EIA",
+   "title": "Corpus Christi LNG expansion makes facility the second-largest in the United States",
+   "url": "https://www.eia.gov/todayinenergy/detail.php?id=68144",
+   "published": "2026-09-15"
+  },
+  {
+   "group": "ECB",
+   "title": "Christine Lagarde: Hearing of the Committee on Economic and Monetary Affairs of the European Parliament",
+   "url": "https://www.ecb.europa.eu//press/key/date/2026/html/ecb.sp260928~a875675544.en.html",
+   "published": "2026-09-28"
+  },
+  {
+   "group": "ECB",
+   "title": "ECB Executive Board member Isabel Schnabel to resign to take senior role at IMF",
+   "url": "https://www.ecb.europa.eu//press/pr/date/2026/html/ecb.pr260924~bea1dd9824.en.html",
+   "published": "2026-09-24"
+  },
+  {
+   "group": "ECB",
+   "title": "Philip R. Lane: The outlook for the euro area economy",
+   "url": "https://www.ecb.europa.eu//press/key/date/2026/html/ecb.sp260924~e0eceef02c.en.pdf",
+   "published": "2026-09-24"
+  },
+  {
+   "group": "ECB",
+   "title": "Philip R. Lane: The Outlook for the Euro Area Economy",
+   "url": "https://www.ecb.europa.eu//press/key/date/2026/html/ecb.sp260923_1~ac21bf46e3.en.pdf",
+   "published": "2026-09-23"
+  },
+  {
+   "group": "ECB",
+   "title": "The digitalisation of money, payments and finance",
+   "url": "https://www.ecb.europa.eu//press/key/date/2026/html/ecb.sp260923~87850778f5.en.pdf",
+   "published": "2026-09-23"
+  },
+  {
+   "group": "ECB",
+   "title": "Almost ten million people took part in ECB survey on new euro banknotes",
+   "url": "https://www.ecb.europa.eu//press/pr/date/2026/html/ecb.pr260923~6ebddaf01e.en.html",
+   "published": "2026-09-23"
+  },
+  {
+   "group": "ECB",
+   "title": "Philip R. Lane: Interview with Le Temps",
+   "url": "https://www.ecb.europa.eu//press/inter/date/2026/html/ecb.in260922~5f89d300ee.en.html",
+   "published": "2026-09-22"
+  },
+  {
+   "group": "ECB",
+   "title": "ECB to invest part of own funds in tokenised securities, with settlement via Pontes",
+   "url": "https://www.ecb.europa.eu//press/pr/date/2026/html/ecb.pr260921_1~5a011ecbea.en.html",
+   "published": "2026-09-21"
+  },
+  {
+   "group": "ECB",
+   "title": "Eurosystem brings central bank money to tokenised finance",
+   "url": "https://www.ecb.europa.eu//press/pr/date/2026/html/ecb.pr260921~e754847a7b.en.html",
+   "published": "2026-09-21"
+  },
+  {
+   "group": "ECB",
+   "title": "ECB Consumer Expectations Survey results – August 2026",
+   "url": "https://www.ecb.europa.eu//press/pr/date/2026/html/ecb.pr260918~295b3ab978.en.html",
+   "published": "2026-09-18"
+  },
+  {
+   "group": "ECB",
+   "title": "Boris Vujčić: Interview with Reuters",
+   "url": "https://www.ecb.europa.eu//press/inter/date/2026/html/ecb.in260918~33f023fe26.en.html",
+   "published": "2026-09-18"
+  },
+  {
+   "group": "ECB",
+   "title": "ECB wage tracker at 2.7% in H1 2027, pointing to a modest uptick in negotiated wage growth",
+   "url": "https://www.ecb.europa.eu//press/pr/date/2026/html/ecb.pr260916~7bc58ebef4.en.html",
+   "published": "2026-09-16"
+  },
+  {
+   "group": "BOJ",
+   "title": "Minutes of the Monetary Policy Meeting on July 30 and 31, 2026",
+   "url": "http://www.boj.or.jp/en/mopo/mpmsche_minu/minu_2026/g260731.pdf",
+   "published": "2026-09-28"
+  },
+  {
+   "group": "BOJ",
+   "title": "Services Producer Price Index (Aug.)",
+   "url": "http://www.boj.or.jp/en/statistics/pi/cspi_release/sppi2608.pdf",
+   "published": "2026-09-28"
+  },
+  {
+   "group": "BOJ",
+   "title": "Conduct of Funds-Supplying Operations against Pooled Collateral",
+   "url": "http://www.boj.or.jp/en/mopo/mpmdeci/mpr_2026/mpr260925a.pdf",
+   "published": "2026-09-25"
+  },
+  {
+   "group": "BOJ",
+   "title": "Japanese Government Bonds Held by the Bank of Japan",
+   "url": "http://www.boj.or.jp/en/statistics/boj/other/mei/release/2026/mei260918.xlsx",
+   "published": "2026-09-25"
+  },
+  {
+   "group": "BOJ",
+   "title": "(BOJ Review)The Expansion and Diversification of Private Credit Funds",
+   "url": "http://www.boj.or.jp/en/research/wps_rev/rev_2026/rev26e13.htm",
+   "published": "2026-09-25"
+  },
+  {
+   "group": "BOJ",
+   "title": "(BOJ Review) Granular Insights into Depositor Dynamics and Deposit Spreads in Japanese G-SIBs' Foreign Currency Deposits",
+   "url": "http://www.boj.or.jp/en/research/wps_rev/rev_2026/rev26e12.htm",
+   "published": "2026-09-25"
+  },
+  {
+   "group": "BOJ",
+   "title": "Indicators for Core CPI",
+   "url": "http://www.boj.or.jp/en/research/research_data/cpi/index.htm",
+   "published": "2026-09-25"
+  },
+  {
+   "group": "BOJ",
+   "title": "Bank of Japan Accounts (September 20)",
+   "url": "http://www.boj.or.jp/en/statistics/boj/other/acmai/release/2026/ac260920.htm",
+   "published": "2026-09-25"
+  },
+  {
+   "group": "BOJ",
+   "title": "Results of BIS International Locational Banking Statistics and International Consolidated Banking Statistics in Japan",
+   "url": "http://www.boj.or.jp/en/statistics/bis/ibs/index.htm",
+   "published": "2026-09-25"
+  },
+  {
+   "group": "BOJ",
+   "title": "Statistics on Securities Financing Transactions in Japan",
+   "url": "http://www.boj.or.jp/en/statistics/bis/repo/index.htm",
+   "published": "2026-09-24"
+  },
+  {
+   "group": "BOJ",
+   "title": "Amendment to \"Principal Terms and Conditions of Complementary Deposit Facility\"",
+   "url": "http://www.boj.or.jp/en/mopo/mpmdeci/mpr_2026/mpr260918b.pdf",
+   "published": "2026-09-18"
+  },
+  {
+   "group": "BOJ",
+   "title": "Amendment to \"Principal Terms and Conditions of the Funds-Supplying Operations to Support Financing for Climate Change Responses\"",
+   "url": "http://www.boj.or.jp/en/mopo/mpmdeci/mpr_2026/mpr260918a.pdf",
+   "published": "2026-09-18"
+  },
+  {
+   "group": "Fed·금리",
+   "title": "Fed officials see rates likely rising to curb high inflation - Reuters",
+   "url": "https://news.google.com/rss/articles/CBMirAFBVV95cUxPS1FaZTVSeTlieFN5WUNJdHE5VVB5VlM2Q0pSY3BtalppeEt0S0s0YnNBMzlTcUpIWGg0V3dxTTBiWWdpbW1OTTJBSFIwMDUzNG80ekkzM3AtMXFoSmRNQVNPQUxBeUVlTmFPNjdWZmk3enE2NFVpY1U1Y1dqSkdDY080OXBZZGRmbWZmYWw2WGdEVmlTOVVhNXVCb0QxU01Lc0tHSTVDS05ZMjJJ?oc=5",
+   "published": "2026-09-24"
+  },
+  {
+   "group": "Fed·금리",
+   "title": "The dying days of the Federal Reserve’s dot plot - Financial Times",
+   "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxPd1dkUTllM3VkU25yYjdsemo2SFBSSnp4WTg1aldNaVlLQkRoTjdnTFh3ZE96RHNpQ3dNTk5hVnBVSDRHdUFQLUl6aklHUDJ0TExMajBKd1UxOEhhbThJNXlFUWtpMXJRM2psSGxzd2RWdGR4M1U5eGVXdHdVNnZqQmtveks?oc=5",
+   "published": "2026-09-22"
+  },
+  {
+   "group": "Fed·금리",
+   "title": "COMMENTARY: Where will Fed tightening hit hardest in Asia? - Reuters",
+   "url": "https://news.google.com/rss/articles/CBMizAFBVV95cUxQU1BJRFhvMUNXeWNuYXllb1I4azYyRUZ5Z19kYW9zMS1FazV3YlBwRWRJQnNjMWM0NDNQSjYtZHFIRkd5b2JvdGlvVXVFTVlXVnFYSWF0Z29VQUxfYzJabDUyNFJ4SGJTRXRORHRoWmFweDNBUDBRMEdjazRiVXVaZ0VZaFIwcFF5czhmUEk4N1pteTJBTzJKd3ZNLTNqeXJ6ZlJXYnIzRHRoYV96SlJ3N05YX3I1LW5teDJiWUpFSkhtU3FQVTFubWFFMVo?oc=5",
+   "published": "2026-09-27"
+  },
+  {
+   "group": "Fed·금리",
+   "title": "A Tantalizing Answer to Why Rates Are So High - Bloomberg.com",
+   "url": "https://news.google.com/rss/articles/CBMioAFBVV95cUxQZ3czUG55WkxGS3BYaDE5c0ZfeXRhTFZNY3Fwd3E3SlN0d3pBenA2SEZZZmtUNXo4dUVJc1Ric1ZQd0QyYmRVc0tQVHFEQ2hkTnhReEQ2XzZTejBUZDdvQ085S3pockVEQmtsMDdLbEFMbVZ5QTh2WlVQWDFjNUxsVnRZbzB4TjFkdmMtYlVDWWoweEJuZDJ4bFA0bnJOZU05?oc=5",
+   "published": "2026-09-22"
+  },
+  {
+   "group": "Fed·금리",
+   "title": "Gold loses shine as rate hike bets foster a stronger dollar - Reuters",
+   "url": "https://news.google.com/rss/articles/CBMisAFBVV95cUxQVGROaTNUbzBNRWdvU1J1SVRKaURrN0FDVHMteG50VExEUUhKN3UyQ0pMZ3F0ZUtXRHoyc2c2aDgzRkFrTFhHR01OdVROSVBWVnRLWmhqSjNDdW5FVjdHeEptYW5fUFg1VFVnX0xXZURtemZqOVNqNmRqc19yVjdYX3BwM1I1T0M4VUIwdDNqdmxFcnlXX2pKS3VCNllNbEJTQkZxZTJkd1NpNDZwOGpBSw?oc=5",
+   "published": "2026-09-23"
+  },
+  {
+   "group": "Fed·금리",
+   "title": "Soaring bond yields ‘not even close’ to cooling red-hot US economy, investors say - Financial Times",
+   "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxNeEhLUFZtTkNDMS1jTFF2am1wTENnbk96c3d2OEVfbGJVaHlIbGg1YmRhNFhyOG9XbmN3VGs5cmc0SlF3TWk3cWwzaEN4MnVPZXkxQ1VzZVY5anBCWVhXSy11RHphcnJCNk4tN1dlekxIRFM5RFNSYjZmM1VDR082WWVjTWY?oc=5",
+   "published": "2026-09-25"
+  },
+  {
+   "group": "Fed·금리",
+   "title": "Treasury Yields Change Little Despite Falling Oil Prices - WSJ",
+   "url": "https://news.google.com/rss/articles/CBMijAFBVV95cUxQMW9BV3FvaWxQYjE1bmc3bGl5U3ZGeW5VZTFmRTVGTjBONUlJbUlSeWRlS0ZQOFlGVDN4Nmx5RFNCZGRDNlZvcFN1bV8zcUZQWURJQ1M2Uk1mNlJnU1pnZ0t6UTdwLWdESTh3MGtEVDh4ZWhZVU9KejNldVJySU1pTG5sZnpHeTgxdExsQg?oc=5",
+   "published": "2026-09-21"
+  },
+  {
+   "group": "Fed·금리",
+   "title": "Transcript - Reuters - Reuters",
+   "url": "https://news.google.com/rss/articles/CBMiiwFBVV95cUxOdmJoWU1QVUh3UDVrNF9UWlZTX0NDXzk4aEh3djBhVkdJdHotSzNDck1VVGh1RGV6N3JzTktPRFFoT3VVTjB6TUhKck5NS2NMeVpxdkoweTdoZ2JiOUR1aDk5UFJEQzhoYUlTTFN2OXdHYS1ZbU1mQkFGOXRwY2lBSFhBWjZFRXRUeUhN?oc=5",
+   "published": "2026-09-26"
+  },
+  {
+   "group": "Fed·금리",
+   "title": "COMMENTARY: Losing the plot? Warsh's Fed more 'touchy-feely' than data-driven - Reuters",
+   "url": "https://news.google.com/rss/articles/CBMixAFBVV95cUxNOWdjLXFQWXdEdW01bmpGeVpaYTNObkRCci0tOXdPeDRGc1duMXNxOUdqN1VXdG9JbE55QlpncVJybVRDMTVYWDlnY3JwRm91azc5dzYyM1Y0NWFoZURBQzJVYWVyTGhFd0pOWm85b1ZmRlhwOU0zWlFuWUdBY2JzcHBBT2FMaWFKLTVPSjFLeE9Mczh2Y21DanBjVEp4alNISlVCZjFzX0o0MnNHQ1Rqam0tQ2VCX21QdDRDM3ppdU5QQ2ky?oc=5",
+   "published": "2026-09-22"
+  },
+  {
+   "group": "Fed·금리",
+   "title": "Indian rupee eyes portfolio flows, oil prices; bonds face liquidity drain - Reuters",
+   "url": "https://news.google.com/rss/articles/CBMiuwFBVV95cUxNaHhZQ0IxYTNRTmk1MloxN2t5c29LeVZodFNTa3VGN3g3cjVvVDRraG9ERjlpbUY3ZTRZblZWWnVTeU1ldEs0dS1qdzJHbFRQcV9Qc0pXek1ERFNraUxZb3FObElIbHdZcTNad3dlMlpDN2VtMnd6SmctWVJNNjdjTGJWWTFvaDVoZDA1WkxHU2lONllmTVJZWVhLQzk2SVM1ZElIbTFFUGVRak1aSGlCLVhuVlhkQWUwX1VN?oc=5",
+   "published": "2026-09-21"
+  },
+  {
+   "group": "Fed·금리",
+   "title": "Rupee ends marginally higher in subdued trade, forward premiums ease - Reuters",
+   "url": "https://news.google.com/rss/articles/CBMitwFBVV95cUxPMDBYYmduall1WjBidjdJdDlwd0cxaG1nVTA3MjJtX0dFa2lla3VNVFB1TGJCeHFveGlVVmNiTG1xa1AyOUlpLTU1WVZaWXF5Q3RxMmpFRTlEYUJuT2RfMTY3U2JsZXJvaXFMTWVzRW5JVlRLRW96SlZEcmdFT3VvQkxQRHpPNkcwa0tsQmlITEtPdzYzMjlqb0p2ZmFmeGstaVltQXF0VEJNWXo2Vm1nd1A1YlhpUUE?oc=5",
+   "published": "2026-09-21"
+  },
+  {
+   "group": "Fed·금리",
+   "title": "PODCAST: Fed's hawkish turn - Reuters",
+   "url": "https://news.google.com/rss/articles/CBMiigFBVV95cUxNZDhRODhUQjEwTGljVllwRnMwb0RCQmU4TDNOWklQdTR5bkUtZ2l5SUJ5X1I4ZHNWaUd2clV5ZXltNHRDLS1rdnE2VzlBZTVyWVdCdEtKMHdWRVc3VUhpWkdQUWoyWVo1MEcta2x2RGs2N2hLZ3JJSkxZaVQ2ZkM3TDctdlRXZ1piVGc?oc=5",
+   "published": "2026-09-21"
+  },
+  {
+   "group": "BOJ·엔화",
+   "title": "Bank of Japan debated need for faster rate hikes, July minutes show - Reuters",
+   "url": "https://news.google.com/rss/articles/CBMisgFBVV95cUxNM0Rid1RQcVo2QlNMTTZDOGEyYmRtQnFYVVJDN1pBMGpwNGxzS19vN1VBMHVXbDFtWkZHOVJhZTNxaWptMGsxbkxDQ2ZSNjZkNFdMTUQwZEhuaW1FUGhHUnJhWGU1eU5NQ1QwRWpDUURJQS1HUUdNYmFZbldSdFk4VGRXSGhUTkVPbk1QSUxzMV9ZckpvMWJYaTNPaWswYnpCTkpEUk9xNUhFMjEyVDRJek93?oc=5",
+   "published": "2026-09-28"
+  },
+  {
+   "group": "BOJ·엔화",
+   "title": "Betting on the yen: the risks of the carry trade - Financial Times",
+   "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxNazFmQkhkZ1ItQ18zQ1RyaGtwVFZQNG9DTDJKcWJreEs1RloxOHVVLXF6Z3cwWWV1MGNfWC1LLVBwWklyMlE5Nkc4NXZNX3JrOGRra2lReWpVZDRUWUd3T2RkMXJrWmNwalJ2RUtlYzNyckhwRWlBbGJzNVhwU3FTMVc1NS0?oc=5",
+   "published": "2026-09-22"
+  },
+  {
+   "group": "BOJ·엔화",
+   "title": "EXCLUSIVE: Japan's currency diplomat Mimura urges markets to heed 'very clear' warning on yen - Reuters",
+   "url": "https://news.google.com/rss/articles/CBMiugFBVV95cUxQYzFRTndpRkJHX2FfcTFFdHFvNVVrQU5MZVAxM0Z1T1p3TjRyaUtyNFRaNjRQQjQwYjJaVW5ocTlGYU1iU0w4WGNISjhWb0ZsWHpTYkZ5aEhPX1B1blRyak40X0FHMDdWdnUzSGFYczRrXzd1bXBPODRNbDdnN2NPcTZLZFpIaWhTRkQ0bVZIMGxGcFo0S1B1M3RrV0pWU1h6d0d6NC1SMkhwdl9ESGJiZFVXLWl4Mll4bUE?oc=5",
+   "published": "2026-09-28"
+  },
+  {
+   "group": "BOJ·엔화",
+   "title": "Yen eases as potential for intervention eyed - Reuters",
+   "url": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxOeEFyOHhrcWVmUjJqdnBjS2NLMUtvajJaU1ZBNHdFNDhobTd6d2VKbEl1cThLOTJOSVdHN3lMUmZXNGluMTJTVW9lckdWSUVKdERCaVFxU1U5ZVowMVE5c2ZxcXE0RDMwLXpfWUtvbDZOajI0N3ZNbG1PUU8yenhDbW5ybG1zbDRjWDRNQXRFVlMwWnZFTnRZbkZVRncxdWlLN0FMX29obHIwOFJyX2gxa0c2Y0E3cTlS?oc=5",
+   "published": "2026-09-21"
+  },
+  {
+   "group": "BOJ·엔화",
+   "title": "Japan's bond 'falling knife' stalls repatriation rush - Reuters",
+   "url": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxPRG1BRVp6QjNMSmVsZEcwN1pwVDZDX1RoR2tBUG1DT2hhMFBQUHFhTnZZcWlOSHJVRThKamhGRkpFeWkyTFJaUG10ZW9tWDNSRzJUN3FDQnA1Qzd1aV9sS3hlUWtlSjJ3S0NQbXFISDN0Umc4Mnp0cDJQMVRsUEZjQS1hMnR5RTVqdlYyZE5fOWZQM0xxaDBsX2QwSUJHWnRkZ3d5OXN3dVQ?oc=5",
+   "published": "2026-09-25"
+  },
+  {
+   "group": "BOJ·엔화",
+   "title": "Trump Expressed Concerns About Yen Weakness, Japan Finance Minister Says - WSJ",
+   "url": "https://news.google.com/rss/articles/CBMiuwFBVV95cUxOa3VnY0xlZ0NXQzJnSXFtQ0VQTnpnNk13cDA3aDBXWWQ2ckFvdjlqWi1fVGZDbDAwLUo2SFBEbldPRkJjNEhOM3BVZ3FpRkJ5dHBscFdEQUVpUndoR3NuWF9nUmc1OFR5S243Vm8xVmZaQ1luN2dlMkZjeHJYS3d4N3NIakE5NFlXb05KeGIyemoxYVQydlUwTHZpRjRYWHhxczIxRENxYzBvaHhDdU0tQXF2blZxcDkyZVZv?oc=5",
+   "published": "2026-09-25"
+  },
+  {
+   "group": "BOJ·엔화",
+   "title": "Donald Trump raised weak yen with Sanae Takaichi, Japan finance minister says - Financial Times",
+   "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxNNHNueHE3WldVU08xREJoeGhHUzVYNTR4SGRWa09SZTNaWTZ5b0JLRExrZUJ5ek95Y1pXMmVUa2t2aHpKbjlWNlFLSG8xRlFzZzdwWnd3UzM4ZF9udDRRWG1xLUoxalptc29tNnZTSFhDb1B5TWJpOHlIZkZHbU9rVWFmd0Q?oc=5",
+   "published": "2026-09-25"
+  },
+  {
+   "group": "BOJ·엔화",
+   "title": "Japan’s Two-Year Bond Yield Nears 2% as BOJ Rate Hike Bets Mount - Bloomberg.com",
+   "url": "https://news.google.com/rss/articles/CBMitAFBVV95cUxNZXVpOHFqRXZvTTJYU0cwN0Zpd0hEc3B4dTVYbHBjeU9IMWxrX0l2cHhrT0lsXy11cXIzRFBQTEtMVWstUTFtRWxscXdHdXR2QjlCMndQaktwZ3ItVmNfUktQcHV0dHJZSjByMkdZM2RQbkxvNEt6ck9MLVFpeGRWYm0zX0w0MUxjdDFvelRmWHNsb0x6dFZNeVhPSllYd3lxcVdBZUNfVkR1Ql9VajVLQUdVazQ?oc=5",
+   "published": "2026-09-28"
+  },
+  {
+   "group": "BOJ·엔화",
+   "title": "JPY/USD: Japanese Yen Intervention Risk Re-Emerges as 160 Per Dollar Level Nears - Bloomberg.com",
+   "url": "https://news.google.com/rss/articles/CBMiswFBVV95cUxOZzU5RlZUczkxZUtLOFZVcXJrdHhiZkNVTDB3cWsxRi1TRklCclBhTFpDWk04NFdCelRQczNfOXpKQlhndWljcWVncUtEalZFdmFyLVc4NWNBa0thV2l4M1NQWXkyOVg3bE8wWUNqUmxtTjhnMFZQQ1hMbjR4cmh3ZG5LM0paT3NtRmgydmxCZHpNZnFnRXB0MERxcl9zRDhJTUhDNW9qbFg5N1A5Qjl0Q2Ytbw?oc=5",
+   "published": "2026-09-24"
+  },
+  {
+   "group": "BOJ·엔화",
+   "title": "Dollar dips as oil eases, yen jumps on Japan remarks - Reuters",
+   "url": "https://news.google.com/rss/articles/CBMiogFBVV95cUxNZEliX2ZMV1UwSDZPa3liWjlRUk4tT192UjJmelY5OEpFcmVSWHlBRHVuUXNHSW5jTEI1TGlxT1kxS2gyZ2RtVGRJampmMndMMjVERnl0WVZ1ZDdhZndLd0htM1BpZlJmM1o0dU1sSDRqRWp0NkVTUTJkVU9fNGw0QndUYlJqV2plRXpySGpOeXBHdTRtcUYxOXlmVDE4MU9Eanc?oc=5",
+   "published": "2026-09-25"
+  },
+  {
+   "group": "BOJ·엔화",
+   "title": "JGB yields jump as inflation worries resurface - Reuters",
+   "url": "https://news.google.com/rss/articles/CBMiwgFBVV95cUxPQXBZNDBQTW02eEF0MFZoT0dHRnp3d3Q2bU1YTmFMQWxpdEFWM0FTSDRpV2FnSjdmOGVzT0dTaWFqT1cwS0s3SEUwdnV1cS02UlVBRGkzb1NBcThtZjBTT2Zsd2NUWTB1ejMxUHlxTWVrMmFkUktDbFZYbHJZbDAwMXJWX040YzA3WjRiZjhWNWQyMlQ3cmRNSWhySjQxaVl0S0Q4YXc5bGFNRDU1S3dqMHVnWVVnTFdaVW5TcXlCeVdOdw?oc=5",
+   "published": "2026-09-24"
+  },
+  {
+   "group": "BOJ·엔화",
+   "title": "BOJ could raise rates every quarter, ex-policymaker says - Reuters",
+   "url": "https://news.google.com/rss/articles/CBMirwFBVV95cUxPLUs3bm4zMlRSbkt2U3d3Yl9BTHNLejNwekVFc2Q2UVJuNnpBXzBEWkpuUVYxZTkzOEdCR3JtTnBvXzJaQjZIXzNpRVhQVmU4UVlGdk9ZVUJpQmxrNDZIYkdfbVJ1X2FzdGRRdVp2Z0EycThEWXhYZy1TNjFoMXl6ei1qdVktaHVUTXVwWVA4ZVpkbWJvTWk0dGtQZmhKQTNMd1V6cVpBeFlmdDdIM3dJ?oc=5",
+   "published": "2026-09-24"
+  },
+  {
+   "group": "ECB·유로",
+   "title": "ECB opens blockchain link to financial markets - Reuters",
+   "url": "https://news.google.com/rss/articles/CBMinAFBVV95cUxQZUplN3d1UkJIeE40bnNjTHZjNk5qcThPM3JXSW8wNU9QSnhWLXRGTFpsZnVvV1dpZ0h5WFA2Qlk1MndSLXExVlBDeHN2eUxIV0szTFN0bUlGM3FOa09pek92S1haR2lRRHRYd0NJQXRlUXhLQ3NnTWJ2Tks1TEhyaGhvSEU4UVVkOXJmZ3pnNUhvR1FFVnBvSmRkcVc?oc=5",
+   "published": "2026-09-21"
+  },
+  {
+   "group": "ECB·유로",
+   "title": "Euro Zone’s Inflation Rate Is About to Reach Highest Since 2023 - Bloomberg.com",
+   "url": "https://news.google.com/rss/articles/CBMitAFBVV95cUxNTE1XWHZBMXRBS2NQcjFuc1VWUE4wNV84SlhHbWJLYU5FdVhNUUJxT0pPLTJRN2x4cG1GcFNLY1BWYmxFV2lGZWlsQXJYVzZ4NlExV0loRnp5Rnczc09TZHcwYmJjYWZFZ2pWWGlMV09uOS1ma1pNeHM2SVZvekdpbHI3V05vN1dCUVJlLWgxblF5RmtFMkxFZEVDcjhJQVphbzRIR0RNdnJ0YmlPQ0ZzUFE2VTA?oc=5",
+   "published": "2026-09-25"
+  },
+  {
+   "group": "ECB·유로",
+   "title": "Isabel Schnabel sought to bridge Germany and the ECB - Reuters",
+   "url": "https://news.google.com/rss/articles/CBMimgFBVV95cUxOcXFHYzVORnF1a0lxY1c3ZnJnQTR6SFpWcmFGRXZZVGNqZFNfdTBma0t6T2d5OUJjQXhjQjlVUk1GMloyUUdZZzQ3N29FU2s0YllYOVZyemM2SmNyN1p6QV82TUNlSWFaTVZSdWRrSno2ZGVMMTl0cHhSWlhjWFJsczhGMDRSYi1yUjlZUEJRSjc0V3dBaVlVVl9n?oc=5",
+   "published": "2026-09-24"
+  },
+  {
+   "group": "ECB·유로",
+   "title": "Europe's economy surprisingly resilient amid war-driven energy shock, surveys show - Reuters",
+   "url": "https://news.google.com/rss/articles/CBMitAFBVV95cUxORjhMRFNMVWI2VzNSa2lZSEtxWXlLajBkRWhUMGlQM2xiall6TmJnMDNDTmdlbmVYa2l5UFdQRlZIYVFoSXNVZnNSelNWV0Nza2tPcnR0X2t0d0VYLWVrNUk5d1c4V08zSjlRT1ZtMzJwRW8xNllSeVJzODlRSlk5Q2FoM3pBQXRkblhkUTQ1Z1pUV0hDOUJTbEpZcTZ4TVk3TjNEUWxNbHFFb1FxQkVReUdoejY?oc=5",
+   "published": "2026-09-23"
+  },
+  {
+   "group": "ECB·유로",
+   "title": "Isabel Schnabel to leave ECB early to join IMF - Financial Times",
+   "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxOb0JBREZSUWtjVFAtSndEaFoxWFZ6bkxJSXBoUUhnNDQ4cm83Wk9EbXZ2Mi1FeklZSlM3ZXNtWGxoVWFaMkR1U0kwNjN5akl2Q2N2bDMxQ1A3UFVvUEx4NDNKMmVkaHlPU1Jld3ZLNkhxdVBxbXNFekJFVmt2bksweXRqVkc?oc=5",
+   "published": "2026-09-24"
+  },
+  {
+   "group": "ECB·유로",
+   "title": "Bank Lending to Eurozone Businesses Halved in August - WSJ",
+   "url": "https://news.google.com/rss/articles/CBMingFBVV95cUxOdDV6Y2JIXzM5ZHZ5Q2lPbUFxUk1jU2kyY3VyUGRlWHAwcmtoSEs1YkZib09MV3kzTVQ0SjBNdUpIM0pET3E5NHJTVXNYTmE4bW82MDh1S3Z1ejlNODlJT3AxWHQ2S0RTLWtMc2c1VUQtWUZOZDc1eXNKQjNxSC1PNHVlVGlNbzVybmFoSkRMaXF1Q2VFVUlkbEJWUTJsQQ?oc=5",
+   "published": "2026-09-25"
+  },
+  {
+   "group": "ECB·유로",
+   "title": "Knot Would Be Perfect Fit at ECB for Many Nations, Dutch PM Says - Bloomberg.com",
+   "url": "https://news.google.com/rss/articles/CBMitAFBVV95cUxQems5Mm01bGtJSHJUODhxMTBaanBicS1tZjFDZENIS2V1MUQzS3hzVHNRbW9tYWpFbEJLTjBqbTRWNWN6VkVET1dLeVdIVFRMRGVOQ1hBSnc0d0l1cEVFZlRvNVo4VkNMd0gza2c0LUxZRS16c0NYNG1ZcU9rR3NRWE1wSlIxYjRSWTdEUWZaSjlBeERHTm9Yd2luaUcyZ0tPWDJOY184bkZKbVpuOGZqWllPeTE?oc=5",
+   "published": "2026-09-24"
+  },
+  {
+   "group": "ECB·유로",
+   "title": "ECB’s Vujcic Says Energy Prices Will Stay ‘Higher for Longer’ - Bloomberg.com",
+   "url": "https://news.google.com/rss/articles/CBMirwFBVV95cUxQV0FpMms3NWpmZG9Hc2FpSm4zdFRQUkdpR1BfXy0zZDFGQ044WnZ4UHM0RW9nakRBMjVsTk5XQnNLb1gzWU53NzJlVV9KNlZqckNZaHVSel95QnphaTM1THp3LXdIVWoybG5vZjN6SUdaY2M5aF9CVzJFbWYyRWpaSmk1T01QSWRmOVZyTXZhZXVwX1VNbFIwcVo1TUNlVEdLOG5yM2VGZnFwMGJkVVVr?oc=5",
+   "published": "2026-09-25"
+  },
+  {
+   "group": "ECB·유로",
+   "title": "BofA sees ECB rate hike in December as energy prices fan inflation - Reuters",
+   "url": "https://news.google.com/rss/articles/CBMiswFBVV95cUxQdjZBcmhmWFdVYTN0ZkRWRlo1LWI4VjFoXzdZd3p4MWZDaG1pUzZqMVUyMG8zZ2RIUFh1RlQzVjZwU3pTTFJSOXNuWnBwWWk2TFNRckliRVBRSVpNNFpsN3dlUDgtaW43a1Rqc1BDTlBEOGNiR2FpNzYzaEFseHU1b040MTNBMS1GTUdaaGI2cGwxQk9rSDVQYk5RZUhRa2F6TWtzRnY5cVVfRy1VdFZ4cVdQOA?oc=5",
+   "published": "2026-09-24"
+  },
+  {
+   "group": "ECB·유로",
+   "title": "France can't count on ECB to fix debt woes, central bank chief says - Reuters",
+   "url": "https://news.google.com/rss/articles/CBMisgFBVV95cUxPdkZuc3lTTVVuR3UyYTJndlJ1OU5ZcExuOVROdERXZUR1cXRaTDdPNWtabV8tdHFrdVctSkJEM0E2aUVDNzNKbmdTZk9aQm5YMnhoMmlCOGlzNWRTRFRqYmJJZ3JZNXAzcm4waklHdU0zR2pKeTV1WlZoaXdaUUYwVFJUUV9RNFpzeEMxTy11dzhpSWNuYTBaNnk0UnVOTExWa29JZWN3Q29HNVhrcmNuR1lB?oc=5",
+   "published": "2026-09-25"
+  },
+  {
+   "group": "ECB·유로",
+   "title": "ECB's Schnabel quits to join IMF, setting in motion a board reshuffle - Reuters",
+   "url": "https://news.google.com/rss/articles/CBMipAFBVV95cUxOSGwtTVB1M2VydWxpV1U0MUlOMTRPVnV4bWYtQTl1LXhEeXllZ3pmakdYTlJNaVBDNmtPS09WX3ZCOXVfUDRlelRvVmpuOTJlLWs2UV9ERWRKazRvQjc1b0Rvbkx3NkRqcXBPejFtM2J6RkNHQ1NOWVluXzdaLUFCOTBrYUpEWnZrbGxycHdobk1EaGVXNVBGaTNtNGYtS2wtZmpTaw?oc=5",
+   "published": "2026-09-24"
+  },
+  {
+   "group": "ECB·유로",
+   "title": "ECB will decide on rates from meeting to meeting, Kocher tells newspaper - Reuters",
+   "url": "https://news.google.com/rss/articles/CBMiswFBVV95cUxPZ3NONmNTbUNJUkZiZmdvMXhKRzU0N3E2NzkyaHBDaHVXblQ1UGpFdUtFT2ZoMUNoWmVBLXNRZlRsbGdseGpTYXh6SXZwTjU2V2dITklad0NRTklYNG8tVjV0SDVHTDdNWWREcW5JWk1fTm45NDFGRGs5cXQ5YTJvb3poOW51OFdsVlhTWVB5d0xaZndtY1lkMC1qVHpvVW5HaVhyNmxTaGFHbENRcmJ3U1FRQQ?oc=5",
+   "published": "2026-09-24"
+  },
+  {
+   "group": "미국 증시",
+   "title": "Wall Street ends higher as investors buy AI stocks; Microsoft rallies - Reuters",
+   "url": "https://news.google.com/rss/articles/CBMiwAFBVV95cUxOazZwSUsxTDltUG1palRCRG1iQnVRWFQxSGRoVFNKbnVoWExJYk13bVFFMEtkSndpTlh5eVNGYVJlTXpWSmtJZXpTVXRDazdBaUw1eFlUcjdob21NWF9hT2NNWDllOW1fc0lHdjBrQVBmeXY0ZWJLS25xdEJZMFJMUkVsa3NwRS0xSG1LUGVJVkVuSEVOVDlQR2pwWnZjRzliZXNQSTdyREhFVlBuQ185VEYxUWRab01zcThMWUtvOFI?oc=5",
+   "published": "2026-09-25"
+  },
+  {
+   "group": "미국 증시",
+   "title": "Nasdaq reaches record high close, AI stocks rally - Reuters",
+   "url": "https://news.google.com/rss/articles/CBMipwFBVV95cUxOOUI2bTZ5ZFhnZUozYjg5LXM1WHhuT24xUS0zYmRRZkViWVBreE05ZTNMWFBDSGhHTXUyQ3ZyMWhsUFdxSUlxUXVUUXVHWGRVelg3Z2RuVXo3bndwaXJfRXhEUEFERFNSUVZoaDNERnFxdnhuNkxLdVhnNDRpRGhxYndETzVJdVNnZXJESmpMNmw5QVFQODFGY2w2NzVCcFl0bXBSNjRaTQ?oc=5",
+   "published": "2026-09-22"
+  },
+  {
+   "group": "미국 증시",
+   "title": "S&P 500 ends marginally lower as investors focus on US-Iran war - Reuters",
+   "url": "https://news.google.com/rss/articles/CBMisgFBVV95cUxNdkxPUUdXbDkwcTdtbC1yM0NWMldPb2lpeExQRVh2SVFWQUl4Q3haSlp4U04yU1BoanNVeWF5bTIwbWJRQXVEQkIwMm0taFZ4eDJ3dUVjOTVuSWhEMVRZNV9vdUNab01CS1o4aUpoQVE5TmFqV1BMTFVaZVJzVEFES3Y4S1BLZFQ1TDFtR2dLZklJRkdFN3hTaENjVDhSc05sT1BVZ09idlU1ZGkwdTZLRi1n?oc=5",
+   "published": "2026-09-24"
+  },
+  {
+   "group": "미국 증시",
+   "title": "Nasdaq notches record-high close, AI optimism reignites and Treasury yields retreat - Reuters",
+   "url": "https://news.google.com/rss/articles/CBMingFBVV95cUxQbUY0bG1IQkExN3pxSFZoX1VGN0hTNkluZ1hFd1F6VzZwdWtPRExzOXRnS0prRjV1M0I3U2tfUnhZcmJSQkV6STFKbUo2YXB6S1RhNUkycUFJUXg3UXA0WW9CWkRYaVVVUGRqRmRtUERCU1I4M3ZMYXhETmY1Q3FZQU9Ob1MtMzRONFc3NVFrNzVpcTQySVRzd1dENmcxdw?oc=5",
+   "published": "2026-09-21"
+  },
+  {
+   "group": "미국 증시",
+   "title": "Stocks Rise to Cap Week of Increasing Yields, Volatile Oil Prices - WSJ",
+   "url": "https://news.google.com/rss/articles/CBMirAFBVV95cUxOSEVnSDJQSW85S2ZsX3J4VjI4cFBQMjU1QkpfRnR6ckRRT1FnZGFRRzRoZFdiYlFTR00xRHpMWGpOYVNBdUg2dXNnUlZmSTcxbmFDNXVfNGd6ZVFieU1keVhqOG5QRlptMDA4Y1ZkZllsRThFVXRKd1dLYzRzSXRpYTJKWWFleldEUmhHcTVkZGhFSl81Y1pzc2dLaXc5X3lUdG5WWjliMVVHVkY3?oc=5",
+   "published": "2026-09-25"
+  },
+  {
+   "group": "미국 증시",
+   "title": "SNAPSHOT Nasdaq hits intraday record high as tech stocks regain footing - Reuters",
+   "url": "https://news.google.com/rss/articles/CBMiswFBVV95cUxNNlc5U2haVjdCOXFmcjZtdUJGOGtOaThkenVQS3piZGpYa0xqbHFuRU5fRHZ2TkdwVC1oZkpRSzVJNXRqU0g2M3BlakJnaVR1NUx1RG90aGRjdjJQYXo1MGg5R2w4ejJ4aXVhY3V1Qk5tX3Y5ZE5sY0dEYzlKY0c5Mmh4WDRleHFCdTM0UjVLT2dFTEVVMXFmVk00bHhhSDlFYXA5cEpGX0tvOU9YRjVraVBKaw?oc=5",
+   "published": "2026-09-22"
+  },
+  {
+   "group": "미국 증시",
+   "title": "Stocks, Bonds Climb as Oil Falls on US-Iran Hopes: Markets Wrap - Bloomberg.com",
+   "url": "https://news.google.com/rss/articles/CBMisgFBVV95cUxONWk0czlDZlZ6UFZXeFRWaEtxd3J5Z295dlFNOTJKelkxcE1jVEJWWU0tMl9nRUo5RmNHNUhodFdwWGVKNjJYREQ1Y3B2d1JnT2RZSTVOMnNXbU93MWNWN2doM05LSUgzVWd0NU93MldhRUduSEJaX1BqdmxuMzFGZmNEYm1GbmEyWFctalFDU2RuSVhYUzhWQTdmSnFtR1Y5WXdJZjhLaUplaVFubXRfWlJR?oc=5",
+   "published": "2026-09-20"
+  },
+  {
+   "group": "미국 증시",
+   "title": "Wall Street ends down as oil prices, Treasury yields rise - Reuters",
+   "url": "https://news.google.com/rss/articles/CBMisAFBVV95cUxQeEU4dTJoZV9XeFR4cENDYXhRMG1Tb3E4aHFNc1RoUEpHeVJNYmtnS1RHb0lVdzg5S1BKelZiUkR4eER2bkFZc0tjcWxlRFEyODRlVlRoNlNmblFabUhsZnJwTllqbmd2RUQ5NmI0M0JVc3B3aVkwcmt0SE9vTERyLVhFRzIybV9OMU94QlF6UGdORGhJZldzTUJ6X1F2TjhTRVpLNDZWeVN6WU1hR0ZLRw?oc=5",
+   "published": "2026-09-23"
+  },
+  {
+   "group": "미국 증시",
+   "title": "U.S. Stocks Rise To End Volatile Week - WSJ",
+   "url": "https://news.google.com/rss/articles/CBMihwFBVV95cUxNcUxQR0lxanNFM3VOUGhsUDV5REVpTkFRX05fdko1UnFrTGxKb2FqYnptbVliWndPaExHWGhXU0VQV2JPYm44MkdPS0xYN29XM3pKdURYWUMtOW1wU2djSjdyempRX0FWemkzNkVvNWFMTWpzR29Bc0RkUVZLQV9iVjNnaHI4RUE?oc=5",
+   "published": "2026-09-25"
+  },
+  {
+   "group": "미국 증시",
+   "title": "U.S. Stocks Decline as Treasury Selloff Deepens - WSJ",
+   "url": "https://news.google.com/rss/articles/CBMisgFBVV95cUxPbkdxd3BfVEw4UWYweEFZc3VGdTFOeDNYZ1JGSGdLZWNlSlc2bjJ5N3p6YmNTSTdOdDdQbkxEY2piQ0R0MjFnYWZ0OGxtNUVsYjhMbkx5V0lzWnFPSkVyZFJZTDBBYm1tVDVZU3lBQjRyZTFsMzlqaENEaUk1Uy1FY01CUVhIUExBQ0RwWkhhbWxZbE5HOGdwVzF2TW4wRUsydWF2a1J4MGJBMkNOWVFxSDln?oc=5",
+   "published": "2026-09-23"
+  },
+  {
+   "group": "미국 증시",
+   "title": "Treasury Selloff Extends, Stock Futures Slide to Kickoff Jobs Week - WSJ",
+   "url": "https://news.google.com/rss/articles/CBMiswFBVV95cUxNc3Q4ZUs1VmE0dld6TVJWM0JPem5yWFJGSWo2N25UNW5MZ3dBQXQ2OXRGY2pIT0JIS0tILVRTZFhCbEdYNmNsNWpHdlZYaUNiQXBNc2I1RGczdWU4TE5reXozU0paY0lfZVNNeXl2SC1tSWctQm5NVXl3MG9CQm5HSy15UlcxR2c0Ym5SUXQxVlZ2NVNmMGREM2VTdWo0T29vaU5ZcWtqaHIxVlRpdGIzODh0bw?oc=5",
+   "published": "2026-09-28"
+  },
+  {
+   "group": "미국 증시",
+   "title": "Nasdaq sets record high, oil dips on improved crude flows - Reuters",
+   "url": "https://news.google.com/rss/articles/CBMie0FVX3lxTFBYNkdDWExac0tiSmtsc3Exd0ZHOTVDZFJCbTRtZW9jM3hTLU84b3JWbHQ1WmZsUE5pSmUzTHBFUXQzaHBnb01UQXV5ZUljTFl2cS1fbHhFMUtDblA3NHRjeXRzbEpYMjNZempPSmRPbEpIajV0T1BuRDl1SQ?oc=5",
+   "published": "2026-09-23"
+  },
+  {
+   "group": "원유·OPEC",
+   "title": "Traders push for discounts for Venezuelan oil as shipping costs soar, sources say - Reuters",
+   "url": "https://news.google.com/rss/articles/CBMivgFBVV95cUxQOVVMaFBzbF9UZE5pd2VoZlZnclpPTjU3SVRDTkFzSjFOWk04VzREVjRnSlFCZTBJV1g0SXRMT3hJeFRwVjNwM2JuLTBVOHJZcndDZTc0bEt6NFlweElqQ3oyWGFtTzBUVDE1dEV4NFE5UnVDbV9IelEzU2dHNzhSQ3lKbVVBNW1pMTdSbTFqV0RCOXd6Z3FfU2NBMU1tUWZPOXItX3d5Z1RQZnRlU3VzLXVveFN2LThhSjdxaXp3?oc=5",
+   "published": "2026-09-22"
+  },
+  {
+   "group": "원유·OPEC",
+   "title": "Oil price on track for longest losing streak in more than 12 months - Financial Times",
+   "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxQNHA5S3JZSEotVXc3eUFETE5GTkVuWlVzSmxRRUVBYW9MMjRQRWNvbTB5eDUzb2x4RG5pYzVTVUZEN1F2bUdBaVJoMGx6Z0hySVE2OHpXNWR3X0ttMDlIRnJlSE9EUXJmcGdVb2prOEFqWFgtcUdydHpOWGxqa1hfc1RmQU4?oc=5",
+   "published": "2026-09-23"
+  },
+  {
+   "group": "원유·OPEC",
+   "title": "Shale oil magnate says Exxon chief ‘threw me under the bus’ after $60bn takeover - Financial Times",
+   "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxOQVVIY1BuTjRuN3VMTUdHWVZmbXVCaVdwNGVoOW1MQkJpeWloOVBIYW14dEI3M3pEVlI2blJKRWFHQjVqQzBIcVh2ZFNCekUzMkZMVlVLbHI0R29BN3pnYWhrYWt3ak96dlFIaXhQZWpSWnpKOXNqX1owT2tRMW91REY0Nkk?oc=5",
+   "published": "2026-09-24"
+  },
+  {
+   "group": "원유·OPEC",
+   "title": "COMMENTARY: Hormuz shuttles keep oil flowing, but at a high cost - Reuters",
+   "url": "https://news.google.com/rss/articles/CBMisAFBVV95cUxPY1ZqYkdEeGVjVmotcmtLNWlndkR4bTgzYzlVVThwZ184TG9oX2U2a0ZhYXp1QXZKSnNiT0ZrTngzS1N3OUczT2ZSSFNYUjRPb0VuaEZTcnpDQ0JYTldvMXBlaVRXbU1laHpPUlpSanNXb0pNZnRPcktpVGFtc1h0WG9RMlhMSndOelVoQzBXQmZKbjd5SUZIZEl0ZEl1S0R3VEV4aUd6VlVqMmJQVjE3Wg?oc=5",
+   "published": "2026-09-21"
+  },
+  {
+   "group": "원유·OPEC",
+   "title": "Rising fuel prices revive cost-of-living pressure in Nigeria ahead of 2027 election - Reuters",
+   "url": "https://news.google.com/rss/articles/CBMiyAFBVV95cUxOd1lWb3BrckwtWTl5S3FaUXVDNDY5MHhORWVoVjI0QVhaQnBJaDNSRXdoUjM0M21TNHBWTm9LbkpSLVJsUTBwYzZMT3JiQTJjaUhtcVV2YWdXZEJLREZuRU1tZnhFclZxMm9MSWVIeWxsQkVaUTJXUWhabjZOMWJ4MktEd2R0S0VEOEVzbDltZWxqODhRN0hpcmpUdDA4eHotQVJQN1V0aEJaT1Q2czZlR2s4RGxyV0J4S0xCMjd3X1VFYVVzQmVMSw?oc=5",
+   "published": "2026-09-21"
+  },
+  {
+   "group": "원유·OPEC",
+   "title": "Oilman Scott Sheffield: ‘We’re warming. I see it here in this ranch’ - Financial Times",
+   "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxQTFcwTDNybE1RMjNzOTdOeDdyNjl5YVZSU2NFeGt3R2I0UG9uQTB6eWEyelFjZ3VRQmNoWEFFMzNDd29RUHVpTS1iOTdiVzJ2dWpGSVp2UGZNRFo0aFkzY19XWjRCSzBjcFhzS3VWa1FpU2dTb1Q5cHp2LVEwSlRxUmZpblk?oc=5",
+   "published": "2026-09-25"
+  },
+  {
+   "group": "원유·OPEC",
+   "title": "Europe braces for LNG tug of war with Asia - Financial Times",
+   "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxPQjdxWkpYZTEzaU9qM3RsVjUtcmd6VWdnZnpLV2hjaGdEcmNtMk9sa0I4Z3BtX24yUGFPcTlhV0hOQXlEbmVuMnhsbkZGZDNqMnUwZmswS0lmeTg3ZDFXWUppblhQM1FzOHZ3QW5ndWxTYTZ3OTAteW1oWDVlQlBWa05vbEo?oc=5",
+   "published": "2026-09-27"
+  },
+  {
+   "group": "원유·OPEC",
+   "title": "Saudi Arabia signals reopening of East-West pipeline - Financial Times",
+   "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxOWXpnaFo1aGxnUWNfVGE4cDdHQml3Qmx1cGJrVGJuekdYZmJadHFUUGtVSDdEck1jN05jNk80UmxYVzNwRGFETDhPbkVSVkhDX2RNV21nMzUyc1plSlJvUENKUkNYTEFVZ3lwQnkxSWg0bVUyQWZMekFIMG41UF9OUzNMRlk?oc=5",
+   "published": "2026-09-22"
+  },
+  {
+   "group": "원유·OPEC",
+   "title": "How Trump’s diesel export ban will backfire - Financial Times",
+   "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxQMWl6Um1OSVFaTHlqc0JZckZ4cXBHTnFpS0RQTWxHdnNrXzRzNzU5cGRsakhab3VWUW9KNC0tV0syaGdyR282V09vSkltNzd1SDltV0x0aTFSOUZBdU52UnNLYlRaNjZhdU5EOWJyWlNXV1U0WTlFbHRIc2lnbVRnZVlOaDU?oc=5",
+   "published": "2026-09-23"
+  },
+  {
+   "group": "원유·OPEC",
+   "title": "European diesel prices climb over prospect of US export ban - Financial Times",
+   "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxQWDlTbEtkcmpvbDkxaVFjaFdzMkpjWXJXRUdvcERmb2NQZXIzdjNyRjdmMmlEd2tsYVpsMkNQbFlMU2w1dnhvM09ZbjNMRGZpd3hjMVZWZW1MYmxnQVoxOThpSmRvLXRTU3JiUWEtbktMY1h1S2VFclozOFJ3QXI3dnVYZ0w?oc=5",
+   "published": "2026-09-23"
+  },
+  {
+   "group": "원유·OPEC",
+   "title": "Saudi crude oil exports hit four-month high in July, data shows - Reuters",
+   "url": "https://news.google.com/rss/articles/CBMisAFBVV95cUxPR2gwV3N1aks0MUxSbmFGLVVEcEMyaTNfc0RBRGc4SjROTW0zOWhDS2thTEhkYmU0MGJPMlBuV3Zicmt4Z0x2MGp2ZGRXSzlUZDNqRVBJUExDYk5pVWZNYmdsRkFwcVRJRklDbFY4SURQSlE3WEZBY0R1S1d5X0FKRVAxYzZTZnAtaFFWd3luUjQxRGpsZkFublJPcEpDeDhKM2xxQWs1eFdxOURfZVRPXw?oc=5",
+   "published": "2026-09-22"
+  },
+  {
+   "group": "원유·OPEC",
+   "title": "COMMENTARY: Rapid EV uptake drives a split in US fuel market - Reuters",
+   "url": "https://news.google.com/rss/articles/CBMisgFBVV95cUxQcW1WT3k3NG1seW5xcERNUWM3djk1UnNZOXAyUXpubmJQekVwd0dFZ0hYaloxN1JHRVNTRVhZb1hncXAzd1laNUc2UlEyUnczeFdHWWljOC1OcjktckcwSmI0MnRaTXBUa09zY0c5THRaMm9JQTFEcGxVd2NPb3FNS0h1UHBzQ3AxZ05kZmtNVVMxZFl0UHNaRmdCa1A2WlJQbG95LUFYbUpvbXFTVHRFMFJn?oc=5",
+   "published": "2026-09-22"
+  },
+  {
+   "group": "비트코인",
+   "title": "Bitcoin Rally Wobbles as Macro Risks Overshadow ETF Demand - Bloomberg.com",
+   "url": "https://news.google.com/rss/articles/CBMirgFBVV95cUxOQWpvSDVtc1BwQ3ZFV05fNGg5d1JnckFiOERIX3dWUzFJRFZpVnlhekFWOVJoa2ZSSU5pQWVta19fTDVpUlk4LU4yZVQ0Y2tkdmhxeGFzcVJPa284WEV6bzhkcDBPM0MxYzdnUnJIUHAyNTBTVWN5WXNPMlpNbHRPWEp5MkwydElpWmRDdHd4LXVJd1FCOTZsRjNhRHN5OVc1TDFaUkRBb09obXl3V1E?oc=5",
+   "published": "2026-09-28"
+  },
+  {
+   "group": "비트코인",
+   "title": "Bitcoin Drops as Rising Yields and Dollar Weigh on Crypto - Bloomberg.com",
+   "url": "https://news.google.com/rss/articles/CBMisgFBVV95cUxPSzJTNlFLOVduQU9HQW5vOFU0bHVCaXo2SlV6VEdPRW9nekhJUEJaVWxVb1p0N0tPWWRyekVKb1hHX3hpYzh1aXJvb2wzZlhRMDNTREpieFVCdEI3RmpucngwaDhsVk1mOWJYdmhOQ2hIZVFWWTdwcGpjakRyZDd2el9HWFozbUQxUmRhVGNUMkh6NTdyNm80UFh6S1pRV2tNV2VfLUdyaDNva1BUVDNnVjNR?oc=5",
+   "published": "2026-09-24"
+  },
+  {
+   "group": "비트코인",
+   "title": "Bitget Hack Pushes North Korean Crypto Haul Past $1 Billion - Bloomberg.com",
+   "url": "https://news.google.com/rss/articles/CBMirgFBVV95cUxPTE1XSWM0dHZXSUNnNEdvZTBaRDhBUmFFUzlQOEtJOFRadDdvZUhOVTE0Yy1FcTRGWTZOLXVicG53dFhfS2wwRjVLZmFDdzBOcjdqaHRveGpfTVhQd003ZEw3Um5DUTROTFMzME8xWkE3SzZYUVBrZkdUNmp0a2dUNWZGVDM1N1piM0RkSjVBbkx1TnFwYl95QWJjTHJqd3FxY2xBZEUxSGFfVkE3akE?oc=5",
+   "published": "2026-09-25"
+  },
+  {
+   "group": "비트코인",
+   "title": "Exclusive | BlackRock Investment Portfolios Debut on the Blockchain as Digital Tokens - WSJ",
+   "url": "https://news.google.com/rss/articles/CBMivAFBVV95cUxQV21iaG1yOGJPNmtUTnJDYzVxbnVlYU90Z0ktck9sR2hyYm1ZR1R5bXp5OVNTQ3YyRG5KZjctM1dhMDh3ZEl0Z1cxWlJUM0RGUDdxejdjWG1pSzN6cVlpdE9tRkZqQkNjYTVyZnhTNnJBZU00Y1ZyM0p1OElzVjBoTlQzSFFmWDkxLS1tejM1T3dpVGFMVFM2REN1Y0RidXlVUjluSGpJWU5ObUlqZ2p5dkpkeUZIX1pvVTVTMw?oc=5",
+   "published": "2026-09-24"
+  },
+  {
+   "group": "비트코인",
+   "title": "Bitcoin Retreats From Eight-Month High After Dizzying 13% Rally - Bloomberg.com",
+   "url": "https://news.google.com/rss/articles/CBMiswFBVV95cUxQMkE0U2tuSDlZUU1hbVd3V0JnN3FQeXhEdmpzUURGNEdjZnZqY1RQdk4xenN3Z01LQjd4eXdITFRKWGZybVVkUzRIMzRYeklneGZqWWN1VkVabWxxamdDZVh6WE1RVFVlYmtJSWY0cUhReEJOUGprbjZCMWtzeXB1YUoxVjVBcGQweWpHVVl1R0hwb09ON3FHOW1VYzdBTjlKVnVaNWprM3NiSEVTdzZGdFRYQQ?oc=5",
+   "published": "2026-09-22"
+  },
+  {
+   "group": "비트코인",
+   "title": "NYSE and Blockchain.com to explore selling tokenised stocks - Reuters",
+   "url": "https://news.google.com/rss/articles/CBMipwFBVV95cUxNRFgzaTZudUxoaXQ0TFAxVDRVdDEtZmR3MWVaYkVaeG9nUGhVLTlxbGpFY1FJQTlucHFjbmxJTTl1OEFFNTFkckQ5akprN1BZRzRHcWNWdVM4RVg3NXBIYk5pN0tkb2lna3UzR0drMXNqUUFnbk5xMi16NTV0SE1VdnpITHRobnZHR2lacEFsZVBWZmVlRzZzNjl3bHJPMUNFSndfOHN2Yw?oc=5",
+   "published": "2026-09-23"
+  },
+  {
+   "group": "비트코인",
+   "title": "Bitcoin Leads Crypto Back Above $3 Trillion as Risky Bets Grow - Bloomberg.com",
+   "url": "https://news.google.com/rss/articles/CBMisgFBVV95cUxNTFVIQnJhNlRJVVNsZnRMR1R2YWhvWERxbkVLQkNudHVPc3pxY1Jvd3JDQXdaNUpsMWlQYzRWUGY3TEdTdXlvcmZFSnlTSUpBOGVzQ2diSVVrOVV4czVDUkF1bWtHU3k5LU1fSlFEQndDdUhySmVHV2FUamxRRG5PREtNM1RIbVRjM3ZweG1pS3loZGlqcTY1Z3MxZUpCQXNUbWF1VE4tWERlQ09DdmlrRDRB?oc=5",
+   "published": "2026-09-22"
+  },
+  {
+   "group": "비트코인",
+   "title": "Crypto Blew Its Big Moment—and the Blame Game Has Begun - WSJ",
+   "url": "https://news.google.com/rss/articles/CBMipAFBVV95cUxObUZXQlVLa3ZnMDJGb2hUTHFodkVwc3NyZlc4aFRLejBXa0lyTF9JcUtVbkZ2ZlNkclBfZzBkMXRZc29XZDNvaGJ4VDFBNHgyTERiT0o5WGljUnlxNlUwbE5KY1JILXVjcW5nSlp5UVl5YmF6RExhS1ZialNxMGJOQ1owTy1wX0pPT0xBZ29DZ05GejFIbW5sWllHSmU2ZFJjMDdwTQ?oc=5",
+   "published": "2026-09-20"
+  },
+  {
+   "group": "비트코인",
+   "title": "Crypto's biggest hacks and heists - Reuters",
+   "url": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxPNHF5WDFfZ0hlU0xtd3pXUW5ZZUdldER2MnpiQnZrX2lOeTVPd0tmQWhWbGYwVDB3WGFzRTJlU1JEcjJZd05wbE5QQVlSbG1taGp2RVhrWHpHcVRhVXA2OEJhcjVrdHRMeVM4ODBBODFVSEp4Ujl5Tm5NUzVVSjdBTWF3OWFGQ0Zi?oc=5",
+   "published": "2026-09-25"
+  },
+  {
+   "group": "비트코인",
+   "title": "Biggest Long-Bond ETF Hits Record Low as Traders Dump Treasuries - Bloomberg.com",
+   "url": "https://news.google.com/rss/articles/CBMitgFBVV95cUxPRHpzMG9XU0ZpLXVBeENIV3RsVFh6NW5WcWtqc3NYR1BTTllPbjdZMC1pN25jVm1LY25DemF0R3FveFpPOWxtQzUxV05TcnhIOFJybkM3bk1FWTRDQ3FOa25QcHNwUGlYeURWRDJsbkJYT3dFaGpDZXl4Nmt4cXRjYWdXTXNNLVZhMzFkU0Yta1djVHVwVDJwa2Q1TVp4bzMzNnFDdFVsSFRnRlpQTUdBSFdaRnl1UQ?oc=5",
+   "published": "2026-09-23"
+  },
+  {
+   "group": "비트코인",
+   "title": "Tech, Media & Telecom Roundup: Market Talk - WSJ",
+   "url": "https://news.google.com/rss/articles/CBMiggFBVV95cUxOcENUaWtyTER3MUdPRTlWQTByQjJzSk1zaWFtY1A3YjYzZ2VOZnlRQXNDaldGOUp1bmltZ2lZejllak1SdnNsUnJrN1kxRzdGSUxKbUtrN3cwbTNnUU1LVTVlY19INlNQTERJN3c3ZHlWQTZHNTVHRm9LSlhSd0REVlln?oc=5",
+   "published": "2026-09-23"
+  },
+  {
+   "group": "비트코인",
+   "title": "Bitget crypto exchange hit by $390mn hack - Financial Times",
+   "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxOVnotblJrazRfOTh4SWppazhaUWlhQ1pZaVJudDR2RFhaVUctYTFUa3ByRXZrTVZRTnY1NElYNnM3S3RJZy02ckYzTVlENEZBWTFWX3J3WDAxQ2tWeTNDdkR6THJlTVI0dkFRRzRCd1ZaaEprbFRpVnNBX3RLVThsMVhzMjE?oc=5",
+   "published": "2026-09-25"
+  },
+  {
+   "group": "미중 관세",
+   "title": "China, US agree to tariff cuts on $60 billion of goods including agriculture, household items - Reuters",
+   "url": "https://news.google.com/rss/articles/CBMixAFBVV95cUxPaTBqVzRGcGNNZ2M5YWVLbUQxanlOVWhxYU5lWjNuYzJSWmtHV2lQTWdSUXlpTGM3M1UzU2JUckNLUGxIc3dFVWx5WlExNnotSmtQblE4UnM0Sk1OVnQycjVkR0ozUlpzMW5MMExHNll4NDR2dXpfWTNCMVpQT0docjI1SHFDeFdwYnZGVlVocXhzTy10WWViRk54VklyNzNiRFczXy04aURCdVdmSEdNbjNrRHpXNXM5LWRCZzJQajZVMVBx?oc=5",
+   "published": "2026-09-28"
+  },
+  {
+   "group": "미중 관세",
+   "title": "US, China Release Product Lists for $30 Billion Tariff Deal - Bloomberg.com",
+   "url": "https://news.google.com/rss/articles/CBMirwFBVV95cUxPejAwODBlZm1pdk5leVFwbHA2cnRWRkZXT2R2ejVDNjhtV01qb3ZFQ0hoMW9pWTVHN3dqOXBramZyY0RDdDJkMEQyUGRaVHh5QUFnak1SQ0c4dkp6aE5QYjdEd25ZMXFheXhRcmVXLXZJV1ZLNmk1MndtZ3FaNmNPcDNXSkxkV1Rvb2x6MmZBWVBvOV9rTmZMS0ljRENGWGY3d0ZFbFpTajZGVW1PZGdz?oc=5",
+   "published": "2026-09-28"
+  },
+  {
+   "group": "미중 관세",
+   "title": "Here’s the List of Goods the US, China Agreed on for Tariff Cuts - Bloomberg.com",
+   "url": "https://news.google.com/rss/articles/CBMitAFBVV95cUxORkZ2YThoWFBHQnpCeFVvX0FTaGVCRmNndUxRUGwwZ2Y1dGt4cnBWaHhlUU9hZW42a0laMlhjQl9peHhSNXZYTzFIWXcyVERRVlJZVzBXSTg0QmtDSmU1U0lFZVZnWlE2LTEtOEVCWjF4MmRsM1NRTWI3aGhWbWZfRm16OWpXa205TGR6REk1b1pjWC10T1Y0cUJ5XzZrM0ZGZ25VWUE3MUkyYm0tc2xaWGVVNTI?oc=5",
+   "published": "2026-09-28"
+  },
+  {
+   "group": "미중 관세",
+   "title": "China to cut tariffs on US farm goods, but list excludes soybeans - Reuters",
+   "url": "https://news.google.com/rss/articles/CBMipAFBVV95cUxOcS1oNDFMWG5pMzdiVDYzYlpoWmx2dXh2Z3FDbUJ5T09CbEFBV251Rkc2cFZTcnlPTDZ6N2hJbThrNTRrc255d0NZUWJhendkbXBNc3M4cWRWV1RaVkg3ZXg5Q2ZQVEZxWW1hX1V3UjJUOEJMZGlCRXJEdUpvZzUtQzdreVY5azNfSGxwakVfZFJOa0F0Y1NDWVllMHhaZEQybjRTdg?oc=5",
+   "published": "2026-09-28"
+  },
+  {
+   "group": "미중 관세",
+   "title": "US and China agree $60bn low tariff regime for goods from foie gras to camels - Financial Times",
+   "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxQMFBnYU9HTGlGbC1FM3JwQmxHMmpuUWk4NVpFbFFFbnAzN0l5WG02ZE1qOWxIREtuaHlqN2wwRlduZDd3T292QTYwSTVVaG82bWxnR3FlWGotN2xIakpDRW5uSGpRYjNFX3c5SXNTTU51OGNmN1ViTU1ZYS14N3dKWFFTUXA?oc=5",
+   "published": "2026-09-28"
+  },
+  {
+   "group": "미중 관세",
+   "title": "U.S., China Agree to Trim Tariffs, Start AI Dialogue - WSJ",
+   "url": "https://news.google.com/rss/articles/CBMingFBVV95cUxORGhfcEduZHZpNWZlWnZwMld5d1BseFpWcXFfXzktTUJWVldFUlJWYnloUUhldXRSQ3d5MDA5aVZjQjZKQ3VNdGFLN0xUNTVrQnRaa2ViT2ZkOEtOaTRZTXZRYWd0bHdFdkFvdnQtZU9QcU5MYVgtNFdtbGhFTlBwZERzRzRXN0tBSnFMQS1Fc2ZVS3pZSWxiZU9kWHI1Zw?oc=5",
+   "published": "2026-09-26"
+  },
+  {
+   "group": "미중 관세",
+   "title": "China, US agree to AI dialogue, tariff cuts on $30 billion in goods during Xi visit - Reuters",
+   "url": "https://news.google.com/rss/articles/CBMisgFBVV95cUxNT2FRVWRwSDZuWUZPYTRXcmNuNTFDR0hrQkVUZnpSdV9RdGhpUjV5R0hwN2V6MUNUS2hiTHpENFhwUFVDODBIeDhBSm5SdUJOeU1qSUhjekl2RzBDd0VBYi0tdmNDblQwV1RMTF9QMGFHdlFRcDRmalE3dWlhX0l6aUJjSGtsVjlsZXNnbmZWY3JzMEtwY3hxNEZHT3JjWXJEQlVRSFpSM0haSUROOUFRaWJB?oc=5",
+   "published": "2026-09-26"
+  },
+  {
+   "group": "미중 관세",
+   "title": "Grains Fall as Traders Seek China Buying Signs After Tariff Cuts - Bloomberg.com",
+   "url": "https://news.google.com/rss/articles/CBMitgFBVV95cUxQUWtxY1RYZjRlTks1S2Y0M2VFN1pKMG02SmlsT0I4SzV6bC01Q2dPbzJIX3E1ZWY2ZHNTaXZZYzB6WGIyYnAxbDBMYU1jdzkwSWdBVHhDUUh6LXQ0NjBVWDVCZG9VQTFBNGdTdlFvLS1MaVlxLV9iR19BblIzXzhTNV9xaFJ2V19YMTJEMkNsMGhxVWoxTFVTVGpaR1hkNThqRkRWcnp5bnVtNkNRZ2VKZVF3MndGdw?oc=5",
+   "published": "2026-09-28"
+  },
+  {
+   "group": "미중 관세",
+   "title": "Trump’s tariff war is clobbering the Hanks of America - Financial Times",
+   "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxQRWRhang2bGV0SWk0aTdTU0dmU3NHM0w0MHl3TFFUYjMzNDd1ZWlWb3hZYkgyVGV6UHU2amMtVUNDMFpCc3pVSGpRRURHbFlSd3hfelpJYnJTeFVqNUx0b2FLNDFtN1VsM09UbHJWTUZLcHBOX2pPY0E5WUxoMzJtNTdBYTE?oc=5",
+   "published": "2026-09-24"
+  },
+  {
+   "group": "미중 관세",
+   "title": "Bessent Says US, China Agreed to Extend Trade Truce to Jan. 10 - Bloomberg.com",
+   "url": "https://news.google.com/rss/articles/CBMisAFBVV95cUxQWkxNMHpuN3RlOHhaWEl4R0Q4ZzZWZUY3TWwydWpFNVVwYVJGby01Q2E3ZzVXODJjMWFMdVBMMTR2QmZrczJad3JERU5DZUVKRWkyb1IxWkVqVWxBSXQ5STBsLW5LRnJaQkYyTlJrMi1PbG12R1FJRGFkMnhVelRLT0xvWGlwWmVNOWF1cHNIZFY2NUJTbTIxcW5iUkNIRUR0Snlxc3d4RmlSS0xCdDRCbA?oc=5",
+   "published": "2026-09-23"
+  },
+  {
+   "group": "미중 관세",
+   "title": "The US Is Badly Losing Its Trade War With China - Bloomberg.com",
+   "url": "https://news.google.com/rss/articles/CBMirwFBVV95cUxQV1N3bFhyRGRKdzA2bmpDbGxMc0tkOWZNZ2NJY2l5QzZEQVBKd3YwWWxvYzZuZW8yaXE4MkdfVktYU3Y5eXVEbzNiWVFmeXpHYVEzNzZ4VzM3VFNVVkZPNFRuYUptU01rN0hDTnA2a0JMYVZteEJhYzMwNXpGOU5IaFphS1B2SHk0YUMtNThCVGxva2lNcE5nc0h5dUtUWTZKdF91OElQNnNJdDRTVHF3?oc=5",
+   "published": "2026-09-23"
+  },
+  {
+   "group": "미중 관세",
+   "title": "China’s US Coal Buying Pledge Looks Like an Easy Promise to Keep - Bloomberg.com",
+   "url": "https://news.google.com/rss/articles/CBMitgFBVV95cUxPUXpzR1ZrMkZNUDFRU3I0Tk40akg4M3Z4NHpzX0hkVzZHaGZEUkpGRFBCYVlKRlJCQU9fY2t0YjAwZTJGTXlHRjkwNlkzRWVsdnlFN3Z4encxR1pvbUN2T1hicXRtUFBHbnVUUERVSnBrc1I4cllGNHR6R1UzVFlOY1dEOWhrRVBoU3JyeEZNUGxpakg1a1dOMTl6WnUtVjIyUjQyaWYzODZ0cWdRWlU0NU96cXRHdw?oc=5",
+   "published": "2026-09-28"
+  }
+ ]
+}
