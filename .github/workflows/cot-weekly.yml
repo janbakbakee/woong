@@ -34,7 +34,13 @@ concurrency:
 jobs:
   report:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
+    env:
+      # Claude Pro/Max 구독 토큰 (`claude setup-token` 으로 발급)
+      HAS_CLAUDE: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN != '' }}
+      COT_AI_EXPECTED: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN != '' && inputs.no_ai != true }}
+    outputs:
+      deploy: ${{ steps.upload.outcome == 'success' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -46,13 +52,12 @@ jobs:
       - name: 의존성 설치
         run: pip install -r requirements.txt
 
-      - name: 리포트 생성
+      # Step 1·2: CFTC 데이터 조회 + 기준일 검증 + 지표 계산 + RSS 헤드라인 수집
+      - name: 데이터 준비
+        id: prep
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          COT_MODEL: ${{ vars.COT_MODEL }}
           IN_DATE: ${{ inputs.date }}
           IN_FORCE: ${{ inputs.force }}
-          IN_NO_AI: ${{ inputs.no_ai }}
           SCHEDULE: ${{ github.event.schedule }}
         run: |
           ARGS=()
@@ -61,11 +66,34 @@ jobs:
             ARGS+=(--date "$IN_DATE")
           fi
           [[ "$IN_FORCE" == "true" ]] && ARGS+=(--force)
-          [[ "$IN_NO_AI" == "true" ]] && ARGS+=(--no-ai)
           # 화요일 마지막 재시도에서도 데이터가 없으면 실패로 표시해 알림을 받는다
           [[ "$SCHEDULE" == "37 12 * * 2" ]] && ARGS+=(--strict)
-          [[ -z "$COT_MODEL" ]] && unset COT_MODEL
-          python -m cot.main "${ARGS[@]}"
+          python -m cot.main prepare "${ARGS[@]}"
+
+      # Step 2.5·3: Claude(구독)가 뉴스 서치 후 work/news.md, work/analysis.json 작성
+      - name: Claude 뉴스 서치 & CIO 분석
+        if: steps.prep.outputs.run == 'true' && env.HAS_CLAUDE == 'true' && inputs.no_ai != true
+        continue-on-error: true   # 실패해도 수치 리포트는 게시
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          prompt: |
+            work/prompt.md 파일을 Read 도구로 읽고, 그 안의 지시를 처음부터 끝까지 정확히 수행해라.
+            결과는 지시서에 적힌 두 파일(work/news.md, work/analysis.json)에만 Write로 저장한다.
+          claude_args: |
+            --max-turns 80
+            --allowedTools "Read,Write,WebSearch,WebFetch"
+            ${{ vars.COT_MODEL && format('--model {0}', vars.COT_MODEL) || '' }}
+
+      - name: 리포트 렌더링
+        if: steps.prep.outputs.run == 'true'
+        env:
+          IN_NO_AI: ${{ inputs.no_ai }}
+        run: |
+          ARGS=()
+          [[ "$IN_NO_AI" == "true" ]] && ARGS+=(--no-ai)
+          python -m cot.main render "${ARGS[@]}"
 
       - name: 결과 커밋
         id: commit
@@ -82,17 +110,15 @@ jobs:
           fi
 
       - name: Pages 아티팩트 업로드
-        if: steps.commit.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
+        id: upload
+        if: hashFiles('docs/index.html') != '' && (steps.commit.outputs.changed == 'true' || github.event_name == 'workflow_dispatch')
         uses: actions/upload-pages-artifact@v3
         with:
           path: docs
 
-    outputs:
-      changed: ${{ steps.commit.outputs.changed }}
-
   deploy:
     needs: report
-    if: needs.report.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
+    if: needs.report.outputs.deploy == 'true'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
@@ -100,13 +126,3 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
-
-  test:
-    if: github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-      - run: pip install -r requirements-dev.txt && pytest -q

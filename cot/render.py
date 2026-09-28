@@ -53,6 +53,7 @@ def sheet_row(report_date: date, metrics: dict, analysis: dict) -> tuple[str, st
 
 def render_report(*, report_date: date, release: date, run_kst: datetime, metrics: dict,
                   analysis: dict, news: dict | None, data_sources: list[str], model: str,
+                  rss: list[dict] | None = None,
                   index_link: str | None = "../index.html") -> str:
     markets = []
     for cfg in config.MARKETS:
@@ -84,6 +85,7 @@ def render_report(*, report_date: date, release: date, run_kst: datetime, metric
         coverage_text=coverage, missing=missing,
         ai=analysis.get("ai", False), model=model,
         markets=markets, analysis=analysis, news=news,
+        rss_groups=_group_rss(rss or []),
         gauge=charts.gauge_svg(gauge_rows) if gauge_rows else "",
         extremes=extremes, biggest_moves=biggest,
         trend_range=trend_range,
@@ -91,6 +93,13 @@ def render_report(*, report_date: date, release: date, run_kst: datetime, metric
         data_sources=" / ".join(dict.fromkeys(data_sources)),
         index_link=index_link,
     )
+
+
+def _group_rss(items: list[dict]) -> list[dict]:
+    groups: dict[str, list] = {}
+    for it in sorted(items, key=lambda x: x.get("published", ""), reverse=True):
+        groups.setdefault(it["group"], []).append(it)
+    return [{"name": k, "entries": v[:8]} for k, v in groups.items()]
 
 
 def render_index(records: list[dict]) -> str:

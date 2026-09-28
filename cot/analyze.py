@@ -256,23 +256,65 @@ def _normalize_probs(a: int, b: int, c: int) -> tuple[int, int, int]:
     return tuple(scaled)
 
 
+def _as_int(v, default: int) -> int:
+    try:
+        return int(round(float(v)))
+    except (TypeError, ValueError):
+        return default
+
+
+ENUMS = {
+    "rating": {"Bullish", "Neutral", "Bearish"},
+    "verdict": {"Strong Buy", "Buy", "Hold", "Reduce", "Sell"},
+    "contrarian_tone": {"bull", "bear", "neut"},
+}
+
+
 def postprocess(result: dict, metrics: dict) -> dict:
+    """모델 출력 검증: 누락/형식 오류 필드는 수치 기반 기본값으로 채우고 범위를 강제한다."""
+    if not isinstance(result, dict):
+        raise AnalysisError("분석 결과가 JSON 객체가 아닙니다.")
+    items = result.get("markets", [])
+    if isinstance(items, dict):
+        items = [{"market": k, **v} for k, v in items.items() if isinstance(v, dict)]
     by_key = {}
-    for m in result.get("markets", []):
-        k = m.get("market")
-        if k not in metrics:
+    for raw in items:
+        if not isinstance(raw, dict) or raw.get("market") not in metrics:
             continue
+        k = raw["market"]
+        base = fallback_market(metrics[k])
+        m = {**base, **{kk: vv for kk, vv in raw.items() if vv is not None and vv != ""}}
+        for field, allowed in ENUMS.items():
+            if m.get(field) not in allowed:
+                m[field] = base[field]
         q = (metrics[k].get("quant") or {}).get("total")
+        score = _as_int(m.get("score"), base["score"])
         if q is not None:
-            m["score"] = max(q - 15, min(q + 15, int(m["score"])))
-        m["score"] = max(0, min(100, int(m["score"])))
-        m["stars"] = max(1, min(5, int(m["stars"])))
-        m["prob_up"], m["prob_side"], m["prob_down"] = _normalize_probs(
-            m["prob_up"], m["prob_side"], m["prob_down"])
+            score = max(q - 15, min(q + 15, score))
+        m["score"] = max(0, min(100, score))
+        m["stars"] = max(1, min(5, _as_int(m.get("stars"), base["stars"])))
+        probs = [raw.get(f) for f in ("prob_up", "prob_side", "prob_down")]
+        if all(p is not None for p in probs) and sum(_as_int(p, 0) for p in probs) > 0:
+            m["prob_up"], m["prob_side"], m["prob_down"] = _normalize_probs(*(_as_int(p, 0) for p in probs))
+        else:
+            m["prob_up"] = m["prob_side"] = m["prob_down"] = None
         by_key[k] = m
+    if not by_key:
+        raise AnalysisError("분석 결과에 유효한 시장 항목이 없습니다.")
     for k, mt in metrics.items():
         if k not in by_key:
             by_key[k] = fallback_market(mt)
+
+    defaults = fallback_analysis(metrics, "")
+    for key in ("smart_money_highlight", "exec_theme", "exec_recommendation", "trend_overview",
+                "sheet_opinion", "sheet_memo"):
+        if not isinstance(result.get(key), str) or not result.get(key):
+            result[key] = defaults[key] if key.startswith("sheet") else ""
+    for key in ("sentiment", "top5", "exec_paragraphs"):
+        v = result.get(key)
+        result[key] = [x for x in v if isinstance(x, dict)] if isinstance(v, list) else []
+    mon = result.get("monitoring")
+    result["monitoring"] = [str(x) for x in mon] if isinstance(mon, list) else []
     result["markets"] = by_key
     result["ai"] = True
     return result

@@ -4,12 +4,14 @@
 
 ```
 토요일 09:37 KST (GitHub Actions)
- ├─ Step 1  CFTC 데이터 조회 (공식 API → 실패 시 CFTC 히스토리 파일)
- ├─ Step 2  기준일(화) 검증 — 불일치 시 게시 안 함, 일·월·화 자동 재시도
- ├─ 지표 계산 (Python, 결정론적): Net/전주대비/진단/연속주차/3·5년 백분위/COT Index/z-score/퀀트 점수
- ├─ Step 2.5 매크로 뉴스 서치 (Claude + web_search, 공신력 사이트만 허용)
- ├─ Step 3  CIO 분석 (Claude, 구조화 출력) — 수치는 계산값만 사용
- └─ HTML 대시보드 생성 → docs/ 커밋 → GitHub Pages 배포
+ ├─ [prepare] Step 1 CFTC 데이터 조회 (공식 API → 실패 시 CFTC 히스토리 파일)
+ │            Step 2 기준일(화) 검증 — 불일치 시 게시 안 함, 일·월·화 자동 재시도
+ │            지표 계산 (Python): Net/전주대비/진단/연속주차/3·5년 백분위/COT Index/z-score/퀀트 점수
+ │            RSS 헤드라인 수집 (Fed·BLS·EIA·ECB·BOJ + Google News의 Reuters/Bloomberg/FT/WSJ) — 무료, 키 불필요
+ ├─ [Claude Code Action · Pro 구독 토큰]
+ │            Step 2.5 뉴스 서치 (WebSearch/WebFetch) → work/news.md
+ │            Step 3  CIO 분석 → work/analysis.json  (수치는 계산값만 사용)
+ └─ [render]  결과 검증 → HTML 대시보드 → docs/ 커밋 → GitHub Pages 배포
 ```
 
 ## 분석 대상
@@ -44,29 +46,40 @@ Consolidated 코드가 API에 없으면 단일 계약 코드(13874A, 209742)로 
 
 ## 설정 방법 (최초 1회)
 
-1. **API 키 등록**: GitHub repo → Settings → Secrets and variables → Actions → New repository secret
-   - `ANTHROPIC_API_KEY` = Claude API 키 ([console.anthropic.com](https://console.anthropic.com))
-   - (선택) Variables 탭에서 `COT_MODEL`로 모델 변경. 기본값은 `claude-opus-5`
-2. **GitHub Pages 켜기**: Settings → Pages → Source를 **GitHub Actions**로 선택
-3. **첫 실행**: Actions 탭 → "COT 주간 리포트" → Run workflow
-   - 과거 주차를 만들려면 `date`에 화요일 날짜 입력 (예: `2026-07-28`)
-4. 결과: `https://<사용자명>.github.io/<repo>/`
+API 크레딧 없이 **Claude Pro/Max 구독**으로 분석합니다.
 
-API 키가 없으면 AI 분석 없이 수치, 차트, 퀀트 점수만 있는 리포트가 생성됩니다.
+1. **구독 토큰 발급 (PC에서 1회)**
+   - Windows PowerShell: `irm https://claude.ai/install.ps1 | iex` 로 Claude Code 설치
+     (Mac/Linux: `curl -fsSL https://claude.ai/install.sh | bash`)
+   - `claude setup-token` 실행 → 브라우저 로그인 → 출력된 `sk-ant-oat...` 토큰 복사
+2. **GitHub에 토큰 등록**: repo → Settings → Secrets and variables → **Actions** → New repository secret
+   - Name: `CLAUDE_CODE_OAUTH_TOKEN` / Secret: 위 토큰
+   - (배포 키 메뉴 아님 주의)
+3. **GitHub Pages 켜기**: Settings → Pages → Source를 **GitHub Actions**로 선택
+4. **기본 브랜치에 병합** 후 Actions 탭 → "COT 주간 리포트" → **Run workflow**
+   - 과거 주차: `date`에 화요일 날짜 입력 (예: `2026-07-28`)
+5. 결과: `https://<사용자명>.github.io/<repo>/`
+
+- 분석은 구독 사용 한도에서 차감됩니다 (주 1회 실행).
+- (선택) Variables에 `COT_MODEL`(예: `opus`, `sonnet`)을 넣으면 모델 지정.
+- 토큰이 없거나 Claude 단계가 실패해도 수치·차트·RSS 헤드라인 리포트는 게시됩니다.
+- API 키 방식도 지원: 로컬에서 `ANTHROPIC_API_KEY` 설정 후 `python -m cot.main`.
 
 ## 데이터 원칙 (프롬프트 규칙 반영)
 
 - 기준일이 맞지 않거나 조회에 실패하면 **이전 데이터나 추정치로 대체하지 않습니다**. 게시하지 않고 다음 예약 시간에 재시도합니다.
 - 일부 시장만 확인되면 그 시장만 분석하고, 나머지는 "데이터 수신 대기 중"으로 표시합니다. 다음 실행 때 자동으로 다시 만듭니다.
-- 뉴스는 Reuters, Bloomberg, FT, WSJ, Fed, BLS, BEA, EIA, BOJ, ECB, Farside, CBOE, CME 도메인만 검색합니다. 확인되지 않은 내용은 "확인 불가"로 표기합니다.
-- 모델이 요청을 거절하면 서버 측 fallback(`server-side-fallback-2026-07-01`, `fallbacks="default"`)으로 다른 모델이 이어받습니다.
+- 뉴스는 Reuters, Bloomberg, FT, WSJ, Fed, BLS, BEA, EIA, BOJ, ECB, Farside, CBOE, CME 등 공신력 사이트만 근거로 쓰도록 지시합니다. 확인되지 않은 내용은 "확인 불가"로 표기합니다.
+- Claude가 쓴 JSON은 게시 전에 검증합니다: 누락 필드는 수치 기반 기본값, 점수는 퀀트 ±15점, 확률 합 100 강제.
 
 ## 로컬 실행
 
 ```bash
 pip install -r requirements-dev.txt
 export ANTHROPIC_API_KEY=...        # 없으면 수치만
-python -m cot.main                   # 최신 주차
+python -m cot.main                   # 최신 주차 (API 키 없으면 수치만)
+python -m cot.main prepare           # Actions와 동일: work/prompt.md 생성 → Claude Code로 실행 후
+python -m cot.main render            #   결과 렌더링
 python -m cot.main --date 2026-07-28 --force
 pytest -q                            # 합성 데이터 테스트 (네트워크 불필요)
 ```

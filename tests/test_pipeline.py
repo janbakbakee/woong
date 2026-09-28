@@ -8,7 +8,7 @@ from datetime import date, datetime, timedelta, timezone
 
 import pytest
 
-from cot import analyze, config, fetch, main, metrics as mx, render
+from cot import analyze, config, fetch, main, metrics as mx, render, rss
 
 TARGET = date(2026, 7, 28)
 
@@ -54,6 +54,12 @@ def fake_fetch(monkeypatch):
     monkeypatch.setattr(fetch, "_fetch_socrata", lambda ds, codes, since:
                         _synthetic_socrata("tff" if ds == config.TFF_DATASET else "disagg", since))
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    monkeypatch.delenv("COT_AI_EXPECTED", raising=False)
+    monkeypatch.setattr(rss, "collect", lambda *a: SAMPLE_RSS)
+
+
+SAMPLE_RSS = [{"group": "Fed 보도자료", "title": "FOMC statement", "url": "https://www.federalreserve.gov/x",
+               "published": "2026-07-29"}]
 
 
 def test_normalize_history_csv_headers():
@@ -110,7 +116,9 @@ def test_missing_week_publishes_nothing(tmp_path, fake_fetch):
     future = TARGET + timedelta(days=7)
     assert main.main(["--date", future.isoformat(), "--out", str(tmp_path)]) == 0
     assert not (tmp_path / "reports").exists()
-    assert main.main(["--date", future.isoformat(), "--out", str(tmp_path), "--strict"]) == 3
+    with pytest.raises(SystemExit) as e:
+        main.main(["--date", future.isoformat(), "--out", str(tmp_path), "--strict"])
+    assert e.value.code == 3
 
 
 def test_partial_data_marks_waiting(tmp_path, monkeypatch):
@@ -120,6 +128,7 @@ def test_partial_data_marks_waiting(tmp_path, monkeypatch):
         return _synthetic_socrata("tff", since)
     monkeypatch.setattr(fetch, "_fetch_socrata", only_tff)
     monkeypatch.setattr(fetch, "_fetch_history_zip", lambda *a: [])
+    monkeypatch.setattr(rss, "collect", lambda *a: [])
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     assert main.main(["--date", TARGET.isoformat(), "--out", str(tmp_path)]) == 0
     html = (tmp_path / "reports" / f"{TARGET}.html").read_text(encoding="utf-8")
@@ -164,3 +173,84 @@ def test_render_with_ai_analysis(fake_fetch):
     header, row = render.sheet_row(TARGET, metrics, analysis)
     assert header.split("\t")[:3] == ["날짜", "ES Net", "NQ Net"]
     assert row.split("\t")[1].startswith("'")
+
+
+def _fake_claude_analysis(keys):
+    return {
+        "markets": [{"market": k, "rating": "Bearish", "rating_label": "약세", "stars": 2,
+                     "card_note": "n", "change_note": "c", "smart_money": "s", "smart_money_icon": "🔴",
+                     "extreme_note": "e", "contrarian": "반전 시나리오", "contrarian_tone": "bear",
+                     "score": 0, "score_reason": "r", "prob_up": 20, "prob_side": 30, "prob_down": 50,
+                     "verdict": "Reduce", "trend_short": "a", "trend_mid": "b", "trend_long": "c"}
+                    for k in keys],
+        "smart_money_highlight": "h", "sentiment": [{"label": "주식", "text": "뉴스 근거 추론"}],
+        "top5": [{"title": "T", "body": "B"}], "exec_theme": "주간 테마",
+        "exec_paragraphs": [{"label": "개요", "text": "p"}], "exec_recommendation": "권고",
+        "monitoring": ["FOMC"], "trend_overview": "o", "sheet_opinion": "EUR Reduce", "sheet_memo": "m",
+        "sources": [{"title": "Reuters", "url": "https://www.reuters.com/a"}, {"title": "bad", "url": "x"}],
+    }
+
+
+def test_prepare_then_render_with_claude_output(tmp_path, fake_fetch, monkeypatch):
+    out, work = tmp_path / "docs", tmp_path / "work"
+    gh_out = tmp_path / "gh_output"
+    monkeypatch.setenv("GITHUB_OUTPUT", str(gh_out))
+    base = ["--date", TARGET.isoformat(), "--out", str(out), "--work", str(work)]
+    assert main.main(["prepare", *base]) == 0
+    assert "run=true" in gh_out.read_text()
+    prompt_text = (work / "prompt.md").read_text(encoding="utf-8")
+    assert str((work / "analysis.json").resolve()) in prompt_text and "reuters.com" in prompt_text
+    assert json.loads((work / "rss.json").read_text(encoding="utf-8")) == SAMPLE_RSS
+
+    # Claude Code가 작성하는 파일 흉내
+    keys = [m["key"] for m in json.loads((work / "metrics.json").read_text(encoding="utf-8"))]
+    (work / "analysis.json").write_text(json.dumps(_fake_claude_analysis(keys), ensure_ascii=False),
+                                        encoding="utf-8")
+    (work / "news.md").write_text("① Fed — 동결 (Reuters)", encoding="utf-8")
+    assert main.main(["render", *base]) == 0
+
+    html = (out / "reports" / f"{TARGET}.html").read_text(encoding="utf-8")
+    assert "주간 테마" in html and "뉴스 근거 추론" in html and "FOMC statement" in html
+    assert "reuters.com/a" in html and 'href="x"' not in html
+    meta = json.loads((out / "data" / "reports" / f"{TARGET}.json").read_text(encoding="utf-8"))["meta"]
+    assert meta["ai"] is True
+    for k, s in meta["scores"].items():  # score 0 → 퀀트 −15 이내로 보정
+        assert s >= 0
+
+    # AI 결과가 있는 완성 주차는 prepare에서 건너뜀
+    gh_out.write_text("")
+    monkeypatch.setenv("COT_AI_EXPECTED", "true")
+    assert main.main(["prepare", *base]) == 0
+    assert "run=false" in gh_out.read_text()
+
+
+def test_render_with_broken_claude_output_falls_back(tmp_path, fake_fetch):
+    out, work = tmp_path / "docs", tmp_path / "work"
+    base = ["--date", TARGET.isoformat(), "--out", str(out), "--work", str(work)]
+    main.main(["prepare", *base])
+    (work / "analysis.json").write_text("{not json", encoding="utf-8")
+    assert main.main(["render", *base]) == 0
+    html = (out / "reports" / f"{TARGET}.html").read_text(encoding="utf-8")
+    assert "형식 오류" in html
+
+
+def test_postprocess_fills_missing_fields(fake_fetch):
+    since = TARGET - timedelta(weeks=52 * 6)
+    rows, _ = fetch.fetch_report("tff", since)
+    metrics = {k: mx.market_metrics(config.MARKET_BY_KEY[k], s, TARGET)
+               for k, s in fetch.split_by_market(rows, "tff").items()}
+    res = analyze.postprocess({"markets": [{"market": "ES", "rating": "???", "score": "55"}]}, metrics)
+    es = res["markets"]["ES"]
+    assert es["rating"] in {"Bullish", "Neutral", "Bearish"} and es["prob_up"] is None
+    assert set(res["markets"]) == set(metrics) and res["top5"] == []
+
+
+def test_parse_feed_rss_and_atom():
+    rss_xml = """<rss><channel><item><title>A  title</title><link>https://a</link>
+    <pubDate>Wed, 29 Jul 2026 14:00:00 GMT</pubDate></item></channel></rss>"""
+    atom = """<feed xmlns="http://www.w3.org/2005/Atom"><entry><title>B</title>
+    <link href="https://b"/><updated>2026-07-30T10:00:00Z</updated></entry></feed>"""
+    a = rss.parse_feed(rss_xml)[0]
+    b = rss.parse_feed(atom)[0]
+    assert a["title"] == "A title" and a["url"] == "https://a" and a["published"].day == 29
+    assert b["url"] == "https://b" and b["published"].day == 30
