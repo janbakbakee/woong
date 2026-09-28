@@ -254,3 +254,35 @@ def test_parse_feed_rss_and_atom():
     b = rss.parse_feed(atom)[0]
     assert a["title"] == "A title" and a["url"] == "https://a" and a["published"].day == 29
     assert b["url"] == "https://b" and b["published"].day == 30
+
+
+@pytest.mark.parametrize("text,expected", [
+    ("2026년 9월 2주차", date(2026, 9, 8)),
+    ("26년 9월 4주", date(2026, 9, 22)),
+    ("2026-09-2주", date(2026, 9, 8)),
+    ("2026-09-W5", date(2026, 9, 29)),
+    ("2026년 7월 4주차", TARGET),
+    ("2026-09-22", date(2026, 9, 22)),
+    ("2026-09-25", date(2026, 9, 22)),   # 금요일 → 그 주 화요일
+    ("2026.09.28", date(2026, 9, 22)),   # 월요일 → 직전 화요일
+])
+def test_parse_week(text, expected):
+    d = fetch.parse_week(text)
+    assert d == expected and d.weekday() == 1
+
+
+@pytest.mark.parametrize("bad", ["2026년 2월 5주차", "구월 둘째주", "2026년 9월"])
+def test_parse_week_rejects(bad):
+    with pytest.raises(ValueError):
+        fetch.parse_week(bad)
+
+
+def test_week_label_and_cli(tmp_path, fake_fetch):
+    assert fetch.week_label(date(2026, 9, 8)) == "2026년 9월 2주차"
+    assert main.main(["--date", "2026년 7월 4주차", "--out", str(tmp_path)]) == 0
+    html = (tmp_path / "reports" / f"{TARGET}.html").read_text(encoding="utf-8")
+    assert "2026년 7월 4주차" in html
+    assert "2026년 7월 4주차" in (tmp_path / "index.html").read_text(encoding="utf-8")
+    with pytest.raises(SystemExit) as e:
+        main.main(["--date", "아무거나", "--out", str(tmp_path)])
+    assert e.value.code == 2

@@ -6,7 +6,7 @@ from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
-from . import charts, config, metrics as mx
+from . import charts, config, fetch, metrics as mx
 
 WEEKDAY_KR = "월화수목금토일"
 # ⑫ 구글 시트 행의 열 순서 (기존 시트와 동일하게 유지)
@@ -80,7 +80,7 @@ def render_report(*, report_date: date, release: date, run_kst: datetime, metric
 
     return _env().get_template("report.html.j2").render(
         report_date_dot=report_date.strftime("%Y.%m.%d"),
-        report_date_kr=kr_date(report_date), release_date_kr=kr_date(release),
+        report_date_kr=kr_date(report_date), week_label=fetch.week_label(report_date), release_date_kr=kr_date(release),
         run_kst=run_kst.strftime("%Y-%m-%d %H:%M"),
         coverage_text=coverage, missing=missing,
         ai=analysis.get("ai", False), model=model,
@@ -107,10 +107,11 @@ def render_index(records: list[dict]) -> str:
     keys = [m.key for m in config.MARKETS]
     rows = [{
         "date": r["report_date"], "link": f"reports/{r['report_date']}.html",
+        "week": r.get("week_label") or fetch.week_label(date.fromisoformat(r["report_date"])),
         "scores": r.get("scores", {}), "opinion": r.get("sheet_opinion", ""), "memo": r.get("sheet_memo", ""),
     } for r in records]
     latest = None
     if rows:
-        latest = {"date": rows[0]["date"], "link": rows[0]["link"],
+        latest = {"date": rows[0]["date"], "week": rows[0]["week"], "link": rows[0]["link"],
                   "opinion": rows[0]["opinion"], "memo": rows[0]["memo"]}
     return _env().get_template("index.html.j2").render(keys=keys, rows=rows, latest=latest)

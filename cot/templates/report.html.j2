@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>COT 분석 대시보드 - {{ report_date_dot }}</title>
+<title>COT 분석 대시보드 - {{ week_label }} ({{ report_date_dot }})</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; background: #f5f5f0; color: #0b0b0b; padding: 16px; }
@@ -112,7 +112,7 @@ details summary { cursor: pointer; font-size: 12px; color: #52514e; }
 <div class="wrap">
 
 <div class="header-meta">
-  <span class="meta-pill hot">CFTC 기준일: {{ report_date_kr }}</span>
+  <span class="meta-pill hot">{{ week_label }} · CFTC 기준일: {{ report_date_kr }}</span>
   <span class="meta-pill">공식 발표: {{ release_date_kr }}</span>
   <span class="meta-pill">분석 시점: {{ run_kst }} KST</span>
   <span class="meta-pill{% if missing %} warn{% endif %}">{{ coverage_text }}</span>

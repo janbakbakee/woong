@@ -33,7 +33,7 @@ td a { color: #185FA5; text-decoration: none; font-weight: 500; }
 
   {% if latest %}
   <a class="panel latest" href="{{ latest.link }}">
-    <div class="t">최신 리포트 — {{ latest.date }} 기준 →</div>
+    <div class="t">최신 리포트 — {{ latest.week }} ({{ latest.date }} 기준) →</div>
     <div class="m">{{ latest.opinion }}<br>{{ latest.memo }}</div>
   </a>
   {% endif %}
@@ -41,10 +41,10 @@ td a { color: #185FA5; text-decoration: none; font-weight: 500; }
   <div class="section-title">주차별 종합 점수 기록</div>
   <div class="panel table-scroll">
     <table>
-      <tr><th class="l">기준일</th>{% for k in keys %}<th>{{ k }}</th>{% endfor %}<th class="l">투자의견 / 핵심메모</th></tr>
+      <tr><th class="l">주차 (기준일)</th>{% for k in keys %}<th>{{ k }}</th>{% endfor %}<th class="l">투자의견 / 핵심메모</th></tr>
       {% for r in rows %}
       <tr>
-        <td class="l"><a href="{{ r.link }}">{{ r.date }}</a></td>
+        <td class="l"><a href="{{ r.link }}">{{ r.week }}</a><br><span style="font-size:10px;color:#888780;">{{ r.date }}</span></td>
         {% for k in keys %}{% set s = r.scores.get(k) %}
         <td>{% if s is not none %}<span class="sc" style="background:{{ s|scorebg }};color:{{ s|scorefg }};">{{ s }}</span>{% else %}—{% endif %}</td>
         {% endfor %}

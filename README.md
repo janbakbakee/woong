@@ -57,7 +57,8 @@ API 크레딧 없이 **Claude Pro/Max 구독**으로 분석합니다.
    - (배포 키 메뉴 아님 주의)
 3. **GitHub Pages 켜기**: Settings → Pages → Source를 **GitHub Actions**로 선택
 4. **기본 브랜치에 병합** 후 Actions 탭 → "COT 주간 리포트" → **Run workflow**
-   - 과거 주차: `date`에 화요일 날짜 입력 (예: `2026-07-28`)
+   - 과거 주차: 기준 주차 칸에 `2026년 9월 2주차` 또는 `2026-09-08` 입력
+     (N주차 = 그 달의 N번째 화요일 = CFTC 기준일. 날짜를 넣으면 그 주 화요일로 자동 변환)
 5. 결과: `https://<사용자명>.github.io/<repo>/`
 
 - 분석은 구독 사용 한도에서 차감됩니다 (주 1회 실행).
@@ -80,6 +81,6 @@ export ANTHROPIC_API_KEY=...        # 없으면 수치만
 python -m cot.main                   # 최신 주차 (API 키 없으면 수치만)
 python -m cot.main prepare           # Actions와 동일: work/prompt.md 생성 → Claude Code로 실행 후
 python -m cot.main render            #   결과 렌더링
-python -m cot.main --date 2026-07-28 --force
+python -m cot.main --date "2026년 7월 4주차" --force
 pytest -q                            # 합성 데이터 테스트 (네트워크 불필요)
 ```

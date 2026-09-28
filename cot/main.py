@@ -84,7 +84,16 @@ def write_history_csv(out: Path, records: list[dict]) -> None:
 def prepare(args) -> dict | None:
     """성공 시 state dict, 건너뛰거나 데이터가 없으면 None (state['rc']에 종료코드)."""
     now = datetime.now(timezone.utc)
-    target = date.fromisoformat(args.date) if args.date else fetch.expected_report_date(now)
+    if args.date:
+        try:
+            target = fetch.parse_week(args.date)
+        except ValueError as e:
+            log.error("%s", e)
+            _gh_summary(f"### ❌ 입력 오류\n\n{e}")
+            raise SystemExit(2)
+        log.info("입력 '%s' → CFTC 기준일 %s (%s)", args.date, target, fetch.week_label(target))
+    else:
+        target = fetch.expected_report_date(now)
     out = Path(args.out)
     meta_path = out / "data" / "reports" / f"{target.isoformat()}.json"
 
@@ -202,7 +211,7 @@ def publish(state: dict, analysis: dict, news: dict | None, out: Path, model: st
 
     meta = {
         "report_date": target.isoformat(), "release_date": release.isoformat(),
-        "generated_at": generated.isoformat(), "complete": not missing, "ai": analysis.get("ai", False),
+        "week_label": fetch.week_label(target), "generated_at": generated.isoformat(), "complete": not missing, "ai": analysis.get("ai", False),
         "missing": missing,
         "nets": {k: m["net"] for k, m in metrics.items()},
         "scores": {k: analysis["markets"][k]["score"] for k in metrics},
@@ -221,7 +230,7 @@ def publish(state: dict, analysis: dict, news: dict | None, out: Path, model: st
 
     header, row = render.sheet_row(target, metrics, analysis)
     log.info("⑫ 구글 시트 행:\n%s\n%s", header, row)
-    _gh_summary(f"### ✅ COT 리포트 {target} 생성\n\n- AI 분석: {'예' if meta['ai'] else '아니오'}\n"
+    _gh_summary(f"### ✅ COT 리포트 {fetch.week_label(target)} ({target}) 생성\n\n- AI 분석: {'예' if meta['ai'] else '아니오'}\n"
                 f"- 대기 시장: {', '.join(missing) or '없음'}\n\n```\n{header}\n{row}\n```")
 
 
@@ -278,7 +287,7 @@ def main(argv=None) -> int:
     p = argparse.ArgumentParser(description="CFTC COT 주간 리포트 생성")
     p.add_argument("stage", nargs="?", default="run", choices=["run", "prepare", "render"],
                    help="run=한 번에 실행 / prepare·render=GitHub Actions 단계 실행")
-    p.add_argument("--date", help="CFTC 기준일(화요일) YYYY-MM-DD. 생략 시 최신 발표 주차")
+    p.add_argument("--date", help="기준 주차: 2026-09-22 또는 '2026년 9월 2주차'. 생략 시 최신 발표 주차")
     p.add_argument("--out", default="docs", help="출력 폴더 (GitHub Pages 루트)")
     p.add_argument("--work", default="work", help="Claude 작업 폴더 (prepare/render)")
     p.add_argument("--no-ai", action="store_true", help="AI 분석 없이 수치만 생성")

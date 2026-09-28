@@ -190,3 +190,34 @@ def expected_report_date(now_utc: datetime) -> date:
 
 def release_date(report_date: date) -> date:
     return report_date + timedelta(days=3)
+
+
+def week_label(report_date: date) -> str:
+    """기준일(화) → '2026년 9월 2주차' (그 달의 N번째 화요일)."""
+    return f"{report_date.year}년 {report_date.month}월 {(report_date.day - 1) // 7 + 1}주차"
+
+
+def parse_week(text: str) -> date:
+    """사용자 입력 → CFTC 기준일(화요일).
+
+    지원 형식
+      2026-09-22 / 2026.09.22       날짜 (화요일이 아니면 그 이전 가장 가까운 화요일)
+      2026년 9월 2주차 / 26년 9월 2주   그 달의 N번째 화요일
+      2026-09-2주 / 2026-09-W2
+    """
+    s = text.strip()
+    m = re.fullmatch(r"(\d{4})[-./](\d{1,2})[-./](\d{1,2})", s)
+    if m:
+        d = date(int(m[1]), int(m[2]), int(m[3]))
+        return d - timedelta(days=(d.weekday() - 1) % 7)
+    m = re.fullmatch(r"(\d{2}|\d{4})\s*(?:년|[-./])\s*(\d{1,2})\s*(?:월|[-./])?\s*[wW]?\s*(\d)\s*(?:주차|주)?", s)
+    if not m:
+        raise ValueError(f"기준 주차 형식을 알 수 없습니다: '{text}' (예: 2026년 9월 2주차, 2026-09-22)")
+    year = int(m[1]) + (2000 if len(m[1]) == 2 else 0)
+    month, nth = int(m[2]), int(m[3])
+    first = date(year, month, 1)
+    first_tue = first + timedelta(days=(1 - first.weekday()) % 7)
+    d = first_tue + timedelta(weeks=nth - 1)
+    if nth < 1 or d.month != month:
+        raise ValueError(f"{year}년 {month}월에는 {nth}주차(화요일)가 없습니다.")
+    return d

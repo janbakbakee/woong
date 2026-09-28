@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
     inputs:
       date:
-        description: "CFTC 기준일(화요일) YYYY-MM-DD — 비우면 최신 주차"
+        description: "기준 주차 — 예: 2026년 9월 2주차 / 2026-09-22 (비우면 최신 주차)"
         required: false
       force:
         description: "이미 생성된 주차도 다시 생성"
@@ -61,10 +61,8 @@ jobs:
           SCHEDULE: ${{ github.event.schedule }}
         run: |
           ARGS=()
-          if [[ -n "$IN_DATE" ]]; then
-            [[ "$IN_DATE" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]] || { echo "날짜 형식 오류: $IN_DATE"; exit 1; }
-            ARGS+=(--date "$IN_DATE")
-          fi
+          # 형식 검증은 Python(parse_week)에서 수행
+          [[ -n "$IN_DATE" ]] && ARGS+=(--date "$IN_DATE")
           [[ "$IN_FORCE" == "true" ]] && ARGS+=(--force)
           # 화요일 마지막 재시도에서도 데이터가 없으면 실패로 표시해 알림을 받는다
           [[ "$SCHEDULE" == "37 12 * * 2" ]] && ARGS+=(--strict)
