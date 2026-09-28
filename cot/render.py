@@ -81,7 +81,7 @@ def render_report(*, report_date: date, release: date, run_kst: datetime, metric
     header, row = sheet_row(report_date, metrics, analysis)
 
     return _env().get_template("report.html.j2").render(
-        report_date_dot=report_date.strftime("%Y.%m.%d"),
+        report_date_dot=report_date.strftime("%Y.%m.%d"), report_date_iso=report_date.isoformat(),
         report_date_kr=kr_date(report_date), week_label=fetch.week_label(report_date), release_date_kr=kr_date(release),
         run_kst=run_kst.strftime("%Y-%m-%d %H:%M"),
         coverage_text=coverage, missing=missing,

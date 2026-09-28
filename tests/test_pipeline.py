@@ -321,6 +321,18 @@ def test_notify_message_and_channels(tmp_path, fake_fetch, monkeypatch):
     assert "실패" in sent[0][1]["text"]
 
 
+def test_markdown_summary_written(tmp_path, fake_fetch):
+    main.main(["--date", TARGET.isoformat(), "--out", str(tmp_path)])
+    md = (tmp_path / "reports" / f"{TARGET}.md").read_text(encoding="utf-8")
+    assert md.startswith("# CFTC COT 주간 분석 — 2026년 7월 4주차")
+    assert "| ES |" in md and "3y %ile" in md and "최근 1주 기록" in md
+    assert (tmp_path / "latest.md").read_text(encoding="utf-8") == md
+    # 과거 주차를 나중에 생성해도 latest.md는 최신 주차 유지
+    main.main(["--date", "2026-07-21", "--out", str(tmp_path)])
+    assert (tmp_path / "latest.md").read_text(encoding="utf-8") == md
+    assert (tmp_path / "reports" / "2026-07-21.md").exists()
+
+
 def test_record_upsert_keeps_manual_rows(tmp_path):
     from cot import record
     path = tmp_path / "cot_record.csv"

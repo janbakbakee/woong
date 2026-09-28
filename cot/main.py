@@ -19,7 +19,7 @@ import sys
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
-from . import analyze, config, fetch, metrics as mx, prompt, record, render, rss
+from . import analyze, config, fetch, markdown, metrics as mx, prompt, record, render, rss
 
 log = logging.getLogger("cot")
 KST = timezone(timedelta(hours=9))
@@ -176,6 +176,15 @@ def load_claude_output(work: Path, metrics: dict) -> tuple[dict, dict | None]:
     return analysis, news
 
 
+def write_markdown(out: Path, meta: dict, metrics: dict, analysis: dict, record_rows: list[dict],
+                   is_latest: bool) -> None:
+    """AI 상담용 텍스트 요약본: reports/<date>.md (+ 최신 주차면 latest.md)."""
+    text = markdown.render(meta, metrics, analysis, record_rows)
+    (out / "reports" / f"{meta['report_date']}.md").write_text(text, encoding="utf-8")
+    if is_latest:
+        (out / "latest.md").write_text(text, encoding="utf-8")
+
+
 # --------------------------------------------------------------------------
 # 3) publish: HTML + 메타 + 인덱스
 # --------------------------------------------------------------------------
@@ -217,6 +226,7 @@ def publish(state: dict, analysis: dict, news: dict | None, out: Path, model: st
 
     records = load_records(out)
     (out / "index.html").write_text(render.render_index(records, record_rows), encoding="utf-8")
+    write_markdown(out, meta, slim_metrics, analysis, record_rows, is_latest=records[0]["report_date"] == meta["report_date"])
     (out / ".nojekyll").touch()
 
     header, row = render.sheet_row(target, metrics, analysis)

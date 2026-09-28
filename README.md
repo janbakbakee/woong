@@ -52,6 +52,12 @@ Consolidated 코드가 API에 없으면 단일 계약 코드(13874A, 209742)로 
 - **구글 시트 자동 연동**: 빈 시트의 A1 셀에 `=IMPORTDATA("https://janbakbakee.github.io/woong/data/cot_record.csv")`
   → 복붙 없이 항상 최신 기록이 표시됩니다 (구글이 약 1시간 주기로 갱신).
 
+## AI 상담용 요약본
+
+`https://janbakbakee.github.io/woong/latest.md` — 항상 최신 주차의 텍스트 요약(시장별 수치·백분위·점수·의견·확률,
+그룹별 포지션, CIO 판단, 최근 12주 기록). 매매 상담 시 이 URL을 Claude에게 주면 됩니다.
+주차별 파일은 `reports/<기준일>.md`.
+
 ## 알림 (텔레그램 / ntfy)
 
 리포트가 게시되거나 실행이 실패하면 휴대폰으로 알림을 보냅니다. Secrets에 설정한 채널로만 전송됩니다.
