@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COT 주간 분석</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; background: #f5f5f0; color: #0b0b0b; padding: 16px; }
+.wrap { max-width: 900px; margin: 0 auto; padding: 1rem 0; }
+h1 { font-size: 20px; font-weight: 500; margin-bottom: 4px; }
+.sub { font-size: 12px; color: #52514e; margin-bottom: 1.25rem; line-height: 1.6; }
+.section-title { font-size: 13px; font-weight: 500; color: #52514e; text-transform: uppercase; letter-spacing: 0.06em; margin: 1.5rem 0 0.75rem; }
+.panel { background: #ffffff; border: 0.5px solid #e0dfd8; border-radius: 12px; padding: 1rem 1.1rem; margin-bottom: 1rem; }
+.latest { display: block; text-decoration: none; color: #0b0b0b; border-left: 3px solid #2a78d6; }
+.latest .t { font-size: 15px; font-weight: 500; margin-bottom: 4px; }
+.latest .m { font-size: 12px; color: #52514e; line-height: 1.6; }
+.table-scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+th { font-weight: 500; color: #52514e; padding: 6px; border-bottom: 0.5px solid #e0dfd8; text-align: center; white-space: nowrap; }
+td { padding: 6px; border-bottom: 0.5px solid #e0dfd8; text-align: center; white-space: nowrap; }
+td.l, th.l { text-align: left; }
+td.memo { white-space: normal; text-align: left; color: #52514e; font-size: 11px; min-width: 220px; }
+td a { color: #185FA5; text-decoration: none; font-weight: 500; }
+.sc { display: inline-block; min-width: 30px; padding: 2px 6px; border-radius: 4px; font-weight: 500; }
+.legend { font-size: 11px; color: #888780; margin-top: 8px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>CFTC COT 주간 분석</h1>
+  <div class="sub">글로벌 매크로 CIO 시각의 스마트머니 포지션 분석 · 매주 토요일 자동 업데이트 (CFTC 금요일 발표 직후)</div>
+
+  {% if latest %}
+  <a class="panel latest" href="{{ latest.link }}">
+    <div class="t">최신 리포트 — {{ latest.date }} 기준 →</div>
+    <div class="m">{{ latest.opinion }}<br>{{ latest.memo }}</div>
+  </a>
+  {% endif %}
+
+  <div class="section-title">주차별 종합 점수 기록</div>
+  <div class="panel table-scroll">
+    <table>
+      <tr><th class="l">기준일</th>{% for k in keys %}<th>{{ k }}</th>{% endfor %}<th class="l">투자의견 / 핵심메모</th></tr>
+      {% for r in rows %}
+      <tr>
+        <td class="l"><a href="{{ r.link }}">{{ r.date }}</a></td>
+        {% for k in keys %}{% set s = r.scores.get(k) %}
+        <td>{% if s is not none %}<span class="sc" style="background:{{ s|scorebg }};color:{{ s|scorefg }};">{{ s }}</span>{% else %}—{% endif %}</td>
+        {% endfor %}
+        <td class="memo">{{ r.opinion }}{% if r.memo %}<br>{{ r.memo }}{% endif %}</td>
+      </tr>
+      {% endfor %}
+    </table>
+    <div class="legend">초록 = 60점 이상(강세 우위) · 주황 = 40~59(중립) · 빨강 = 40 미만(약세 우위)</div>
+  </div>
+
+  <div class="sub">데이터: CFTC Commitments of Traders (Futures Only). 누적 수치: <a href="data/history.csv" style="color:#185FA5;">history.csv</a> · 본 자료는 투자 참고용이며 투자 권유가 아닙니다.</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COT 분석 대시보드 - {{ report_date_dot }}</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; background: #f5f5f0; color: #0b0b0b; padding: 16px; }
+.wrap { max-width: 900px; margin: 0 auto; padding: 1rem 0; }
+.header-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 1.5rem; }
+.meta-pill { font-size: 11px; padding: 3px 10px; border-radius: 20px; background: #f0efec; border: 0.5px solid #e0dfd8; color: #52514e; }
+.meta-pill.hot { background: #e6f1fb; color: #185FA5; border-color: #b5d4f4; }
+.meta-pill.warn { background: #faeeda; color: #854F0B; border-color: #f1d7ad; }
+.section-title { font-size: 13px; font-weight: 500; color: #52514e; text-transform: uppercase; letter-spacing: 0.06em; margin: 1.5rem 0 0.75rem; }
+.market-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin-bottom: 1rem; }
+.mcard { background: #ffffff; border: 0.5px solid #e0dfd8; border-radius: 12px; padding: 0.85rem 1rem; }
+.mcard-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; gap: 6px; }
+.mcard-name { font-size: 13px; font-weight: 500; color: #0b0b0b; }
+.badge { font-size: 10px; padding: 2px 7px; border-radius: 20px; font-weight: 500; white-space: nowrap; }
+.bull { background: #eaf3de; color: #3B6D11; }
+.bear { background: #fcebeb; color: #A32D2D; }
+.neut { background: #faeeda; color: #854F0B; }
+.mcard-net { font-size: 22px; font-weight: 500; color: #0b0b0b; margin-bottom: 2px; }
+.mcard-sub { font-size: 11px; color: #52514e; margin-bottom: 6px; }
+.chg { font-size: 12px; font-weight: 500; }
+.chg.up { color: #3B6D11; }
+.chg.dn { color: #A32D2D; }
+.stars { font-size: 13px; letter-spacing: 1px; }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1rem; }
+@media (max-width: 600px) { .row2 { grid-template-columns: 1fr; } }
+.panel { background: #ffffff; border: 0.5px solid #e0dfd8; border-radius: 12px; padding: 1rem 1.1rem; }
+.panel-title { font-size: 12px; font-weight: 500; color: #52514e; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.05em; }
+.sm-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 0.5px solid #e0dfd8; font-size: 12px; color: #0b0b0b; gap: 8px; }
+.sm-row:last-child { border-bottom: none; }
+.sm-label { color: #52514e; flex-shrink: 0; }
+.sm-val { font-weight: 500; text-align: right; }
+.signal-row { display: flex; align-items: flex-start; gap: 8px; padding: 6px 0; border-bottom: 0.5px solid #e0dfd8; font-size: 12px; }
+.signal-row:last-child { border-bottom: none; }
+.dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 3px; }
+.dot-bull { background: #639922; }
+.dot-bear { background: #E24B4A; }
+.dot-neut { background: #EF9F27; }
+.signal-name { font-weight: 500; color: #0b0b0b; min-width: 36px; flex-shrink: 0; }
+.signal-desc { color: #52514e; flex: 1; line-height: 1.5; }
+.score-wrap { margin-bottom: 1rem; }
+.score-item { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.score-label { font-size: 12px; color: #52514e; width: 45px; flex-shrink: 0; }
+.score-bar-bg { flex: 1; height: 8px; background: #f0efec; border-radius: 4px; overflow: hidden; position: relative; }
+.score-bar { height: 100%; border-radius: 4px; }
+.score-num { font-size: 12px; font-weight: 500; color: #0b0b0b; width: 32px; text-align: right; flex-shrink: 0; }
+.score-q { font-size: 10px; color: #888780; width: 58px; text-align: right; flex-shrink: 0; }
+.prob-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.prob-cell { text-align: center; padding: 10px 4px; border-radius: 10px; border: 0.5px solid #e0dfd8; background: #fafaf8; }
+.prob-pct { font-size: 20px; font-weight: 500; }
+.prob-lbl { font-size: 11px; color: #52514e; margin-top: 2px; }
+.pct-up { color: #3B6D11; }
+.pct-side { color: #BA7517; }
+.pct-dn { color: #A32D2D; }
+.verdict-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 8px; }
+.verdict-cell { text-align: center; padding: 8px 4px; border-radius: 8px; border: 0.5px solid #e0dfd8; background: #fafaf8; }
+.verdict-name { font-size: 10px; color: #52514e; margin-bottom: 4px; }
+.verdict-label { font-size: 11px; font-weight: 500; }
+.v-buy { color: #3B6D11; background: #EAF3DE; border-radius: 4px; padding: 2px 6px; display: inline-block; }
+.v-hold { color: #854F0B; background: #FAEEDA; border-radius: 4px; padding: 2px 6px; display: inline-block; }
+.v-sell { color: #A32D2D; background: #FCEBEB; border-radius: 4px; padding: 2px 6px; display: inline-block; }
+.top5-item { display: flex; gap: 10px; align-items: flex-start; padding: 7px 0; border-bottom: 0.5px solid #e0dfd8; }
+.top5-item:last-child { border-bottom: none; }
+.top5-num { font-size: 18px; font-weight: 500; color: #c0bfb8; min-width: 20px; flex-shrink: 0; }
+.top5-text { font-size: 12px; color: #0b0b0b; line-height: 1.6; }
+.top5-text b { color: #0b0b0b; font-weight: 500; }
+.exec-box { background: #f0efec; border-radius: 12px; border-left: 3px solid #2a78d6; padding: 1rem 1.1rem; font-size: 13px; color: #0b0b0b; line-height: 1.7; }
+.exec-box p { margin-bottom: 0.6rem; }
+.exec-box p:last-child { margin-bottom: 0; }
+.divider { border: none; border-top: 0.5px solid #e0dfd8; margin: 1.25rem 0; }
+.warn-box { background: #faeeda; border-radius: 6px; padding: 5px 8px; margin-top: 6px; }
+.score-note { font-size: 11px; color: #888780; margin-bottom: 1rem; }
+.sheet-box { background: #0b0b0b; color: #eaeaea; font-family: 'SF Mono', Consolas, monospace; font-size: 10px; padding: 0.8rem; border-radius: 8px; overflow-x: auto; white-space: pre; line-height: 1.6; }
+.trend-panel { background: #ffffff; border: 0.5px solid #e0dfd8; border-radius: 12px; padding: 0.9rem 1.1rem; margin-bottom: 0.75rem; }
+.trend-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.trend-name { font-size: 13px; font-weight: 500; color: #0b0b0b; }
+.trend-mini { display: flex; gap: 3px; align-items: flex-end; height: 26px; }
+.trend-bar { width: 12px; border-radius: 2px 2px 0 0; background: #2a78d6; }
+.trend-row { display: flex; align-items: flex-start; gap: 8px; padding: 5px 0; border-bottom: 0.5px solid #e0dfd8; font-size: 12px; }
+.trend-row:last-child { border-bottom: none; }
+.trend-tag { font-weight: 500; color: #52514e; min-width: 34px; flex-shrink: 0; }
+.trend-desc { color: #0b0b0b; line-height: 1.55; }
+.chart-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; margin-bottom: 1rem; }
+.legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 11px; color: #52514e; margin-bottom: 10px; }
+.legend i { display: inline-block; width: 14px; height: 3px; border-radius: 2px; vertical-align: middle; margin-right: 5px; }
+.stat-line { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 11px; color: #52514e; margin-top: 6px; }
+.stat-line b { color: #0b0b0b; font-weight: 500; }
+.data-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+.data-table th { text-align: right; font-weight: 500; color: #52514e; padding: 5px 6px; border-bottom: 0.5px solid #e0dfd8; white-space: nowrap; }
+.data-table td { text-align: right; padding: 5px 6px; border-bottom: 0.5px solid #e0dfd8; color: #0b0b0b; white-space: nowrap; }
+.data-table th:first-child, .data-table td:first-child { text-align: left; }
+.table-scroll { overflow-x: auto; }
+.src-list { font-size: 11px; color: #52514e; line-height: 1.7; padding-left: 1.1rem; }
+.src-list a { color: #185FA5; text-decoration: none; word-break: break-all; }
+.footnote { font-size: 10px; color: #888780; line-height: 1.6; margin-top: 1rem; }
+.footnote a { color: #888780; }
+.news-box { font-size: 12px; color: #0b0b0b; line-height: 1.65; white-space: pre-wrap; }
+details summary { cursor: pointer; font-size: 12px; color: #52514e; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="header-meta">
+  <span class="meta-pill hot">CFTC 기준일: {{ report_date_kr }}</span>
+  <span class="meta-pill">공식 발표: {{ release_date_kr }}</span>
+  <span class="meta-pill">분석 시점: {{ run_kst }} KST</span>
+  <span class="meta-pill{% if missing %} warn{% endif %}">{{ coverage_text }}</span>
+  {% if not ai %}<span class="meta-pill warn">AI 분석 미실행 — 수치만 표시</span>{% endif %}
+  {% if index_link %}<a class="meta-pill" style="text-decoration:none;" href="{{ index_link }}">← 전체 주차 보기</a>{% endif %}
+</div>
+
+<div class="section-title">① 현재 포지션 &amp; 스코어카드</div>
+<div class="market-grid">
+{% for m in markets %}
+  {% if m.metrics %}
+  {% set a = m.ai %}{% set mt = m.metrics %}{% set hg = mt.groups[mt.headline] %}
+  <div class="mcard">
+    <div class="mcard-top"><span class="mcard-name">{{ m.cfg.name }}</span><span class="badge {{ a.rating|badge }}">{{ a.rating_label }}</span></div>
+    <div class="mcard-net">{{ mt.net|num }}</div>
+    <div class="mcard-sub">Net {{ hg.label }} (롱{{ '{:,}'.format(hg.long) }} / 숏{{ '{:,}'.format(hg.short) }})</div>
+    <div class="chg {{ 'up' if mt.net_chg >= 0 else 'dn' }}">{{ '▲' if mt.net_chg >= 0 else '▼' }} {{ a.card_note }}</div>
+    <div class="stars">{{ a.stars|stars }}</div>
+  </div>
+  {% else %}
+  <div class="mcard">
+    <div class="mcard-top"><span class="mcard-name">{{ m.cfg.name }}</span><span class="badge neut">대기</span></div>
+    <div class="mcard-net">—</div>
+    <div class="mcard-sub">데이터 수신 대기 중</div>
+    <div class="chg" style="color:#52514e;">분석 보류 — 추정치 사용 안 함</div>
+  </div>
+  {% endif %}
+{% endfor %}
+</div>
+
+<hr class="divider">
+
+<div class="row2">
+  <div class="panel">
+    <div class="panel-title">② 전주 대비 포지션 변화 진단</div>
+    {% for m in markets if m.metrics %}
+    <div class="signal-row"><div class="dot dot-{{ m.metrics.net_chg|tone }}"></div><span class="signal-name">{{ m.cfg.key }}</span><span class="signal-desc"><b style="color:#0b0b0b;font-weight:500;">[{{ m.metrics.diag }}]</b> {{ m.ai.change_note }}</span></div>
+    {% endfor %}
+  </div>
+  <div class="panel">
+    <div class="panel-title">③ Smart Money 의견 일치도</div>
+    {% for m in markets if m.metrics %}
+    <div class="sm-row"><span class="sm-label">{{ m.cfg.key }}</span><span class="sm-val">{{ m.ai.smart_money }} {{ m.ai.smart_money_icon }}</span></div>
+    {% endfor %}
+    {% if analysis.smart_money_highlight %}<div class="warn-box"><span style="font-size:11px;color:#854F0B;">이번 주 핵심: {{ analysis.smart_money_highlight }}</span></div>{% endif %}
+  </div>
+</div>
+
+<div class="panel" style="margin-bottom:1rem;">
+  <div class="panel-title">③-1 그룹별 순포지션 상세 (Lev Funds vs Asset Mgr)</div>
+  <div class="table-scroll">
+  <table class="data-table">
+    <tr><th>시장</th><th>그룹</th><th>롱</th><th>숏</th><th>Net</th><th>전주 대비</th><th>진단</th><th>연속</th><th>3년 %ile</th></tr>
+    {% for m in markets if m.metrics %}{% for g in m.metrics.groups.values() %}
+    <tr><td>{{ m.cfg.key if loop.first else '' }}</td><td style="text-align:left;">{{ g.label }}</td><td>{{ '{:,}'.format(g.long) }}</td><td>{{ '{:,}'.format(g.short) }}</td><td>{{ g.net|num }}</td>
+      <td style="color:{{ '#3B6D11' if g.net_chg > 0 else ('#A32D2D' if g.net_chg < 0 else '#52514e') }};">{{ g.net_chg|num }}</td><td>{{ g.diag }}</td><td>{{ g.streak }}주</td><td>{{ g.pct_3y }}</td></tr>
+    {% endfor %}{% endfor %}
+  </table>
+  </div>
+</div>
+
+<div class="panel" style="margin-bottom:1rem;">
+  <div class="panel-title">④ 기관 심리 &amp; 거시경제 베팅 심층 추론</div>
+  {% for s in analysis.sentiment %}
+  <div class="sm-row"><span class="sm-label" style="width:50px;flex-shrink:0;">{{ s.label }}</span><span style="font-size:12px;color:#0b0b0b;line-height:1.5;padding:4px 0;">{{ s.text }}</span></div>
+  {% else %}
+  <div class="sm-row"><span style="font-size:12px;color:#52514e;">뉴스 기반 심리 분석은 AI 분석이 실행되어야 생성됩니다.</span></div>
+  {% endfor %}
+</div>
+
+<hr class="divider">
+
+<div class="row2">
+  <div class="panel">
+    <div class="panel-title">⑤ Extreme 분석 (3년/5년 실제 백분위)</div>
+    {% for m in markets if m.metrics %}
+    <div class="sm-row"><span class="sm-label">{{ m.cfg.key }} {{ m.metrics.headline_label.split()[0] }}</span><span class="sm-val" style="color:{{ m.metrics.pct_3y|pctcolor }};">{{ m.metrics.pct_3y }}%ile (5y {{ m.metrics.pct_5y }}){% if m.ai.extreme_note %} — {{ m.ai.extreme_note }}{% else %} — {{ m.metrics.pct_3y|extreme }}{% endif %}</span></div>
+    {% endfor %}
+  </div>
+  <div class="panel">
+    <div class="panel-title">⑥ Contrarian Signal &amp; 반전 시나리오</div>
+    {% for m in markets if m.metrics and m.ai.contrarian %}
+    <div class="signal-row"><div class="dot dot-{{ m.ai.contrarian_tone }}"></div><span class="signal-desc"><b style="color:#0b0b0b;">{{ m.cfg.key }}:</b> {{ m.ai.contrarian }}</span></div>
+    {% else %}
+    <div class="signal-row"><span class="signal-desc">극단권(10%ile 이하 / 90%ile 이상) 시장: {{ extremes or '없음' }}</span></div>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="panel" style="margin-bottom:1rem;">
+  <div class="panel-title">⑤-1 포지셔닝 게이지 — 3년 백분위 (● 현재 / ○ 4주 전)</div>
+  {{ gauge|safe }}
+  <div class="score-note" style="margin:6px 0 0;">빨간 구간 = 역사적 극단 숏(0~10%ile), 초록 구간 = 역사적 극단 롱(90~100%ile). 헤드라인 그룹 기준(NQ/ES/BTC/JPY/USD=Lev Funds, EUR=Asset Mgr, WTI=Managed Money).</div>
+</div>
+
+<hr class="divider">
+
+<div class="section-title">⑦ 시장별 종합 점수 (100점 만점)</div>
+<div class="score-wrap">
+{% for m in markets if m.metrics %}
+  <div class="score-item"><span class="score-label">{{ m.cfg.key }}</span><div class="score-bar-bg"><div class="score-bar" style="width:{{ m.ai.score }}%;background:{{ m.ai.score|scorecolor }};"></div></div><span class="score-num">{{ m.ai.score }}</span><span class="score-q">퀀트 {{ m.metrics.quant.total if m.metrics.quant else '—' }}</span></div>
+{% endfor %}
+</div>
+<div class="score-note">점수 기준: 순포지션 방향성(40, 3년 백분위) + 기관 일치도(30) + 추세 강도(30, 4주 변화 z-score). 50 = 중립 / 50 이상 = 강세 우위 / 50 미만 = 약세 우위. 최종 점수는 퀀트 점수에서 뉴스·맥락을 반영해 ±15점 이내로 조정.</div>
+
+<hr class="divider">
+
+<div class="section-title">⑧ 향후 1~4주 전망 확률</div>
+<div class="market-grid" style="margin-bottom:0.75rem;">
+{% for m in markets if m.metrics %}
+  <div class="panel">
+    <div class="panel-title">{{ m.cfg.name }}</div>
+    <div class="prob-grid">
+      <div class="prob-cell"><div class="prob-pct pct-up">{{ m.ai.prob_up|prob }}</div><div class="prob-lbl">{{ m.cfg.up_label }}</div></div>
+      <div class="prob-cell"><div class="prob-pct pct-side">{{ m.ai.prob_side|prob }}</div><div class="prob-lbl">횡보</div></div>
+      <div class="prob-cell"><div class="prob-pct pct-dn">{{ m.ai.prob_down|prob }}</div><div class="prob-lbl">{{ m.cfg.down_label }}</div></div>
+    </div>
+  </div>
+{% endfor %}
+</div>
+
+<hr class="divider">
+
+<div class="section-title">⑨ 투자 의견</div>
+<div class="verdict-grid" style="margin-bottom:1rem;">
+{% for m in markets if m.metrics %}
+  <div class="verdict-cell"><div class="verdict-name">{{ m.cfg.key }}</div><span class="verdict-label {{ m.ai.verdict|vclass }}">{{ m.ai.verdict }}</span></div>
+{% endfor %}
+</div>
+
+<hr class="divider">
+
+<div class="section-title">⑩ 이번 주 핵심 변화 TOP 5</div>
+<div class="panel" style="margin-bottom:1rem;">
+{% for t in analysis.top5[:5] %}
+  <div class="top5-item"><span class="top5-num">{{ loop.index }}</span><span class="top5-text"><b>{{ t.title }}</b> — {{ t.body }}</span></div>
+{% else %}
+  {% for m in biggest_moves %}
+  <div class="top5-item"><span class="top5-num">{{ loop.index }}</span><span class="top5-text"><b>{{ m.key }} — {{ m.diag }} ({{ m.net_chg|num }})</b> — 주간 변화 z-score {{ m.chg_z }}, 3년 백분위 {{ m.pct_3y }}%ile</span></div>
+  {% endfor %}
+{% endfor %}
+</div>
+
+<hr class="divider">
+
+<div class="section-title">⑪ 종합 결론 — CIO Executive Summary</div>
+<div class="exec-box">
+  <p><b>핵심 테마: {{ analysis.exec_theme }}</b></p>
+  {% for p in analysis.exec_paragraphs %}
+  <p>{% if p.label and p.label != '개요' %}<b>{{ p.label }}:</b> {% endif %}{{ p.text }}</p>
+  {% endfor %}
+  {% if analysis.exec_recommendation or analysis.monitoring %}
+  <p>{% if analysis.exec_recommendation %}<b>종합 권고:</b> {{ analysis.exec_recommendation }}{% endif %}{% if analysis.monitoring %}<br>모니터링: {% for x in analysis.monitoring %}{{ '①②③④⑤⑥⑦'[loop.index0] }} {{ x }} {% endfor %}{% endif %}</p>
+  {% endif %}
+</div>
+
+<hr class="divider">
+
+<div class="section-title">⑫ 구글 시트 복붙용 수치 표</div>
+<div class="sheet-box">{{ sheet_text }}</div>
+
+<hr class="divider">
+
+<div class="section-title">⑬ 다주차 트렌드 인사이트 ({{ trend_range }})</div>
+{% if analysis.trend_overview %}
+<div class="exec-box" style="margin-bottom:1rem;">
+  <p>{{ analysis.trend_overview }}</p>
+</div>
+{% endif %}
+{% for m in markets if m.metrics %}
+<div class="trend-panel">
+  <div class="trend-head"><span class="trend-name">{{ m.cfg.name }}</span><div class="trend-mini">{{ m.minibars|safe }}</div></div>
+  {% if m.ai.trend_short %}<div class="trend-row"><span class="trend-tag">단기</span><span class="trend-desc">{{ m.ai.trend_short }}</span></div>{% endif %}
+  {% if m.ai.trend_mid %}<div class="trend-row"><span class="trend-tag">중기</span><span class="trend-desc">{{ m.ai.trend_mid }}</span></div>{% endif %}
+  {% if m.ai.trend_long %}<div class="trend-row"><span class="trend-tag">장기</span><span class="trend-desc">{{ m.ai.trend_long }}</span></div>{% endif %}
+  <div class="trend-row"><span class="trend-tag">퀀트</span><span class="trend-desc">{% for q in m.metrics.quant_history[-6:] %}{{ q.score }}{% if not loop.last %} → {% endif %}{% endfor %} (최근 6주 퀀트 점수)</span></div>
+</div>
+{% endfor %}
+
+<hr class="divider">
+
+<div class="section-title">⑭ 3년 순포지션 추이 차트</div>
+<div class="legend"><span><i style="background:#2a78d6;"></i>Leveraged Funds / Managed Money</span><span><i style="background:#c2650a;"></i>Asset Managers</span><span style="color:#888780;">점선 = 3년 최고/최저 · 마우스 오버 시 주간 수치</span></div>
+<div class="chart-grid">
+{% for m in markets if m.metrics and m.chart %}
+  <div class="panel">
+    <div class="panel-title">{{ m.cfg.name }}</div>
+    {{ m.chart|safe }}
+    <div class="stat-line"><span>COT Index 26주 <b>{{ m.metrics.cot_idx_26w }}</b></span><span>156주 <b>{{ m.metrics.cot_idx_156w }}</b></span><span>주간변화 z <b>{{ m.metrics.chg_z }}</b></span>{% if m.metrics.oi %}<span>OI <b>{{ '{:,}'.format(m.metrics.oi) }}</b>{% if m.metrics.oi_chg is not none %} ({{ m.metrics.oi_chg|num }}){% endif %}</span>{% endif %}</div>
+  </div>
+{% endfor %}
+</div>
+<div class="score-note">COT Index = 기간 내 최저~최고 순포지션 사이에서 현재 위치(0~100). 주간변화 z = 이번 주 순변화 ÷ 3년 주간 변화 표준편차 (|z| ≥ 2 이면 이례적 변화).</div>
+
+{% if news %}
+<hr class="divider">
+<div class="section-title">Step 2.5 매크로 뉴스 브리프 &amp; 출처</div>
+<div class="panel" style="margin-bottom:1rem;">
+  <details><summary>뉴스 서치 원문 펼치기</summary><div class="news-box" style="margin-top:8px;">{{ news.text }}</div></details>
+  {% if news.sources %}
+  <ol class="src-list" style="margin-top:8px;">
+    {% for s in news.sources[:30] %}<li><a href="{{ s.url }}" target="_blank" rel="noopener">{{ s.title }}</a></li>{% endfor %}
+  </ol>
+  {% endif %}
+</div>
+{% endif %}
+
+<div class="footnote">
+  데이터: {{ data_sources }} · Futures Only · 시장 코드 {% for m in markets if m.metrics %}{{ m.cfg.key }}={{ m.metrics.code }}{% if not loop.last %}, {% endif %}{% endfor %}<br>
+  원문 확인: <a href="https://www.cftc.gov/dea/futures/financial_lf.htm">금융선물</a> · <a href="https://www.cftc.gov/dea/futures/petroleum_lf.htm">WTI 원유</a>
+  {% if ai %} · 분석: Claude ({{ model }}){% endif %}<br>
+  본 자료는 투자 참고용이며 투자 권유가 아닙니다.
+</div>
+
+</div>
+</body>
+</html>

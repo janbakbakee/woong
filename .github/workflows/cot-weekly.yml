@@ -1,0 +1,112 @@
+name: COT 주간 리포트
+
+on:
+  schedule:
+    # CFTC 발표: 금요일 15:30 ET. KST 기준 토요일 오전 실행,
+    # 공휴일 등으로 발표가 늦어질 경우를 대비해 일·월·화에도 재시도 (완료된 주차는 자동 건너뜀)
+    - cron: "37 0 * * 6"   # 토 09:37 KST
+    - cron: "37 0 * * 0"   # 일 09:37 KST
+    - cron: "37 0 * * 1"   # 월 09:37 KST
+    - cron: "37 12 * * 2"  # 화 21:37 KST
+  workflow_dispatch:
+    inputs:
+      date:
+        description: "CFTC 기준일(화요일) YYYY-MM-DD — 비우면 최신 주차"
+        required: false
+      force:
+        description: "이미 생성된 주차도 다시 생성"
+        type: boolean
+        default: false
+      no_ai:
+        description: "Claude 분석 없이 수치만 생성"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: cot-weekly
+  cancel-in-progress: false
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: 의존성 설치
+        run: pip install -r requirements.txt
+
+      - name: 리포트 생성
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          COT_MODEL: ${{ vars.COT_MODEL }}
+          IN_DATE: ${{ inputs.date }}
+          IN_FORCE: ${{ inputs.force }}
+          IN_NO_AI: ${{ inputs.no_ai }}
+          SCHEDULE: ${{ github.event.schedule }}
+        run: |
+          ARGS=()
+          if [[ -n "$IN_DATE" ]]; then
+            [[ "$IN_DATE" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]] || { echo "날짜 형식 오류: $IN_DATE"; exit 1; }
+            ARGS+=(--date "$IN_DATE")
+          fi
+          [[ "$IN_FORCE" == "true" ]] && ARGS+=(--force)
+          [[ "$IN_NO_AI" == "true" ]] && ARGS+=(--no-ai)
+          # 화요일 마지막 재시도에서도 데이터가 없으면 실패로 표시해 알림을 받는다
+          [[ "$SCHEDULE" == "37 12 * * 2" ]] && ARGS+=(--strict)
+          [[ -z "$COT_MODEL" ]] && unset COT_MODEL
+          python -m cot.main "${ARGS[@]}"
+
+      - name: 결과 커밋
+        id: commit
+        run: |
+          git config user.name "cot-report-bot"
+          git config user.email "cot-report-bot@users.noreply.github.com"
+          git add docs
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            git commit -m "COT 리포트 업데이트 ($(date -u +%Y-%m-%d))"
+            git push
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Pages 아티팩트 업로드
+        if: steps.commit.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+    outputs:
+      changed: ${{ steps.commit.outputs.changed }}
+
+  deploy:
+    needs: report
+    if: needs.report.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
+
+  test:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements-dev.txt && pytest -q
