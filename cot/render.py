@@ -55,14 +55,13 @@ def sheet_row(report_date: date, metrics: dict, analysis: dict) -> tuple[str, st
 
 def render_report(*, report_date: date, release: date, run_kst: datetime, metrics: dict,
                   analysis: dict, news: dict | None, data_sources: list[str], model: str,
-                  rss: list[dict] | None = None,
-                  index_link: str | None = "../index.html") -> str:
+                  rss: list[dict] | None = None, base: str = "../", nav: str = "") -> str:
     markets = []
     for cfg in config.MARKETS:
         mt = metrics.get(cfg.key)
         item = {"cfg": cfg, "metrics": mt, "ai": analysis["markets"].get(cfg.key) if mt else None}
         if mt:
-            item["chart"] = charts.history_svg(mt["chart"], cfg.groups, cfg.name)
+            item["chart"] = charts.history_svg(mt["chart"], cfg.groups, cfg.name) if mt.get("chart") else ""
             item["minibars"] = charts.mini_bars(mt["quant_history"])
         markets.append(item)
 
@@ -93,7 +92,7 @@ def render_report(*, report_date: date, release: date, run_kst: datetime, metric
         trend_range=trend_range,
         sheet_text=f"{header}\n{row}",
         data_sources=" / ".join(dict.fromkeys(data_sources)),
-        index_link=index_link,
+        base=base, nav=nav,
     )
 
 
@@ -104,21 +103,29 @@ def _group_rss(items: list[dict]) -> list[dict]:
     return [{"name": k, "entries": v[:8]} for k, v in groups.items()]
 
 
-def render_index(records: list[dict], record_rows: list[dict] | None = None) -> str:
-    """records: 보고서 메타 목록 (최신순)."""
+def _week_row(meta: dict) -> dict:
+    return {
+        "date": meta["report_date"], "file": f"{meta['report_date']}",
+        "week": meta.get("week_label") or fetch.week_label(date.fromisoformat(meta["report_date"])),
+        "scores": meta.get("scores", {}), "verdicts": meta.get("verdicts", {}),
+        "opinion": meta.get("sheet_opinion", ""), "memo": meta.get("sheet_memo", ""),
+        "ai": meta.get("ai", False),
+    }
+
+
+def render_month(key: str, label: str, metas: list[dict], nav: str) -> str:
+    weeks = [_week_row(m) for m in sorted(metas, key=lambda m: m["report_date"], reverse=True)]
+    return _env().get_template("month.html.j2").render(
+        label=label, weeks=weeks, nav=nav, keys=[m.key for m in config.MARKETS])
+
+
+def render_record(metas: list[dict], record_rows: list[dict], nav: str) -> str:
+    """기록 탭: 주차별 점수(보관기간 내 리포트) + 누적 수치 기록(영구)."""
     keys = [m.key for m in config.MARKETS]
-    rows = [{
-        "date": r["report_date"], "link": f"reports/{r['report_date']}.html",
-        "week": r.get("week_label") or fetch.week_label(date.fromisoformat(r["report_date"])),
-        "scores": r.get("scores", {}), "opinion": r.get("sheet_opinion", ""), "memo": r.get("sheet_memo", ""),
-    } for r in records]
-    latest = None
-    if rows:
-        latest = {"date": rows[0]["date"], "week": rows[0]["week"], "link": rows[0]["link"],
-                  "opinion": rows[0]["opinion"], "memo": rows[0]["memo"]}
+    rows = [{**_week_row(m), "link": f"reports/{m['report_date']}.html"} for m in metas]
     reported = {r["date"] for r in rows}
     rec = [{**r, "link": f"reports/{r['날짜']}.html" if r["날짜"] in reported else None}
-           for r in (record_rows or [])]
-    return _env().get_template("index.html.j2").render(
-        keys=keys, rows=rows, latest=latest, record_rows=rec, record_order=record.ORDER,
-        site_url=config.site_url())
+           for r in record_rows]
+    return _env().get_template("record.html.j2").render(
+        keys=keys, rows=rows, record_rows=rec, record_order=record.ORDER,
+        site_url=config.site_url(), nav=nav)

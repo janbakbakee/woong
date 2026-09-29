@@ -8,6 +8,10 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; background: #f5f5f0; color: #0b0b0b; padding: 16px; }
 .wrap { max-width: 900px; margin: 0 auto; padding: 1rem 0; }
+.tabs { display: flex; gap: 6px; overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 2px 0 12px; margin-bottom: 1rem; border-bottom: 0.5px solid #e0dfd8; scrollbar-width: none; }
+.tabs::-webkit-scrollbar { display: none; }
+.tab { flex-shrink: 0; font-size: 12px; padding: 6px 12px; border-radius: 20px; background: #ffffff; border: 0.5px solid #e0dfd8; color: #52514e; text-decoration: none; white-space: nowrap; }
+.tab.on { background: #0b0b0b; border-color: #0b0b0b; color: #ffffff; font-weight: 500; }
 .header-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 1.5rem; }
 .meta-pill { font-size: 11px; padding: 3px 10px; border-radius: 20px; background: #f0efec; border: 0.5px solid #e0dfd8; color: #52514e; }
 .meta-pill.hot { background: #e6f1fb; color: #185FA5; border-color: #b5d4f4; }
@@ -17,7 +21,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'N
 .mcard { background: #ffffff; border: 0.5px solid #e0dfd8; border-radius: 12px; padding: 0.85rem 1rem; }
 .mcard-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; gap: 6px; }
 .mcard-name { font-size: 13px; font-weight: 500; color: #0b0b0b; }
-.badge { font-size: 10px; padding: 2px 7px; border-radius: 20px; font-weight: 500; white-space: nowrap; }
+.badge { font-size: 10px; padding: 2px 7px; border-radius: 10px; font-weight: 500; max-width: 58%; text-align: right; line-height: 1.35; overflow-wrap: anywhere; }
 .bull { background: #eaf3de; color: #3B6D11; }
 .bear { background: #fcebeb; color: #A32D2D; }
 .neut { background: #faeeda; color: #854F0B; }
@@ -110,6 +114,7 @@ details summary { cursor: pointer; font-size: 12px; color: #52514e; }
 </head>
 <body>
 <div class="wrap">
+{{ nav|safe }}
 
 <div class="header-meta">
   <span class="meta-pill hot">{{ week_label }} · CFTC 기준일: {{ report_date_kr }}</span>
@@ -117,7 +122,6 @@ details summary { cursor: pointer; font-size: 12px; color: #52514e; }
   <span class="meta-pill">분석 시점: {{ run_kst }} KST</span>
   <span class="meta-pill{% if missing %} warn{% endif %}">{{ coverage_text }}</span>
   {% if not ai %}<span class="meta-pill warn">AI 분석 미실행 — 수치만 표시</span>{% endif %}
-  {% if index_link %}<a class="meta-pill" style="text-decoration:none;" href="{{ index_link }}">← 전체 주차 보기</a>{% endif %}
 </div>
 
 <div class="section-title">① 현재 포지션 &amp; 스코어카드</div>
@@ -337,7 +341,7 @@ details summary { cursor: pointer; font-size: 12px; color: #52514e; }
 
 <div class="footnote">
   데이터: {{ data_sources }} · Futures Only · 시장 코드 {% for m in markets if m.metrics %}{{ m.cfg.key }}={{ m.metrics.code }}{% if not loop.last %}, {% endif %}{% endfor %}<br>
-  AI 상담용 텍스트 요약: <a href="{{ report_date_iso }}.md">{{ report_date_iso }}.md</a> ·
+  AI 상담용 텍스트 요약: <a href="{{ base }}reports/{{ report_date_iso }}.md">{{ report_date_iso }}.md</a> ·
   원문 확인: <a href="https://www.cftc.gov/dea/futures/financial_lf.htm">금융선물</a> · <a href="https://www.cftc.gov/dea/futures/petroleum_lf.htm">WTI 원유</a>
   {% if ai %} · 분석: Claude ({{ model }}){% endif %}<br>
   본 자료는 투자 참고용이며 투자 권유가 아닙니다.

@@ -19,7 +19,7 @@ import sys
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
-from . import analyze, config, fetch, markdown, metrics as mx, prompt, record, render, rss
+from . import analyze, config, fetch, metrics as mx, prompt, record, render, rss, site
 
 log = logging.getLogger("cot")
 KST = timezone(timedelta(hours=9))
@@ -52,16 +52,6 @@ def _gh_output(**kv) -> None:
 
 def _ai_expected() -> bool:
     return bool(os.environ.get("ANTHROPIC_API_KEY")) or os.environ.get("COT_AI_EXPECTED") == "true"
-
-
-def load_records(out: Path) -> list[dict]:
-    recs = []
-    for p in sorted((out / "data" / "reports").glob("*.json"), reverse=True):
-        try:
-            recs.append(json.loads(p.read_text(encoding="utf-8"))["meta"])
-        except (json.JSONDecodeError, KeyError):
-            log.warning("메타 파일 손상: %s", p)
-    return recs
 
 
 # --------------------------------------------------------------------------
@@ -176,58 +166,38 @@ def load_claude_output(work: Path, metrics: dict) -> tuple[dict, dict | None]:
     return analysis, news
 
 
-def write_markdown(out: Path, meta: dict, metrics: dict, analysis: dict, record_rows: list[dict],
-                   is_latest: bool) -> None:
-    """AI 상담용 텍스트 요약본: reports/<date>.md (+ 최신 주차면 latest.md)."""
-    text = markdown.render(meta, metrics, analysis, record_rows)
-    (out / "reports" / f"{meta['report_date']}.md").write_text(text, encoding="utf-8")
-    if is_latest:
-        (out / "latest.md").write_text(text, encoding="utf-8")
-
-
 # --------------------------------------------------------------------------
 # 3) publish: HTML + 메타 + 인덱스
 # --------------------------------------------------------------------------
 
 def publish(state: dict, analysis: dict, news: dict | None, out: Path, model: str) -> None:
+    """주차 데이터 저장 → 수치 기록 누적 → 사이트 전체 재구성."""
     target = date.fromisoformat(state["target"])
     release = fetch.release_date(target)
     metrics, missing = state["metrics"], state["missing"]
-    generated = datetime.fromisoformat(state["generated_at"])
-
-    html = render.render_report(
-        report_date=target, release=release, run_kst=datetime.now(timezone.utc).astimezone(KST),
-        metrics=metrics, analysis=analysis, news=news, rss=state.get("rss", []),
-        data_sources=state["sources"], model=model,
-    )
-    (out / "reports").mkdir(parents=True, exist_ok=True)
-    meta_path = out / "data" / "reports" / f"{target.isoformat()}.json"
-    meta_path.parent.mkdir(parents=True, exist_ok=True)
-    (out / "reports" / f"{target.isoformat()}.html").write_text(html, encoding="utf-8")
 
     meta = {
         "report_date": target.isoformat(), "release_date": release.isoformat(),
-        "week_label": fetch.week_label(target), "generated_at": generated.isoformat(), "complete": not missing, "ai": analysis.get("ai", False),
-        "missing": missing,
+        "week_label": fetch.week_label(target), "generated_at": state["generated_at"],
+        "complete": not missing, "ai": analysis.get("ai", False), "missing": missing, "model": model,
         "nets": {k: m["net"] for k, m in metrics.items()},
         "scores": {k: analysis["markets"][k]["score"] for k in metrics},
         "verdicts": {k: analysis["markets"][k]["verdict"] for k in metrics},
         "sheet_opinion": analysis.get("sheet_opinion", ""), "sheet_memo": analysis.get("sheet_memo", ""),
     }
-    slim_metrics = {k: {kk: vv for kk, vv in m.items() if kk != "chart"} for k, m in metrics.items()}
-    meta_path.write_text(json.dumps({"meta": meta, "metrics": slim_metrics, "analysis": analysis,
-                                     "news": news, "rss": state.get("rss", [])},
-                                    ensure_ascii=False, indent=1, default=str), encoding="utf-8")
+    data_path = out / "data" / "reports" / f"{target.isoformat()}.json"
+    data_path.parent.mkdir(parents=True, exist_ok=True)
+    # 차트 데이터까지 저장 → 사이트 재구성 시 이 파일만으로 리포트를 다시 그릴 수 있음
+    data_path.write_text(json.dumps({"meta": meta, "metrics": metrics, "analysis": analysis, "news": news,
+                                     "rss": state.get("rss", []), "sources": state["sources"]},
+                                    ensure_ascii=False, default=str), encoding="utf-8")
 
-    # 주차별 수치 기록 누적 (구글 시트와 같은 열 구성)
-    record_rows = record.upsert(out / "data" / "cot_record.csv", record.make_row(
+    # 주차별 수치 기록 누적 (구글 시트와 같은 열 구성, 영구 보관)
+    record.upsert(out / "data" / "cot_record.csv", record.make_row(
         target.isoformat(), meta["nets"], meta["scores"], meta["sheet_opinion"], meta["sheet_memo"]))
     (out / "data" / "history.csv").unlink(missing_ok=True)  # 구 형식 파일 정리
 
-    records = load_records(out)
-    (out / "index.html").write_text(render.render_index(records, record_rows), encoding="utf-8")
-    write_markdown(out, meta, slim_metrics, analysis, record_rows, is_latest=records[0]["report_date"] == meta["report_date"])
-    (out / ".nojekyll").touch()
+    site.rebuild(out)
 
     header, row = render.sheet_row(target, metrics, analysis)
     log.info("⑫ 구글 시트 행:\n%s\n%s", header, row)
@@ -262,6 +232,12 @@ def cmd_render(args) -> int:
     return 0
 
 
+def cmd_rebuild(args) -> int:
+    """저장된 주차 데이터로 사이트만 다시 만든다 (분석·데이터 수집 없음)."""
+    site.rebuild(Path(args.out))
+    return 0
+
+
 def cmd_run(args) -> int:
     state = prepare(args)
     if state is None:
@@ -286,8 +262,8 @@ def cmd_run(args) -> int:
 
 def main(argv=None) -> int:
     p = argparse.ArgumentParser(description="CFTC COT 주간 리포트 생성")
-    p.add_argument("stage", nargs="?", default="run", choices=["run", "prepare", "render"],
-                   help="run=한 번에 실행 / prepare·render=GitHub Actions 단계 실행")
+    p.add_argument("stage", nargs="?", default="run", choices=["run", "prepare", "render", "rebuild"],
+                   help="run=한 번에 실행 / prepare·render=GitHub Actions 단계 / rebuild=사이트만 재구성")
     p.add_argument("--date", help="기준 주차: 2026-09-22 또는 '2026년 9월 2주차'. 생략 시 최신 발표 주차")
     p.add_argument("--out", default="docs", help="출력 폴더 (GitHub Pages 루트)")
     p.add_argument("--work", default="work", help="Claude 작업 폴더 (prepare/render)")
@@ -296,7 +272,7 @@ def main(argv=None) -> int:
     p.add_argument("--strict", action="store_true", help="데이터 미발표 시 실패 코드로 종료")
     args = p.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
-    return {"run": cmd_run, "prepare": cmd_prepare, "render": cmd_render}[args.stage](args)
+    return {"run": cmd_run, "prepare": cmd_prepare, "render": cmd_render, "rebuild": cmd_rebuild}[args.stage](args)
 
 
 if __name__ == "__main__":

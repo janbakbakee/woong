@@ -84,7 +84,7 @@ def send_all(title: str, body: str, link: str) -> list[str]:
 
 def main(argv=None) -> int:
     p = argparse.ArgumentParser(description="COT 리포트 알림")
-    p.add_argument("--date", help="기준일 YYYY-MM-DD (성공 알림)")
+    p.add_argument("--date", help="기준일 YYYY-MM-DD (생략 시 최신 리포트)")
     p.add_argument("--out", default="docs")
     p.add_argument("--failure", action="store_true", help="실패 알림")
     p.add_argument("--run-url", default="")
@@ -94,7 +94,12 @@ def main(argv=None) -> int:
     if args.failure:
         msg = failure_message(args.run_url)
     else:
-        meta_path = Path(args.out) / "data" / "reports" / f"{args.date}.json"
+        reports = Path(args.out) / "data" / "reports"
+        if args.date:
+            meta_path = reports / f"{args.date}.json"
+        else:  # 날짜 미지정(이미 생성된 주차를 수동 실행한 경우) → 최신 리포트
+            found = sorted(reports.glob("*.json"))
+            meta_path = found[-1] if found else reports / "none.json"
         if not meta_path.exists():
             log.warning("메타 파일 없음: %s — 알림 생략", meta_path)
             return 0

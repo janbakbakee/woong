@@ -329,7 +329,8 @@ def test_markdown_summary_written(tmp_path, fake_fetch):
     assert (tmp_path / "latest.md").read_text(encoding="utf-8") == md
     # 과거 주차를 나중에 생성해도 latest.md는 최신 주차 유지
     main.main(["--date", "2026-07-21", "--out", str(tmp_path)])
-    assert (tmp_path / "latest.md").read_text(encoding="utf-8") == md
+    latest = (tmp_path / "latest.md").read_text(encoding="utf-8")
+    assert latest.startswith("# CFTC COT 주간 분석 — 2026년 7월 4주차") and "최근 2주 기록" in latest
     assert (tmp_path / "reports" / "2026-07-21.md").exists()
 
 
@@ -342,3 +343,41 @@ def test_record_upsert_keeps_manual_rows(tmp_path):
     rows = record.upsert(path, record.make_row("2026-09-22", {"ES": -1}, {"ES": 40}, "c", "d"))
     assert [r["날짜"] for r in rows] == ["2026-09-22", "2026-06-23"]
     assert rows[0]["ES Net"] == "-1" and rows[1]["핵심메모"] == "수기, 메모"
+
+
+def test_site_tabs_months_and_retention(tmp_path, fake_fetch):
+    from cot import site
+    for d in ["2026-07-21", "2026-07-28"]:
+        main.main(["--date", d, "--out", str(tmp_path)])
+    index = (tmp_path / "index.html").read_text(encoding="utf-8")
+    # 메인 = 최신 주차 리포트 + 탭
+    assert "2026년 7월 4주차" in index and 'class="tab on" href="index.html">최신' in index
+    assert 'href="months/2026-07.html">2026년 7월' in index and 'href="record.html">기록' in index
+    month = (tmp_path / "months" / "2026-07.html").read_text(encoding="utf-8")
+    assert "../reports/2026-07-28.html" in month and "../reports/2026-07-21.html" in month
+    report = (tmp_path / "reports" / "2026-07-21.html").read_text(encoding="utf-8")
+    assert 'class="tab on" href="../months/2026-07.html"' in report and "../reports/2026-07-21.md" in report
+    assert "2026-07-28" in (tmp_path / "record.html").read_text(encoding="utf-8")
+
+    # 1년 초과 주차는 정리 (수치 기록 CSV는 유지)
+    old = tmp_path / "data" / "reports" / "2025-07-15.json"
+    data = json.loads((tmp_path / "data" / "reports" / "2026-07-21.json").read_text(encoding="utf-8"))
+    data["meta"]["report_date"] = "2025-07-15"
+    old.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
+    (tmp_path / "reports" / "2025-07-15.html").write_text("x", encoding="utf-8")
+    site.rebuild(tmp_path)
+    assert not old.exists() and not (tmp_path / "reports" / "2025-07-15.html").exists()
+    assert not (tmp_path / "months" / "2025-07.html").exists()
+    assert "2026-07-21" in (tmp_path / "data" / "cot_record.csv").read_text(encoding="utf-8-sig")
+
+
+def test_rebuild_tolerates_old_data_without_chart(tmp_path, fake_fetch):
+    main.main(["--date", TARGET.isoformat(), "--out", str(tmp_path)])
+    p = tmp_path / "data" / "reports" / f"{TARGET}.json"
+    data = json.loads(p.read_text(encoding="utf-8"))
+    for m in data["metrics"].values():
+        m.pop("chart")
+    data["meta"].pop("model", None)
+    p.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
+    assert main.main(["rebuild", "--out", str(tmp_path)]) == 0
+    assert "2026년 7월 4주차" in (tmp_path / "index.html").read_text(encoding="utf-8")

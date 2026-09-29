@@ -3,128 +3,601 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>COT 주간 분석</title>
+<title>COT 분석 대시보드 - 2026년 9월 4주차 (2026.09.22)</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; background: #f5f5f0; color: #0b0b0b; padding: 16px; }
 .wrap { max-width: 900px; margin: 0 auto; padding: 1rem 0; }
-h1 { font-size: 20px; font-weight: 500; margin-bottom: 4px; }
-.sub { font-size: 12px; color: #52514e; margin-bottom: 1.25rem; line-height: 1.6; }
+.tabs { display: flex; gap: 6px; overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 2px 0 12px; margin-bottom: 1rem; border-bottom: 0.5px solid #e0dfd8; scrollbar-width: none; }
+.tabs::-webkit-scrollbar { display: none; }
+.tab { flex-shrink: 0; font-size: 12px; padding: 6px 12px; border-radius: 20px; background: #ffffff; border: 0.5px solid #e0dfd8; color: #52514e; text-decoration: none; white-space: nowrap; }
+.tab.on { background: #0b0b0b; border-color: #0b0b0b; color: #ffffff; font-weight: 500; }
+.header-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 1.5rem; }
+.meta-pill { font-size: 11px; padding: 3px 10px; border-radius: 20px; background: #f0efec; border: 0.5px solid #e0dfd8; color: #52514e; }
+.meta-pill.hot { background: #e6f1fb; color: #185FA5; border-color: #b5d4f4; }
+.meta-pill.warn { background: #faeeda; color: #854F0B; border-color: #f1d7ad; }
 .section-title { font-size: 13px; font-weight: 500; color: #52514e; text-transform: uppercase; letter-spacing: 0.06em; margin: 1.5rem 0 0.75rem; }
-.panel { background: #ffffff; border: 0.5px solid #e0dfd8; border-radius: 12px; padding: 1rem 1.1rem; margin-bottom: 1rem; }
-.latest { display: block; text-decoration: none; color: #0b0b0b; border-left: 3px solid #2a78d6; }
-.latest .t { font-size: 15px; font-weight: 500; margin-bottom: 4px; }
-.latest .m { font-size: 12px; color: #52514e; line-height: 1.6; }
+.market-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin-bottom: 1rem; }
+.mcard { background: #ffffff; border: 0.5px solid #e0dfd8; border-radius: 12px; padding: 0.85rem 1rem; }
+.mcard-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; gap: 6px; }
+.mcard-name { font-size: 13px; font-weight: 500; color: #0b0b0b; }
+.badge { font-size: 10px; padding: 2px 7px; border-radius: 10px; font-weight: 500; max-width: 58%; text-align: right; line-height: 1.35; overflow-wrap: anywhere; }
+.bull { background: #eaf3de; color: #3B6D11; }
+.bear { background: #fcebeb; color: #A32D2D; }
+.neut { background: #faeeda; color: #854F0B; }
+.mcard-net { font-size: 22px; font-weight: 500; color: #0b0b0b; margin-bottom: 2px; }
+.mcard-sub { font-size: 11px; color: #52514e; margin-bottom: 6px; }
+.chg { font-size: 12px; font-weight: 500; }
+.chg.up { color: #3B6D11; }
+.chg.dn { color: #A32D2D; }
+.stars { font-size: 13px; letter-spacing: 1px; }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1rem; }
+@media (max-width: 600px) { .row2 { grid-template-columns: 1fr; } }
+.panel { background: #ffffff; border: 0.5px solid #e0dfd8; border-radius: 12px; padding: 1rem 1.1rem; }
+.panel-title { font-size: 12px; font-weight: 500; color: #52514e; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.05em; }
+.sm-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 0.5px solid #e0dfd8; font-size: 12px; color: #0b0b0b; gap: 8px; }
+.sm-row:last-child { border-bottom: none; }
+.sm-label { color: #52514e; flex-shrink: 0; }
+.sm-val { font-weight: 500; text-align: right; }
+.signal-row { display: flex; align-items: flex-start; gap: 8px; padding: 6px 0; border-bottom: 0.5px solid #e0dfd8; font-size: 12px; }
+.signal-row:last-child { border-bottom: none; }
+.dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 3px; }
+.dot-bull { background: #639922; }
+.dot-bear { background: #E24B4A; }
+.dot-neut { background: #EF9F27; }
+.signal-name { font-weight: 500; color: #0b0b0b; min-width: 36px; flex-shrink: 0; }
+.signal-desc { color: #52514e; flex: 1; line-height: 1.5; }
+.score-wrap { margin-bottom: 1rem; }
+.score-item { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.score-label { font-size: 12px; color: #52514e; width: 45px; flex-shrink: 0; }
+.score-bar-bg { flex: 1; height: 8px; background: #f0efec; border-radius: 4px; overflow: hidden; position: relative; }
+.score-bar { height: 100%; border-radius: 4px; }
+.score-num { font-size: 12px; font-weight: 500; color: #0b0b0b; width: 32px; text-align: right; flex-shrink: 0; }
+.score-q { font-size: 10px; color: #888780; width: 58px; text-align: right; flex-shrink: 0; }
+.prob-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.prob-cell { text-align: center; padding: 10px 4px; border-radius: 10px; border: 0.5px solid #e0dfd8; background: #fafaf8; }
+.prob-pct { font-size: 20px; font-weight: 500; }
+.prob-lbl { font-size: 11px; color: #52514e; margin-top: 2px; }
+.pct-up { color: #3B6D11; }
+.pct-side { color: #BA7517; }
+.pct-dn { color: #A32D2D; }
+.verdict-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 8px; }
+.verdict-cell { text-align: center; padding: 8px 4px; border-radius: 8px; border: 0.5px solid #e0dfd8; background: #fafaf8; }
+.verdict-name { font-size: 10px; color: #52514e; margin-bottom: 4px; }
+.verdict-label { font-size: 11px; font-weight: 500; }
+.v-buy { color: #3B6D11; background: #EAF3DE; border-radius: 4px; padding: 2px 6px; display: inline-block; }
+.v-hold { color: #854F0B; background: #FAEEDA; border-radius: 4px; padding: 2px 6px; display: inline-block; }
+.v-sell { color: #A32D2D; background: #FCEBEB; border-radius: 4px; padding: 2px 6px; display: inline-block; }
+.top5-item { display: flex; gap: 10px; align-items: flex-start; padding: 7px 0; border-bottom: 0.5px solid #e0dfd8; }
+.top5-item:last-child { border-bottom: none; }
+.top5-num { font-size: 18px; font-weight: 500; color: #c0bfb8; min-width: 20px; flex-shrink: 0; }
+.top5-text { font-size: 12px; color: #0b0b0b; line-height: 1.6; }
+.top5-text b { color: #0b0b0b; font-weight: 500; }
+.exec-box { background: #f0efec; border-radius: 12px; border-left: 3px solid #2a78d6; padding: 1rem 1.1rem; font-size: 13px; color: #0b0b0b; line-height: 1.7; }
+.exec-box p { margin-bottom: 0.6rem; }
+.exec-box p:last-child { margin-bottom: 0; }
+.divider { border: none; border-top: 0.5px solid #e0dfd8; margin: 1.25rem 0; }
+.warn-box { background: #faeeda; border-radius: 6px; padding: 5px 8px; margin-top: 6px; }
+.score-note { font-size: 11px; color: #888780; margin-bottom: 1rem; }
+.sheet-box { background: #0b0b0b; color: #eaeaea; font-family: 'SF Mono', Consolas, monospace; font-size: 10px; padding: 0.8rem; border-radius: 8px; overflow-x: auto; white-space: pre; line-height: 1.6; }
+.trend-panel { background: #ffffff; border: 0.5px solid #e0dfd8; border-radius: 12px; padding: 0.9rem 1.1rem; margin-bottom: 0.75rem; }
+.trend-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.trend-name { font-size: 13px; font-weight: 500; color: #0b0b0b; }
+.trend-mini { display: flex; gap: 3px; align-items: flex-end; height: 26px; }
+.trend-bar { width: 12px; border-radius: 2px 2px 0 0; background: #2a78d6; }
+.trend-row { display: flex; align-items: flex-start; gap: 8px; padding: 5px 0; border-bottom: 0.5px solid #e0dfd8; font-size: 12px; }
+.trend-row:last-child { border-bottom: none; }
+.trend-tag { font-weight: 500; color: #52514e; min-width: 34px; flex-shrink: 0; }
+.trend-desc { color: #0b0b0b; line-height: 1.55; }
+.chart-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; margin-bottom: 1rem; }
+.legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 11px; color: #52514e; margin-bottom: 10px; }
+.legend i { display: inline-block; width: 14px; height: 3px; border-radius: 2px; vertical-align: middle; margin-right: 5px; }
+.stat-line { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 11px; color: #52514e; margin-top: 6px; }
+.stat-line b { color: #0b0b0b; font-weight: 500; }
+.data-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+.data-table th { text-align: right; font-weight: 500; color: #52514e; padding: 5px 6px; border-bottom: 0.5px solid #e0dfd8; white-space: nowrap; }
+.data-table td { text-align: right; padding: 5px 6px; border-bottom: 0.5px solid #e0dfd8; color: #0b0b0b; white-space: nowrap; }
+.data-table th:first-child, .data-table td:first-child { text-align: left; }
 .table-scroll { overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-th { font-weight: 500; color: #52514e; padding: 6px; border-bottom: 0.5px solid #e0dfd8; text-align: center; white-space: nowrap; }
-td { padding: 6px; border-bottom: 0.5px solid #e0dfd8; text-align: center; white-space: nowrap; }
-td.l, th.l { text-align: left; }
-td.memo { white-space: normal; text-align: left; color: #52514e; font-size: 11px; min-width: 220px; }
-td a { color: #185FA5; text-decoration: none; font-weight: 500; }
-.sc { display: inline-block; min-width: 30px; padding: 2px 6px; border-radius: 4px; font-weight: 500; }
-.legend { font-size: 11px; color: #888780; margin-top: 8px; }
+.src-list { font-size: 11px; color: #52514e; line-height: 1.7; padding-left: 1.1rem; }
+.src-list a { color: #185FA5; text-decoration: none; word-break: break-all; }
+.footnote { font-size: 10px; color: #888780; line-height: 1.6; margin-top: 1rem; }
+.footnote a { color: #888780; }
+.news-box { font-size: 12px; color: #0b0b0b; line-height: 1.65; white-space: pre-wrap; }
+details summary { cursor: pointer; font-size: 12px; color: #52514e; }
+.rss-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; margin-bottom: 1rem; }
+.rss-item { display: flex; gap: 8px; font-size: 12px; line-height: 1.5; padding: 4px 0; border-bottom: 0.5px solid #e0dfd8; }
+.rss-item:last-child { border-bottom: none; }
+.rss-item a { color: #0b0b0b; text-decoration: none; }
+.rss-date { color: #888780; flex-shrink: 0; font-size: 11px; padding-top: 1px; }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>CFTC COT 주간 분석</h1>
-  <div class="sub">글로벌 매크로 CIO 시각의 스마트머니 포지션 분석 · 매주 토요일 자동 업데이트 (CFTC 금요일 발표 직후)</div>
+<nav class="tabs"><a class="tab on" href="index.html">최신</a><a class="tab" href="months/2026-09.html">2026년 9월</a><a class="tab" href="record.html">기록</a></nav>
 
-  <a class="panel latest" href="reports/2026-09-22.html">
-    <div class="t">최신 리포트 — 2026년 9월 4주차 (2026-09-22 기준) →</div>
-    <div class="m">NQ/WTI/USD Hold, ES/EUR Reduce, JPY/BTC Buy<br>Fed·BOJ 동시 인상/ES Lev숏 63.8천계약 급증/EUR AM롱 26주 최저/JPY 차익실현 15.7천계약/BTC ETF 7일 연속 유입</div>
-  </a>
+<div class="header-meta">
+  <span class="meta-pill hot">2026년 9월 4주차 · CFTC 기준일: 2026년 9월 22일 (화)</span>
+  <span class="meta-pill">공식 발표: 2026년 9월 25일 (금)</span>
+  <span class="meta-pill">분석 시점: 2026-09-28 23:47 KST</span>
+  <span class="meta-pill">금융선물 + WTI 원유 완전 분석</span>
+</div>
 
-  <div class="panel" style="font-size:12px;color:#52514e;line-height:1.7;">
-    <b style="color:#0b0b0b;font-weight:500;">AI에게 물어볼 때</b> — 이 주소를 붙여넣으세요 (텍스트 요약본, 항상 최신 주차):<br>
-    <a href="latest.md" style="color:#185FA5;word-break:break-all;">https://janbakbakee.github.io/woong/latest.md</a>
+<div class="section-title">① 현재 포지션 &amp; 스코어카드</div>
+<div class="market-grid">
+  <div class="mcard">
+    <div class="mcard-top"><span class="mcard-name">NQ (나스닥100)</span><span class="badge neut">레버리지-AM 엇갈림, 중립</span></div>
+    <div class="mcard-net">−35,670</div>
+    <div class="mcard-sub">Net Lev Funds (롱52,925 / 숏88,595)</div>
+    <div class="chg dn">▼ Lev Funds 신규 숏 22,618계약 확대, AM은 숏커버 지속</div>
+    <div class="stars">★★★☆☆</div>
   </div>
-
-  <div class="section-title">주차별 종합 점수 기록</div>
-  <div class="panel table-scroll">
-    <table>
-      <tr><th class="l">주차 (기준일)</th><th>NQ</th><th>ES</th><th>WTI</th><th>BTC</th><th>EUR</th><th>JPY</th><th>USD</th><th class="l">투자의견 / 핵심메모</th></tr>
-      <tr>
-        <td class="l"><a href="reports/2026-09-22.html">2026년 9월 4주차</a><br><span style="font-size:10px;color:#888780;">2026-09-22</span></td>
-        <td><span class="sc" style="background:#faeeda;color:#854F0B;">52</span></td>
-        <td><span class="sc" style="background:#fcebeb;color:#A32D2D;">35</span></td>
-        <td><span class="sc" style="background:#faeeda;color:#854F0B;">51</span></td>
-        <td><span class="sc" style="background:#faeeda;color:#854F0B;">58</span></td>
-        <td><span class="sc" style="background:#fcebeb;color:#A32D2D;">27</span></td>
-        <td><span class="sc" style="background:#faeeda;color:#854F0B;">59</span></td>
-        <td><span class="sc" style="background:#faeeda;color:#854F0B;">54</span></td>
-        <td class="memo">NQ/WTI/USD Hold, ES/EUR Reduce, JPY/BTC Buy<br>Fed·BOJ 동시 인상/ES Lev숏 63.8천계약 급증/EUR AM롱 26주 최저/JPY 차익실현 15.7천계약/BTC ETF 7일 연속 유입</td>
-      </tr>
-    </table>
-    <div class="legend">초록 = 60점 이상(강세 우위) · 주황 = 40~59(중립) · 빨강 = 40 미만(약세 우위)</div>
+  <div class="mcard">
+    <div class="mcard-top"><span class="mcard-name">ES (S&amp;P500)</span><span class="badge bear">Lev Funds 사상급 신규 숏</span></div>
+    <div class="mcard-net">−375,616</div>
+    <div class="mcard-sub">Net Lev Funds (롱119,466 / 숏495,082)</div>
+    <div class="chg dn">▼ Lev Funds 순숏 -375,616, 주간 -63,785 확대 — 전 시장 최대 변화</div>
+    <div class="stars">★★☆☆☆</div>
   </div>
-
-  <div class="section-title">COT 주차별 수치 기록 (누적)</div>
-  <div class="panel table-scroll">
-    <table>
-      <tr><th class="l">날짜</th><th>ES Net</th><th>NQ Net</th><th>WTI Net</th><th>EUR Net</th><th>JPY Net</th><th>BTC Net</th><th>ES</th><th>NQ</th><th>WTI</th><th>EUR</th><th>JPY</th><th>BTC</th><th class="l">투자의견 / 핵심메모</th></tr>
-      <tr>
-        <td class="l"><a href="reports/2026-09-22.html">2026-09-22</a></td>
-<td>−375,616</td><td>−35,670</td><td>+101,828</td><td>+216,483</td><td>+7,423</td><td>−7,953</td><td><span class="sc" style="background:#fcebeb;color:#A32D2D;">35</span></td><td><span class="sc" style="background:#faeeda;color:#854F0B;">52</span></td><td><span class="sc" style="background:#faeeda;color:#854F0B;">51</span></td><td><span class="sc" style="background:#fcebeb;color:#A32D2D;">27</span></td><td><span class="sc" style="background:#faeeda;color:#854F0B;">59</span></td><td><span class="sc" style="background:#faeeda;color:#854F0B;">58</span></td>        <td class="memo">NQ/WTI/USD Hold, ES/EUR Reduce, JPY/BTC Buy<br>Fed·BOJ 동시 인상/ES Lev숏 63.8천계약 급증/EUR AM롱 26주 최저/JPY 차익실현 15.7천계약/BTC ETF 7일 연속 유입</td>
-      </tr>
-      <tr>
-        <td class="l">2026-09-15</td>
-<td>−311,831</td><td>−13,052</td><td>+106,279</td><td>+251,698</td><td>+23,170</td><td>−6,354</td><td><span class="sc" style="background:#faeeda;color:#854F0B;">48</span></td><td><span class="sc" style="background:#eaf3de;color:#3B6D11;">68</span></td><td><span class="sc" style="background:#faeeda;color:#854F0B;">58</span></td><td><span class="sc" style="background:#faeeda;color:#854F0B;">53</span></td><td><span class="sc" style="background:#eaf3de;color:#3B6D11;">88</span></td><td><span class="sc" style="background:#faeeda;color:#854F0B;">42</span></td>        <td class="memo">NQ Buy, 나머지 Hold(JPY 추격자제)<br>JPY13주최초순매수(BOJ분열투표로실망)/ES Fed안도랠리/NQ13주최저숏</td>
-      </tr>
-      <tr>
-        <td class="l">2026-09-08</td>
-<td>−362,087</td><td>−36,884</td><td>+111,731</td><td>+250,678</td><td>−49,098</td><td>−7,892</td><td><span class="sc" style="background:#fcebeb;color:#A32D2D;">24</span></td><td><span class="sc" style="background:#faeeda;color:#854F0B;">55</span></td><td><span class="sc" style="background:#eaf3de;color:#3B6D11;">62</span></td><td><span class="sc" style="background:#faeeda;color:#854F0B;">52</span></td><td><span class="sc" style="background:#eaf3de;color:#3B6D11;">72</span></td><td><span class="sc" style="background:#fcebeb;color:#A32D2D;">37</span></td>        <td class="memo">WTI/JPY Buy, ES Reduce, NQ Hold(하향), 나머지 Hold<br>JPY12주최대반전(베센트개입)/ES12주최대숏/WTI12주최고</td>
-      </tr>
-      <tr>
-        <td class="l">2026-09-01</td>
-<td>−334,436</td><td>−18,034</td><td>+94,281</td><td>+263,253</td><td>−102,188</td><td>−7,620</td><td><span class="sc" style="background:#fcebeb;color:#A32D2D;">28</span></td><td><span class="sc" style="background:#eaf3de;color:#3B6D11;">72</span></td><td><span class="sc" style="background:#faeeda;color:#854F0B;">54</span></td><td><span class="sc" style="background:#eaf3de;color:#3B6D11;">62</span></td><td><span class="sc" style="background:#fcebeb;color:#A32D2D;">28</span></td><td><span class="sc" style="background:#fcebeb;color:#A32D2D;">39</span></td>        <td class="memo">NQ/WTI Buy, JPY Sell(하향), ES Reduce, 나머지 Hold<br>Fed인상확률34%→66%급등/JPY11주최대반전/NQ-ES디커플링극대</td>
-      </tr>
-      <tr>
-        <td class="l">2026-08-25</td>
-<td>−328,532</td><td>−44,316</td><td>+84,020</td><td>+261,426</td><td>−77,042</td><td>−8,089</td><td><span class="sc" style="background:#fcebeb;color:#A32D2D;">34</span></td><td><span class="sc" style="background:#eaf3de;color:#3B6D11;">62</span></td><td><span class="sc" style="background:#faeeda;color:#854F0B;">46</span></td><td><span class="sc" style="background:#eaf3de;color:#3B6D11;">64</span></td><td><span class="sc" style="background:#faeeda;color:#854F0B;">45</span></td><td><span class="sc" style="background:#fcebeb;color:#A32D2D;">36</span></td>        <td class="memo">NQ Buy(상향)/EUR Reduce(하향)/나머지 Hold<br>BTC현물-파생디커플링/ES잭슨홀선반영적중/NQ-ES디커플링심화</td>
-      </tr>
-      <tr>
-        <td class="l">2026-08-18</td>
-<td>−289,435</td><td>−67,709</td><td>+87,479</td><td>+237,426</td><td>−67,971</td><td>−7,439</td><td><span class="sc" style="background:#faeeda;color:#854F0B;">44</span></td><td><span class="sc" style="background:#faeeda;color:#854F0B;">52</span></td><td><span class="sc" style="background:#faeeda;color:#854F0B;">48</span></td><td><span class="sc" style="background:#eaf3de;color:#3B6D11;">60</span></td><td><span class="sc" style="background:#faeeda;color:#854F0B;">58</span></td><td><span class="sc" style="background:#faeeda;color:#854F0B;">40</span></td>        <td class="memo">전반 Hold(JPY 하향)<br>BTC스냅샷직후+22%폭등/JPY4주반전/NQ-ES디커플링</td>
-      </tr>
-      <tr>
-        <td class="l">2026-08-11</td>
-<td>−286,505</td><td>−96,727</td><td>+79,916</td><td>+225,389</td><td>−53,070</td><td>−7,052</td><td><span class="sc" style="background:#faeeda;color:#854F0B;">45</span></td><td><span class="sc" style="background:#faeeda;color:#854F0B;">41</span></td><td><span class="sc" style="background:#fcebeb;color:#A32D2D;">38</span></td><td><span class="sc" style="background:#faeeda;color:#854F0B;">57</span></td><td><span class="sc" style="background:#eaf3de;color:#3B6D11;">76</span></td><td><span class="sc" style="background:#faeeda;color:#854F0B;">42</span></td>        <td class="memo">JPY Buy / 나머지 Hold<br>ES 최대 숏커버링 / JPY 4주연속 개선 / WTI 가격-포지션 디커플링</td>
-      </tr>
-      <tr>
-        <td class="l">2026-08-04</td>
-<td>−333,099</td><td>−100,640</td><td>+86,958</td><td>+219,262</td><td>−60,825</td><td>−7,240</td><td><span class="sc" style="background:#fcebeb;color:#A32D2D;">32</span></td><td><span class="sc" style="background:#fcebeb;color:#A32D2D;">38</span></td><td><span class="sc" style="background:#faeeda;color:#854F0B;">40</span></td><td><span class="sc" style="background:#faeeda;color:#854F0B;">55</span></td><td><span class="sc" style="background:#eaf3de;color:#3B6D11;">70</span></td><td><span class="sc" style="background:#faeeda;color:#854F0B;">47</span></td>        <td class="memo">JPY Buy / WTI Sell<br>ES숏 85%ile 사상최고가와공존 / JPY AM-Lev 동시 숏커버링</td>
-      </tr>
-      <tr>
-        <td class="l">2026-07-28</td>
-<td>−302,372</td><td>−76,960</td><td>+92,943</td><td>+209,326</td><td>−101,990</td><td>−6,873</td><td><span class="sc" style="background:#faeeda;color:#854F0B;">48</span></td><td><span class="sc" style="background:#faeeda;color:#854F0B;">40</span></td><td><span class="sc" style="background:#faeeda;color:#854F0B;">56</span></td><td><span class="sc" style="background:#fcebeb;color:#A32D2D;">28</span></td><td><span class="sc" style="background:#eaf3de;color:#3B6D11;">62</span></td><td><span class="sc" style="background:#fcebeb;color:#A32D2D;">28</span></td>        <td class="memo">NQ/ES/WTI Hold, JPY Buy, EUR/BTC Reduce<br>ES 3주연속 숏커버링 6주최고 / WTI MM순롱 급확대-가격괴리 축소 / EUR 4주연속 악화 6주최저 / JPY 역발상 2주째 지속</td>
-      </tr>
-      <tr>
-        <td class="l">2026-07-21</td>
-<td>−329,314</td><td>−90,587</td><td>+63,979</td><td>+228,927</td><td>−96,185</td><td>−7,949</td><td><span class="sc" style="background:#faeeda;color:#854F0B;">42</span></td><td><span class="sc" style="background:#fcebeb;color:#A32D2D;">30</span></td><td><span class="sc" style="background:#faeeda;color:#854F0B;">46</span></td><td><span class="sc" style="background:#fcebeb;color:#A32D2D;">34</span></td><td><span class="sc" style="background:#faeeda;color:#854F0B;">58</span></td><td><span class="sc" style="background:#fcebeb;color:#A32D2D;">26</span></td>        <td class="memo">NQ/BTC/EUR Reduce, ES/WTI Hold, JPY Buy(역발상)<br>이란전쟁 재확전-S&amp;P사상최고 유지vsNQ숏확대 / 엔화40년최저에도 AM-Lev 롱확대 / EUR Lev숏 3주연속</td>
-      </tr>
-      <tr>
-        <td class="l">2026-07-14</td>
-<td>−370,589</td><td>−80,323</td><td>+61,974</td><td>+247,316</td><td>−90,461</td><td>−7,491</td><td><span class="sc" style="background:#fcebeb;color:#A32D2D;">27</span></td><td><span class="sc" style="background:#fcebeb;color:#A32D2D;">28</span></td><td><span class="sc" style="background:#faeeda;color:#854F0B;">44</span></td><td><span class="sc" style="background:#faeeda;color:#854F0B;">50</span></td><td><span class="sc" style="background:#faeeda;color:#854F0B;">48</span></td><td><span class="sc" style="background:#fcebeb;color:#A32D2D;">27</span></td>        <td class="memo">전반 Reduce/Hold, BTC Reduce<br>COT마감 직후 美-이란 재확전(호르무즈 봉쇄, WTI+14%), 반도체 약세장 VIX급등, ES AM순롱 최대폭 축소, JPY숏커버링 반전신호 소멸</td>
-      </tr>
-      <tr>
-        <td class="l">2026-07-07</td>
-<td>−364,959</td><td>−68,479</td><td>+64,041</td><td>+253,918</td><td>−90,083</td><td>−6,717</td><td><span class="sc" style="background:#fcebeb;color:#A32D2D;">36</span></td><td><span class="sc" style="background:#faeeda;color:#854F0B;">44</span></td><td><span class="sc" style="background:#faeeda;color:#854F0B;">48</span></td><td><span class="sc" style="background:#faeeda;color:#854F0B;">44</span></td><td><span class="sc" style="background:#faeeda;color:#854F0B;">55</span></td><td><span class="sc" style="background:#fcebeb;color:#A32D2D;">29</span></td>        <td class="memo">전반 Hold / BTC Reduce<br>이란 휴전 붕괴-유가급등vsMM순롱축소 / JPY강세베팅급청산 / NQ숏커버링</td>
-      </tr>
-      <tr>
-        <td class="l">2026-06-30</td>
-<td>−362,599</td><td>−79,944</td><td>+81,282</td><td>+255,158</td><td>−115,400</td><td>−5,313</td><td><span class="sc" style="background:#fcebeb;color:#A32D2D;">38</span></td><td><span class="sc" style="background:#fcebeb;color:#A32D2D;">32</span></td><td><span class="sc" style="background:#fcebeb;color:#A32D2D;">33</span></td><td><span class="sc" style="background:#faeeda;color:#854F0B;">54</span></td><td><span class="sc" style="background:#eaf3de;color:#3B6D11;">74</span></td><td><span class="sc" style="background:#fcebeb;color:#A32D2D;">34</span></td>        <td class="memo">JPY Buy / WTI Sell<br>NQ숏 확대 vs 사상최고가 랠리 / EUR Lev숏 급증-AM괴리 / JPY AM-Lev 동시 강화</td>
-      </tr>
-      <tr>
-        <td class="l">2026-06-23</td>
-<td>−374,569</td><td>−57,403</td><td>+82,872</td><td>+254,730</td><td>−97,092</td><td>−6,130</td><td><span class="sc" style="background:#fcebeb;color:#A32D2D;">31</span></td><td><span class="sc" style="background:#fcebeb;color:#A32D2D;">34</span></td><td><span class="sc" style="background:#fcebeb;color:#A32D2D;">33</span></td><td><span class="sc" style="background:#eaf3de;color:#3B6D11;">60</span></td><td><span class="sc" style="background:#eaf3de;color:#3B6D11;">66</span></td><td><span class="sc" style="background:#fcebeb;color:#A32D2D;">30</span></td>        <td class="memo">JPY Buy / WTI Sell / BTC Hold<br>ES Short Covering –122,076 시작 / WTI OI –95,832 사상급 이탈 / JPY AM-Lev 유일 일치</td>
-      </tr>
-    </table>
-    <div class="legend">CSV 다운로드: <a href="data/cot_record.csv" style="color:#185FA5;">cot_record.csv</a> · 구글 시트 자동 연동: 빈 셀에 <code>=IMPORTDATA("https://janbakbakee.github.io/woong/data/cot_record.csv")</code></div>
+  <div class="mcard">
+    <div class="mcard-top"><span class="mcard-name">WTI 원유</span><span class="badge neut">롱 우위 유지 속 단기 차익실현</span></div>
+    <div class="mcard-net">+101,828</div>
+    <div class="mcard-sub">Net Managed Money (롱223,190 / 숏121,362)</div>
+    <div class="chg dn">▼ MM 순롱 101,828, 2주 연속 신규 숏 구축으로 소폭 축소</div>
+    <div class="stars">★★★☆☆</div>
   </div>
+  <div class="mcard">
+    <div class="mcard-top"><span class="mcard-name">BTC (비트코인)</span><span class="badge bull">상대적 강세, ETF 유입 vs 단기 숏 확대</span></div>
+    <div class="mcard-net">−7,953</div>
+    <div class="mcard-sub">Net Lev Funds (롱4,745 / 숏12,698)</div>
+    <div class="chg dn">▼ Lev Funds 순숏 -7,953로 확대(Long 청산), 3년 기준으론 여전히 상위권</div>
+    <div class="stars">★★★☆☆</div>
+  </div>
+  <div class="mcard">
+    <div class="mcard-top"><span class="mcard-name">EUR/USD</span><span class="badge bear">AM 롱 3년래 최저권 근접</span></div>
+    <div class="mcard-net">+216,483</div>
+    <div class="mcard-sub">Net Asset Mgr (롱482,229 / 숏265,746)</div>
+    <div class="chg dn">▼ AM 순롱 216,483, 주간 -35,215 — 6주 연속 롱 늘리던 Lev와 반대 방향</div>
+    <div class="stars">★★☆☆☆</div>
+  </div>
+  <div class="mcard">
+    <div class="mcard-top"><span class="mcard-name">USD/JPY (엔)</span><span class="badge bull">엔화 강세 베팅 차익실현 속 우위 유지</span></div>
+    <div class="mcard-net">+7,423</div>
+    <div class="mcard-sub">Net Lev Funds (롱92,923 / 숏85,500)</div>
+    <div class="chg dn">▼ Lev Funds 순롱 7,423로 급감(-15,747), BOJ 인상 후 차익실현</div>
+    <div class="stars">★★★★☆</div>
+  </div>
+  <div class="mcard">
+    <div class="mcard-top"><span class="mcard-name">USD Index (DXY)</span><span class="badge neut">Fed 인상 후 롱 재구축 초입</span></div>
+    <div class="mcard-net">−4,495</div>
+    <div class="mcard-sub">Net Lev Funds (롱12,977 / 숏17,472)</div>
+    <div class="chg up">▲ Lev Funds 순숏 -4,495로 소폭 개선, AM과 함께 롱 확대</div>
+    <div class="stars">★★★☆☆</div>
+  </div>
+</div>
 
-  <div class="sub">데이터: CFTC Commitments of Traders (Futures Only) · 본 자료는 투자 참고용이며 투자 권유가 아닙니다.</div>
+<hr class="divider">
+
+<div class="row2">
+  <div class="panel">
+    <div class="panel-title">② 전주 대비 포지션 변화 진단</div>
+    <div class="signal-row"><div class="dot dot-bear"></div><span class="signal-name">NQ</span><span class="signal-desc"><b style="color:#0b0b0b;font-weight:500;">[신규 Short 구축]</b> Lev Funds가 롱 6,840·숏 29,458계약 늘리며 순숏 -35,670로 급확대, AM은 숏 4,392계약 커버해 순롱 73,292로 반대 방향</span></div>
+    <div class="signal-row"><div class="dot dot-bear"></div><span class="signal-name">ES</span><span class="signal-desc"><b style="color:#0b0b0b;font-weight:500;">[신규 Short 구축]</b> Lev Funds 롱 26,797계약 축소·숏 36,988계약 확대로 순숏 63,785 급증, AM은 숏 53,444계약 커버해 순롱 936,671로 대응 — 방향 정반대</span></div>
+    <div class="signal-row"><div class="dot dot-bear"></div><span class="signal-name">WTI</span><span class="signal-desc"><b style="color:#0b0b0b;font-weight:500;">[신규 Short 구축]</b> MM이 롱 1,294계약·숏 5,745계약 동시 확대하며 순롱 4,451 감소, 2주 연속 숏 비중 확대 — 롱 축소보다는 헤지성 숏 추가</span></div>
+    <div class="signal-row"><div class="dot dot-bear"></div><span class="signal-name">BTC</span><span class="signal-desc"><b style="color:#0b0b0b;font-weight:500;">[Long 청산]</b> Lev Funds 롱 800계약 청산·숏 799계약 추가로 순숏 1,599 확대, AM은 신규 롱 411계약 추가로 순롱 3,171 — 방향 엇갈림</span></div>
+    <div class="signal-row"><div class="dot dot-bear"></div><span class="signal-name">EUR</span><span class="signal-desc"><b style="color:#0b0b0b;font-weight:500;">[신규 Short 구축]</b> AM이 숏 31,009계약 확대하며 순롱 35,215 급감, Lev Funds는 6주 연속 롱 1,462계약 순증 — 정반대 방향으로 괴리 확대</span></div>
+    <div class="signal-row"><div class="dot dot-bear"></div><span class="signal-name">JPY</span><span class="signal-desc"><b style="color:#0b0b0b;font-weight:500;">[Long 청산]</b> Lev Funds 롱 17,379계약 청산·숏 1,632계약 추가로 순롱 15,747 급감, AM도 롱 8,141계약 청산 — 양 그룹 동시 축소</span></div>
+    <div class="signal-row"><div class="dot dot-bull"></div><span class="signal-name">USD</span><span class="signal-desc"><b style="color:#0b0b0b;font-weight:500;">[신규 Long 구축]</b> Lev Funds 롱 859·AM 롱 1,430계약 동시 확대로 양 그룹 모두 롱 포지션 강화 — 방향 일치(개선)</span></div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">③ Smart Money 의견 일치도</div>
+    <div class="sm-row"><span class="sm-label">NQ</span><span class="sm-val">Lev Funds는 신규 숏 구축, AM은 숏커버 지속 — 그룹 간 방향 불일치, 신뢰도 낮음 ⚠️</span></div>
+    <div class="sm-row"><span class="sm-label">ES</span><span class="sm-val">Lev Funds 공격적 숏 베팅 vs AM 완만한 숏커버 — 불일치, 규모 격차로 Lev 신호 무게감 큼 🔴</span></div>
+    <div class="sm-row"><span class="sm-label">WTI</span><span class="sm-val">Managed Money 단일 그룹만 보고돼 그룹 간 비교 불가, 자체 추세는 2주 연속 둔화 ⚪</span></div>
+    <div class="sm-row"><span class="sm-label">BTC</span><span class="sm-val">Lev Funds 단기 숏 확대 vs AM 신규 롱 — 불일치하나 AM 쪽은 ETF 자금 유입 흐름과 궤를 같이함 ⚠️</span></div>
+    <div class="sm-row"><span class="sm-label">EUR</span><span class="sm-val">AM 급격한 숏 전환 vs Lev Funds 6주 연속 롱 확대 — 불일치, 헤드라인 그룹(AM) 비관이 시장 신호를 주도 ⚠️</span></div>
+    <div class="sm-row"><span class="sm-label">JPY</span><span class="sm-val">Lev·AM 모두 롱 청산으로 방향 일치(악화) — 단기 차익실현이 뚜렷하나 절대 수준은 여전히 최상위권 🔴</span></div>
+    <div class="sm-row"><span class="sm-label">USD</span><span class="sm-val">Lev Funds·AM 모두 신규 롱 구축으로 일치, Fed 인상 직후 달러 강세 베팅 재개 시그널 ✅</span></div>
+<div class="warn-box"><span style="font-size:11px;color:#854F0B;">이번 주 핵심: ES는 Lev Funds가 사상급 신규 숏(-63,785)을 쌓은 반면 JPY는 BOJ 인상을 재료 삼아 Lev Funds가 대규모 차익실현(-15,747)에 나서는 등, 레버리지 펀드가 주식과 통화 양쪽에서 동시에 리스크를 줄이는 모습이 뚜렷하다.</span></div>  </div>
+</div>
+
+<div class="panel" style="margin-bottom:1rem;">
+  <div class="panel-title">③-1 그룹별 순포지션 상세 (Lev Funds vs Asset Mgr)</div>
+  <div class="table-scroll">
+  <table class="data-table">
+    <tr><th>시장</th><th>그룹</th><th>롱</th><th>숏</th><th>Net</th><th>전주 대비</th><th>진단</th><th>연속</th><th>3년 %ile</th></tr>
+    <tr><td>NQ</td><td style="text-align:left;">Lev Funds</td><td>52,925</td><td>88,595</td><td>−35,670</td>
+      <td style="color:#A32D2D;">−22,618</td><td>신규 Short 구축</td><td>1주</td><td>55</td></tr>
+    <tr><td></td><td style="text-align:left;">Asset Mgr</td><td>107,285</td><td>33,993</td><td>+73,292</td>
+      <td style="color:#3B6D11;">+5,504</td><td>Short Covering</td><td>1주</td><td>46</td></tr>
+    <tr><td>ES</td><td style="text-align:left;">Lev Funds</td><td>119,466</td><td>495,082</td><td>−375,616</td>
+      <td style="color:#A32D2D;">−63,785</td><td>신규 Short 구축</td><td>1주</td><td>31</td></tr>
+    <tr><td></td><td style="text-align:left;">Asset Mgr</td><td>1,121,081</td><td>184,410</td><td>+936,671</td>
+      <td style="color:#3B6D11;">+30,017</td><td>Short Covering</td><td>1주</td><td>53</td></tr>
+    <tr><td>WTI</td><td style="text-align:left;">Managed Money</td><td>223,190</td><td>121,362</td><td>+101,828</td>
+      <td style="color:#A32D2D;">−4,451</td><td>신규 Short 구축</td><td>2주</td><td>52</td></tr>
+    <tr><td>BTC</td><td style="text-align:left;">Lev Funds</td><td>4,745</td><td>12,698</td><td>−7,953</td>
+      <td style="color:#A32D2D;">−1,599</td><td>Long 청산</td><td>1주</td><td>86</td></tr>
+    <tr><td></td><td style="text-align:left;">Asset Mgr</td><td>4,962</td><td>1,791</td><td>+3,171</td>
+      <td style="color:#3B6D11;">+411</td><td>신규 Long 구축</td><td>1주</td><td>10</td></tr>
+    <tr><td>EUR</td><td style="text-align:left;">Lev Funds</td><td>114,151</td><td>140,845</td><td>−26,694</td>
+      <td style="color:#3B6D11;">+1,462</td><td>신규 Long 구축</td><td>6주</td><td>18</td></tr>
+    <tr><td></td><td style="text-align:left;">Asset Mgr</td><td>482,229</td><td>265,746</td><td>+216,483</td>
+      <td style="color:#A32D2D;">−35,215</td><td>신규 Short 구축</td><td>1주</td><td>13</td></tr>
+    <tr><td>JPY</td><td style="text-align:left;">Lev Funds</td><td>92,923</td><td>85,500</td><td>+7,423</td>
+      <td style="color:#A32D2D;">−15,747</td><td>Long 청산</td><td>1주</td><td>88</td></tr>
+    <tr><td></td><td style="text-align:left;">Asset Mgr</td><td>110,732</td><td>69,103</td><td>+41,629</td>
+      <td style="color:#A32D2D;">−12,216</td><td>Long 청산</td><td>1주</td><td>70</td></tr>
+    <tr><td>USD</td><td style="text-align:left;">Lev Funds</td><td>12,977</td><td>17,472</td><td>−4,495</td>
+      <td style="color:#3B6D11;">+414</td><td>신규 Long 구축</td><td>1주</td><td>42</td></tr>
+    <tr><td></td><td style="text-align:left;">Asset Mgr</td><td>18,944</td><td>2,172</td><td>+16,772</td>
+      <td style="color:#3B6D11;">+970</td><td>신규 Long 구축</td><td>1주</td><td>81</td></tr>
+  </table>
+  </div>
+</div>
+
+<div class="panel" style="margin-bottom:1rem;">
+  <div class="panel-title">④ 기관 심리 &amp; 거시경제 베팅 심층 추론</div>
+  <div class="sm-row"><span class="sm-label" style="width:50px;flex-shrink:0;">주식</span><span style="font-size:12px;color:#0b0b0b;line-height:1.5;padding:4px 0;">Fed가 9월 16일 25bp 인상을 단행하며 2023년 이후 첫 금리인상을 단행했음에도(federalreserve.gov), 나스닥은 AI 낙관론에 힘입어 주간 +2.06%로 사상 최고치(27,122.09)를 경신했다(Reuters 9/22). 그러나 Lev Funds는 ES에서 사상급 신규 숏(-63,785)을 쌓으며 가격과 포지셔닝이 괴리되는 모습을 보였다. 이는 국채 셀오프가 심화되며 밸류에이션 부담이 커진 데 대한 헤지성 대응으로 해석된다(&#39;Soaring bond yields not even close to cooling red-hot US economy&#39; FT 9/25). NQ 역시 Lev Funds가 신규 숏을 확대했지만 AM은 반대로 숏커버를 이어가 그룹 간 시각차가 뚜렷하다. 결국 기관들은 AI 랠리의 지속성은 인정하면서도 금리 레벨이 높아진 데 따른 단기 조정 리스크를 레버리지 펀드 중심으로 헤지하고 있는 것으로 판단된다.</span></div>
+  <div class="sm-row"><span class="sm-label" style="width:50px;flex-shrink:0;">WTI</span><span style="font-size:12px;color:#0b0b0b;line-height:1.5;padding:4px 0;">유가는 9월 한 달간 &#39;12개월래 최장 하락 랙&#39;에 근접했다는 평가를 받았고(FT 9/23), Managed Money는 2주 연속 신규 숏을 쌓으며 순롱을 101,828로 소폭 줄였다. OPEC+는 9월 초 화상회의에서 10월 쿼터를 동결하며 연말까지 기존 증산 중단 로드맵을 유지하기로 했다(Bloomberg 9/6). 호르무즈 해협 리스크와 베네수엘라산 원유의 물류비용 상승(Reuters 9/22) 등 공급 차질 우려는 여전히 상존한다. quant 점수는 54로 중립권을 유지하고 있어, 이번 주의 숏 확대는 추세 반전이라기보다 가격 하락에 대응한 리스크 관리 성격이 강하다.</span></div>
+  <div class="sm-row"><span class="sm-label" style="width:50px;flex-shrink:0;">BTC</span><span style="font-size:12px;color:#0b0b0b;line-height:1.5;padding:4px 0;">비트코인 현물 ETF는 9월 17일부터 7거래일 연속 순유입을 기록하며 주간 약 29.8억 달러가 유입, 연초 이후 누적 흐름도 플러스로 전환됐다(Farside 기반 보도 9/26). 반면 CME 비트코인 선물에서 Lev Funds는 롱 800계약을 청산하고 숏을 799계약 늘려 순숏을 -7,953까지 확대했다. 배경에는 Fed·BOJ의 동시 인상에 따른 금리·달러 강세가 있다 — &#39;Bitcoin Drops as Rising Yields and Dollar Weigh on Crypto&#39;(Bloomberg 9/24), &#39;Bitcoin Rally Wobbles as Macro Risks Overshadow ETF Demand&#39;(Bloomberg 9/28)라는 제목이 이 흐름을 요약한다. 다만 Lev Funds의 3년 백분위는 86으로, 통상 상시 순숏 구조인 이 그룹 기준으로는 오히려 역사적으로 가장 덜 비관적인 구간에 속해 있어 추세 전환보다는 단기 헤지로 판단된다.</span></div>
+  <div class="sm-row"><span class="sm-label" style="width:50px;flex-shrink:0;">FX</span><span style="font-size:12px;color:#0b0b0b;line-height:1.5;padding:4px 0;">Fed(9/16, +25bp→3.75~4.00%)와 BOJ(9/17~18, 정책금리 1.00~1.25%), ECB(9월 회의 +25bp, 9/28 청문회 확인)가 모두 이번 주간 전후로 금리를 인상하며 주요 3대 중앙은행이 동시에 긴축 사이클에 들어간 점이 통화시장 포지셔닝의 핵심 배경이다. EUR는 AM이 순롱을 35,215계약 줄이며 3년 백분위 13, 26주 지수 9까지 낮아져 사실상 극단권에 진입했는데, 슈나벨 이사의 IMF 이직(Reuters 9/24)에 따른 ECB 내부 불확실성과 Fed의 동반 긴축으로 금리차 매력이 희석된 영향으로 풀이된다. JPY는 BOJ의 실제 인상 이후 Lev Funds가 순롱을 15,747계약 줄이는 대규모 차익실현에 나섰으며, 160엔 근접에 따른 개입 경계감(Bloomberg 9/24)과 트럼프 대통령의 엔저 우려 표명(WSJ 9/25)이 변동성을 키웠다. USD Index는 Lev Funds와 AM이 모처럼 방향을 일치시켜(일치·개선) 동시에 롱을 늘렸다 — Fed 인상 확인 이후 달러 강세 베팅이 재개되는 신호다.</span></div>
+</div>
+
+<hr class="divider">
+
+<div class="row2">
+  <div class="panel">
+    <div class="panel-title">⑤ Extreme 분석 (3년/5년 실제 백분위)</div>
+    <div class="sm-row"><span class="sm-label">NQ Lev</span><span class="sm-val" style="color:#BA7517;">55%ile (5y 36) — 3년 백분위 55·26주 지수 74 — 중립 상단, 극단 아님</span></div>
+    <div class="sm-row"><span class="sm-label">ES Lev</span><span class="sm-val" style="color:#BA7517;">31%ile (5y 22) — 3년 백분위 57(4주 전)→31로 급락, 26주 지수 51 — 중립 하단 이탈 중</span></div>
+    <div class="sm-row"><span class="sm-label">WTI Managed</span><span class="sm-val" style="color:#BA7517;">52%ile (5y 35) — 3년 백분위 52, 26주 지수 80으로 최근 반년 레인지 상단권</span></div>
+    <div class="sm-row"><span class="sm-label">BTC Lev</span><span class="sm-val" style="color:#3B6D11;">86%ile (5y 52) — 3년 백분위 86, 156주 지수 85 — Lev Funds 기준 역대급 상위권(통상 상시 순숏 구조 감안)</span></div>
+    <div class="sm-row"><span class="sm-label">EUR Asset</span><span class="sm-val" style="color:#A32D2D;">13%ile (5y 16) — 3년 백분위 13, 26주 지수 9 — 26주래 저점권 근접, 사실상 극단권 진입</span></div>
+    <div class="sm-row"><span class="sm-label">JPY Lev</span><span class="sm-val" style="color:#3B6D11;">88%ile (5y 93) — 3년 백분위 88, 5년 백분위 93 — 전 시장 최고 수준, 다만 26주 지수 99(9/15)에서 89로 소폭 하락</span></div>
+    <div class="sm-row"><span class="sm-label">USD Lev</span><span class="sm-val" style="color:#BA7517;">42%ile (5y 39) — 3년 백분위 42, 26주 지수 40 — 중립권, 4주 전(87) 대비 큰 폭 되돌림 이후 안정화 초입</span></div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">⑥ Contrarian Signal &amp; 반전 시나리오</div>
+    <div class="signal-row"><div class="dot dot-neut"></div><span class="signal-desc"><b style="color:#0b0b0b;">NQ:</b> Lev Funds 숏 확대가 아직 3년 평균 수준(55)에 머물러 극단적 비관은 아니다. Fed 긴축 우려로 인한 헤지성 숏으로 보이며, AM의 구조적 매수가 하단을 지지할 가능성이 있다.</span></div>
+    <div class="signal-row"><div class="dot dot-bear"></div><span class="signal-desc"><b style="color:#0b0b0b;">ES:</b> 31은 아직 3년 역대 최저(min_3y -523,882)와는 거리가 있어 극단 국면은 아니다. 국채금리 급등·Fed 매파 전환이라는 펀더멘털에 부합하는 추세추종형 숏으로 판단, 당장 역발상 매수 신호로 보기는 이르다.</span></div>
+    <div class="signal-row"><div class="dot dot-neut"></div><span class="signal-desc"><b style="color:#0b0b0b;">WTI:</b> 26주 기준으로는 상단(80)이지만 3년 기준으로는 중립(52)이라 극단적이지 않다. 유가가 &#39;12개월래 최장 하락&#39;을 겪는 가운데 롱 축소는 추세 추종적 리스크 관리로 해석되며, 급격한 반전 신호는 아니다.</span></div>
+    <div class="signal-row"><div class="dot dot-neut"></div><span class="signal-desc"><b style="color:#0b0b0b;">BTC:</b> Lev Funds는 절대 기준 순숏이지만 3년래 가장 덜 숏인 구간(86%ile)에 머물러 상대적으로는 강세 극단에 가깝다. 이번 주 소폭 되돌림은 매크로(금리·달러 강세) 경계성 숏 추가로 보이며, ETF 7일 연속 순유입이 하단을 지지한다.</span></div>
+    <div class="signal-row"><div class="dot dot-bull"></div><span class="signal-desc"><b style="color:#0b0b0b;">EUR:</b> 26주 지수가 9까지 낮아져 최근 반년 기준 거의 최저치다. ECB가 이미 9월 인상을 단행하고 12월 추가 인상까지 예고한 만큼, AM의 과도한 롱 축소가 지속되면 숏스퀴즈성 반등 리스크가 있다. 다만 현재는 추세 추종이 우세하다.</span></div>
+    <div class="signal-row"><div class="dot dot-bear"></div><span class="signal-desc"><b style="color:#0b0b0b;">JPY:</b> 5년 기준 93은 역대급 극단으로, BOJ의 9/17~18 인상이라는 재료가 이미 소진된 &#39;뉴스에 팔기&#39; 되돌림 가능성이 크다. 엔화 개입 경계감(160엔 근접)과 트럼프의 엔저 우려 표명이 겹치며 단기 변동성 확대가 예상되나, 절대 포지션은 여전히 강세 우위다.</span></div>
+    <div class="signal-row"><div class="dot dot-neut"></div><span class="signal-desc"><b style="color:#0b0b0b;">USD:</b> 한 달 전 87(3년 백분위)에서 42로 급락했던 포지션이 이번 주 반등 조짐을 보인다. Fed 9/16 인상이 확인된 이후 달러 롱 재구축이 시작된 것으로 판단되며, 극단 신호는 없다.</span></div>
+  </div>
+</div>
+
+<div class="panel" style="margin-bottom:1rem;">
+  <div class="panel-title">⑤-1 포지셔닝 게이지 — 3년 백분위 (● 현재 / ○ 4주 전)</div>
+  <svg viewBox="0 0 640 272" width="100%" role="img" aria-label="3년 백분위 게이지" style="display:block;font-family:inherit;"><rect x="92.0" y="20" width="46.80000000000001" height="238" fill="#fcebeb"/><rect x="513.2" y="20" width="46.799999999999955" height="238" fill="#eaf3de"/><line x1="92.0" x2="92.0" y1="20" y2="258" stroke="#e0dfd8" stroke-width="1" stroke-dasharray="0"/><text x="92.0" y="14" font-size="10" fill="#888780" text-anchor="middle">0</text><line x1="138.8" x2="138.8" y1="20" y2="258" stroke="#e0dfd8" stroke-width="1" stroke-dasharray="3 3"/><text x="138.8" y="14" font-size="10" fill="#888780" text-anchor="middle">10</text><line x1="326.0" x2="326.0" y1="20" y2="258" stroke="#e0dfd8" stroke-width="1" stroke-dasharray="3 3"/><text x="326.0" y="14" font-size="10" fill="#888780" text-anchor="middle">50</text><line x1="513.2" x2="513.2" y1="20" y2="258" stroke="#e0dfd8" stroke-width="1" stroke-dasharray="3 3"/><text x="513.2" y="14" font-size="10" fill="#888780" text-anchor="middle">90</text><line x1="560.0" x2="560.0" y1="20" y2="258" stroke="#e0dfd8" stroke-width="1" stroke-dasharray="0"/><text x="560.0" y="14" font-size="10" fill="#888780" text-anchor="middle">100</text><text x="0" y="41" font-size="12" fill="#0b0b0b" font-weight="500">NQ</text><line x1="92" x2="560" y1="37" y2="37" stroke="#f0efec" stroke-width="6" stroke-linecap="round"/><line x1="274.52" x2="349.4" y1="37" y2="37" stroke="#c0bfb8" stroke-width="2"/><circle cx="274.52" cy="37" r="4.5" fill="#ffffff" stroke="#888780" stroke-width="1.5"><title>4주 전 39%ile</title></circle><circle cx="349.4" cy="37" r="6" fill="#BA7517" stroke="#ffffff" stroke-width="2"><title>NQ: 현재 55%ile</title></circle><text x="640" y="41" font-size="12" fill="#0b0b0b" text-anchor="end" font-weight="500">55%</text><text x="0" y="75" font-size="12" fill="#0b0b0b" font-weight="500">ES</text><line x1="92" x2="560" y1="71" y2="71" stroke="#f0efec" stroke-width="6" stroke-linecap="round"/><line x1="358.76" x2="237.08" y1="71" y2="71" stroke="#c0bfb8" stroke-width="2"/><circle cx="358.76" cy="71" r="4.5" fill="#ffffff" stroke="#888780" stroke-width="1.5"><title>4주 전 57%ile</title></circle><circle cx="237.08" cy="71" r="6" fill="#BA7517" stroke="#ffffff" stroke-width="2"><title>ES: 현재 31%ile</title></circle><text x="640" y="75" font-size="12" fill="#0b0b0b" text-anchor="end" font-weight="500">31%</text><text x="0" y="109" font-size="12" fill="#0b0b0b" font-weight="500">WTI</text><line x1="92" x2="560" y1="105" y2="105" stroke="#f0efec" stroke-width="6" stroke-linecap="round"/><line x1="255.8" x2="335.36" y1="105" y2="105" stroke="#c0bfb8" stroke-width="2"/><circle cx="255.8" cy="105" r="4.5" fill="#ffffff" stroke="#888780" stroke-width="1.5"><title>4주 전 35%ile</title></circle><circle cx="335.36" cy="105" r="6" fill="#BA7517" stroke="#ffffff" stroke-width="2"><title>WTI: 현재 52%ile</title></circle><text x="640" y="109" font-size="12" fill="#0b0b0b" text-anchor="end" font-weight="500">52%</text><text x="0" y="143" font-size="12" fill="#0b0b0b" font-weight="500">BTC</text><line x1="92" x2="560" y1="139" y2="139" stroke="#f0efec" stroke-width="6" stroke-linecap="round"/><line x1="494.48" x2="494.48" y1="139" y2="139" stroke="#c0bfb8" stroke-width="2"/><circle cx="494.48" cy="139" r="4.5" fill="#ffffff" stroke="#888780" stroke-width="1.5"><title>4주 전 86%ile</title></circle><circle cx="494.48" cy="139" r="6" fill="#3B6D11" stroke="#ffffff" stroke-width="2"><title>BTC: 현재 86%ile</title></circle><text x="640" y="143" font-size="12" fill="#0b0b0b" text-anchor="end" font-weight="500">86%</text><text x="0" y="177" font-size="12" fill="#0b0b0b" font-weight="500">EUR</text><line x1="92" x2="560" y1="173" y2="173" stroke="#f0efec" stroke-width="6" stroke-linecap="round"/><line x1="232.4" x2="152.84" y1="173" y2="173" stroke="#c0bfb8" stroke-width="2"/><circle cx="232.4" cy="173" r="4.5" fill="#ffffff" stroke="#888780" stroke-width="1.5"><title>4주 전 30%ile</title></circle><circle cx="152.84" cy="173" r="6" fill="#A32D2D" stroke="#ffffff" stroke-width="2"><title>EUR: 현재 13%ile</title></circle><text x="640" y="177" font-size="12" fill="#0b0b0b" text-anchor="end" font-weight="500">13%</text><text x="0" y="211" font-size="12" fill="#0b0b0b" font-weight="500">JPY</text><line x1="92" x2="560" y1="207" y2="207" stroke="#f0efec" stroke-width="6" stroke-linecap="round"/><line x1="180.92000000000002" x2="503.84" y1="207" y2="207" stroke="#c0bfb8" stroke-width="2"/><circle cx="180.92000000000002" cy="207" r="4.5" fill="#ffffff" stroke="#888780" stroke-width="1.5"><title>4주 전 19%ile</title></circle><circle cx="503.84" cy="207" r="6" fill="#3B6D11" stroke="#ffffff" stroke-width="2"><title>JPY: 현재 88%ile</title></circle><text x="640" y="211" font-size="12" fill="#0b0b0b" text-anchor="end" font-weight="500">88%</text><text x="0" y="245" font-size="12" fill="#0b0b0b" font-weight="500">USD</text><line x1="92" x2="560" y1="241" y2="241" stroke="#f0efec" stroke-width="6" stroke-linecap="round"/><line x1="499.16" x2="288.56" y1="241" y2="241" stroke="#c0bfb8" stroke-width="2"/><circle cx="499.16" cy="241" r="4.5" fill="#ffffff" stroke="#888780" stroke-width="1.5"><title>4주 전 87%ile</title></circle><circle cx="288.56" cy="241" r="6" fill="#BA7517" stroke="#ffffff" stroke-width="2"><title>USD: 현재 42%ile</title></circle><text x="640" y="245" font-size="12" fill="#0b0b0b" text-anchor="end" font-weight="500">42%</text></svg>
+  <div class="score-note" style="margin:6px 0 0;">빨간 구간 = 역사적 극단 숏(0~10%ile), 초록 구간 = 역사적 극단 롱(90~100%ile). 헤드라인 그룹 기준(NQ/ES/BTC/JPY/USD=Lev Funds, EUR=Asset Mgr, WTI=Managed Money).</div>
+</div>
+
+<hr class="divider">
+
+<div class="section-title">⑦ 시장별 종합 점수 (100점 만점)</div>
+<div class="score-wrap">
+  <div class="score-item"><span class="score-label">NQ</span><div class="score-bar-bg"><div class="score-bar" style="width:52%;background:#EF9F27;"></div></div><span class="score-num">52</span><span class="score-q">퀀트 56</span></div>
+  <div class="score-item"><span class="score-label">ES</span><div class="score-bar-bg"><div class="score-bar" style="width:35%;background:#2a78d6;"></div></div><span class="score-num">35</span><span class="score-q">퀀트 37</span></div>
+  <div class="score-item"><span class="score-label">WTI</span><div class="score-bar-bg"><div class="score-bar" style="width:51%;background:#EF9F27;"></div></div><span class="score-num">51</span><span class="score-q">퀀트 54</span></div>
+  <div class="score-item"><span class="score-label">BTC</span><div class="score-bar-bg"><div class="score-bar" style="width:58%;background:#EF9F27;"></div></div><span class="score-num">58</span><span class="score-q">퀀트 65</span></div>
+  <div class="score-item"><span class="score-label">EUR</span><div class="score-bar-bg"><div class="score-bar" style="width:27%;background:#2a78d6;"></div></div><span class="score-num">27</span><span class="score-q">퀀트 26</span></div>
+  <div class="score-item"><span class="score-label">JPY</span><div class="score-bar-bg"><div class="score-bar" style="width:59%;background:#EF9F27;"></div></div><span class="score-num">59</span><span class="score-q">퀀트 65</span></div>
+  <div class="score-item"><span class="score-label">USD</span><div class="score-bar-bg"><div class="score-bar" style="width:54%;background:#EF9F27;"></div></div><span class="score-num">54</span><span class="score-q">퀀트 51</span></div>
+</div>
+<div class="score-note">점수 기준: 순포지션 방향성(40, 3년 백분위) + 기관 일치도(30) + 추세 강도(30, 4주 변화 z-score). 50 = 중립 / 50 이상 = 강세 우위 / 50 미만 = 약세 우위. 최종 점수는 퀀트 점수에서 뉴스·맥락을 반영해 ±15점 이내로 조정.</div>
+
+<hr class="divider">
+
+<div class="section-title">⑧ 향후 1~4주 전망 확률</div>
+<div class="market-grid" style="margin-bottom:0.75rem;">
+  <div class="panel">
+    <div class="panel-title">NQ (나스닥100)</div>
+    <div class="prob-grid">
+      <div class="prob-cell"><div class="prob-pct pct-up">42%</div><div class="prob-lbl">상승</div></div>
+      <div class="prob-cell"><div class="prob-pct pct-side">33%</div><div class="prob-lbl">횡보</div></div>
+      <div class="prob-cell"><div class="prob-pct pct-dn">25%</div><div class="prob-lbl">하락</div></div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">ES (S&amp;P500)</div>
+    <div class="prob-grid">
+      <div class="prob-cell"><div class="prob-pct pct-up">26%</div><div class="prob-lbl">상승</div></div>
+      <div class="prob-cell"><div class="prob-pct pct-side">32%</div><div class="prob-lbl">횡보</div></div>
+      <div class="prob-cell"><div class="prob-pct pct-dn">42%</div><div class="prob-lbl">하락</div></div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">WTI 원유</div>
+    <div class="prob-grid">
+      <div class="prob-cell"><div class="prob-pct pct-up">38%</div><div class="prob-lbl">상승</div></div>
+      <div class="prob-cell"><div class="prob-pct pct-side">35%</div><div class="prob-lbl">횡보</div></div>
+      <div class="prob-cell"><div class="prob-pct pct-dn">27%</div><div class="prob-lbl">하락</div></div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">BTC (비트코인)</div>
+    <div class="prob-grid">
+      <div class="prob-cell"><div class="prob-pct pct-up">45%</div><div class="prob-lbl">상승</div></div>
+      <div class="prob-cell"><div class="prob-pct pct-side">30%</div><div class="prob-lbl">횡보</div></div>
+      <div class="prob-cell"><div class="prob-pct pct-dn">25%</div><div class="prob-lbl">하락</div></div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">EUR/USD</div>
+    <div class="prob-grid">
+      <div class="prob-cell"><div class="prob-pct pct-up">24%</div><div class="prob-lbl">EUR↑</div></div>
+      <div class="prob-cell"><div class="prob-pct pct-side">33%</div><div class="prob-lbl">횡보</div></div>
+      <div class="prob-cell"><div class="prob-pct pct-dn">43%</div><div class="prob-lbl">EUR↓</div></div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">USD/JPY (엔)</div>
+    <div class="prob-grid">
+      <div class="prob-cell"><div class="prob-pct pct-up">46%</div><div class="prob-lbl">엔↑</div></div>
+      <div class="prob-cell"><div class="prob-pct pct-side">30%</div><div class="prob-lbl">횡보</div></div>
+      <div class="prob-cell"><div class="prob-pct pct-dn">24%</div><div class="prob-lbl">엔↓</div></div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">USD Index (DXY)</div>
+    <div class="prob-grid">
+      <div class="prob-cell"><div class="prob-pct pct-up">43%</div><div class="prob-lbl">달러↑</div></div>
+      <div class="prob-cell"><div class="prob-pct pct-side">33%</div><div class="prob-lbl">횡보</div></div>
+      <div class="prob-cell"><div class="prob-pct pct-dn">24%</div><div class="prob-lbl">달러↓</div></div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<div class="section-title">⑨ 투자 의견</div>
+<div class="verdict-grid" style="margin-bottom:1rem;">
+  <div class="verdict-cell"><div class="verdict-name">NQ</div><span class="verdict-label v-hold">Hold</span></div>
+  <div class="verdict-cell"><div class="verdict-name">ES</div><span class="verdict-label v-sell">Reduce</span></div>
+  <div class="verdict-cell"><div class="verdict-name">WTI</div><span class="verdict-label v-hold">Hold</span></div>
+  <div class="verdict-cell"><div class="verdict-name">BTC</div><span class="verdict-label v-buy">Buy</span></div>
+  <div class="verdict-cell"><div class="verdict-name">EUR</div><span class="verdict-label v-sell">Reduce</span></div>
+  <div class="verdict-cell"><div class="verdict-name">JPY</div><span class="verdict-label v-buy">Buy</span></div>
+  <div class="verdict-cell"><div class="verdict-name">USD</div><span class="verdict-label v-hold">Hold</span></div>
+</div>
+
+<hr class="divider">
+
+<div class="section-title">⑩ 이번 주 핵심 변화 TOP 5</div>
+<div class="panel" style="margin-bottom:1rem;">
+  <div class="top5-item"><span class="top5-num">1</span><span class="top5-text"><b>ES, Lev Funds 사상급 신규 숏</b> — S&amp;P500 선물에서 Lev Funds 순숏이 주간 63,785계약 급증해 -375,616 — 7개 시장 중 최대 주간 변화. 국채금리 급등에 따른 헤지로 추정.</span></div>
+  <div class="top5-item"><span class="top5-num">2</span><span class="top5-text"><b>JPY, BOJ 인상 후 대규모 차익실현</b> — BOJ가 9/17~18일 정책금리를 1.00~1.25%로 인상했지만 Lev Funds는 순롱을 15,747계약 줄여 &#39;뉴스에 팔기&#39; 패턴을 시현했다.</span></div>
+  <div class="top5-item"><span class="top5-num">3</span><span class="top5-text"><b>EUR, AM 롱 26주 최저권 근접</b> — Asset Manager 순롱이 35,215계약 급감하며 26주 지수 9 기록 — 사실상 극단권, ECB 12월 추가 인상 기대와 상충된다.</span></div>
+  <div class="top5-item"><span class="top5-num">4</span><span class="top5-text"><b>Fed·BOJ 동시 금리 인상</b> — Fed는 9/16일 3.75~4.00%로, BOJ는 9/17~18일 1.00~1.25%로 각각 인상하며 G3 중 2곳이 동시 긴축 전환에 들어갔다.</span></div>
+  <div class="top5-item"><span class="top5-num">5</span><span class="top5-text"><b>BTC, ETF 유입과 선물 포지션 엇갈림</b> — 현물 ETF는 7일 연속 순유입(약 29.8억달러)인 반면 CME Lev Funds는 순숏을 -7,953으로 확대, 현물·선물 시그널이 괴리됐다.</span></div>
+</div>
+
+<hr class="divider">
+
+<div class="section-title">⑪ 종합 결론 — CIO Executive Summary</div>
+<div class="exec-box">
+  <p><b>핵심 테마: Fed·BOJ 동시 긴축 전환 국면에서 레버리지 펀드는 주식(ES)과 엔화 롱에서 동시다발적으로 리스크를 줄이는 반면, 자산운용사와 ETF 자금은 상대적으로 견조한 매수세를 유지하는 이중 구조가 두드러진다.</b></p>
+  <p>이번 주(COT 기준일 9/22, 발표 9/25) 가장 큰 특징은 미국·일본 중앙은행이 나란히 금리를 인상하며 긴축 사이클에 재진입했다는 점이다. Fed는 9월 16일 연방기금금리를 25bp 인상해 3.75~4.00%로 올렸고(2023년 이후 첫 인상, 12-0 만장일치, federalreserve.gov), BOJ는 9월 17~18일 정책금리를 1.00~1.25%로 인상했다(boj.or.jp). ECB 역시 9월 회의에서 25bp를 올렸다고 라가르드 총재가 9/28일 청문회에서 확인했다(ecb.europa.eu). 이런 동시다발적 긴축은 COT 상에서도 뚜렷한 흔적을 남겼다: 레버리지 펀드는 S&amp;P500 선물과 엔화 선물에서 동시에 대규모 포지션을 축소했고, 자산운용사(AM)는 유로에서 3년래 최저권으로 롱을 줄이면서도 나스닥·달러에서는 반대로 매수 우위를 유지했다. 요약하면, &#39;패스트머니&#39;인 Lev Funds는 리스크를 줄이는 방어적 스탠스로 전환한 반면, &#39;리얼머니&#39;인 AM과 ETF 자금은 자산별로 선택적인 매수를 이어가는 이중적 국면이다.</p>
+  <p><b>주식 (ES/NQ):</b> S&amp;P500(ES)에서는 Lev Funds가 주간 순숏을 63,785계약 늘려 -375,616까지 확대했다 — 이번 주 COT 전체에서 가장 큰 포지션 변화다. AM은 반대로 숏 53,444계약을 커버하며 순롱을 936,671로 늘려 대조를 이뤘다(불일치). quant 점수는 53에서 37로 급락하며 중립선(50) 아래로 완연히 내려섰다. 나스닥(NQ) 역시 Lev Funds가 신규 숏(순숏 -35,670, 주간 -22,618)을 쌓았지만 절대 규모나 3년 백분위(55) 면에서는 ES보다 덜 극단적이다. 가격 측면에서는 나스닥이 AI 랠리에 힘입어 주간 +2.06%로 사상 최고치(27,122.09)를 기록했음에도(Reuters 9/22) 레버리지 펀드가 숏을 늘렸다는 점은, 기관들이 랠리의 지속성 자체보다는 국채금리 급등에 따른 밸류에이션 리스크를 헤지하고 있다는 해석을 뒷받침한다(&#39;Soaring bond yields not even close to cooling red-hot US economy&#39; FT 9/25). Fed의 9/16 인상과 워시 신임 의장 체제에 대한 신뢰성 논쟁(&#39;Losing the plot?&#39; Reuters 9/22)도 단기 변동성 확대 요인이다. 결론적으로 ES는 Reduce, NQ는 Hold로 대응하되, AM의 구조적 매수가 급락을 제한할 가능성에 유의한다.</p>
+  <p><b>WTI 원유:</b> WTI는 Managed Money가 2주 연속 신규 숏을 구축하며 순롱을 101,828로 소폭(-4,451) 줄였다. 유가는 9월 한 달간 12개월래 최장 하락 랙에 근접했다는 평가를 받았고(FT 9/23), 원유 흐름 개선 기대가 가격 하방 압력을 더했다(Reuters 9/23). OPEC+ 7개국(사우디·러시아 주도)은 9월 초 화상회의에서 10월 산유 쿼터를 동결하며 연말까지 기존 로드맵을 유지하기로 했다(Bloomberg 9/6) — 공급 측면의 추가 변수는 제한적이다. 다만 호르무즈 해협 관련 지정학 리스크와 베네수엘라산 원유의 물류비용 상승(Reuters 9/22) 등 공급 차질 우려는 여전히 상존한다. quant 점수는 54로 중립권을 유지하고 있어, 이번 주의 숏 확대는 추세 반전이라기보다 가격 하락에 대응한 리스크 관리 성격이 강하다. Hold를 유지하되 26주 지수(80)가 여전히 상단권인 점을 감안해 추가 하락 시 숏커버 반등 가능성도 열어둔다.</p>
+  <p><b>통화 (EUR/JPY/USD):</b> 통화 시장은 G3 중앙은행의 동시 긴축이라는 공통 재료에도 불구하고 자산별로 상반된 포지셔닝 변화를 보였다. EUR에서는 헤드라인 그룹인 AM이 순롱을 35,215계약 줄이며 216,483까지 낮췄고, 3년 백분위는 13, 26주 지수는 9까지 떨어져 사실상 극단권에 진입했다. ECB가 이미 9월 인상을 단행하고 12월 추가 인상(2.75~3% 목표)까지 시사했음에도(Reuters &#39;BofA sees ECB rate hike in December&#39; 9/24) AM이 롱을 대거 줄인 것은, 슈나벨 이사의 IMF 이직에 따른 ECB 내부 불확실성(Reuters 9/24)과 Fed의 동반 긴축으로 금리차 매력이 희석된 영향으로 풀이된다. JPY는 BOJ가 실제로 1.00~1.25%로 인상했음에도(boj.or.jp) Lev Funds가 순롱을 15,747계약이나 줄이는 대규모 차익실현에 나섰다 — 재료 소진에 따른 &#39;뉴스에 팔기&#39;다. 160엔 근접에 따른 개입 경계감(Bloomberg 9/24)과 트럼프 대통령의 엔저 우려 표명(WSJ 9/25)이 단기 변동성을 키웠지만, 5년 백분위 93은 전 시장 최고 수준으로 절대 포지션은 여전히 강세 우위다. USD Index는 Lev Funds와 AM이 모처럼 방향을 일치시켜(일치·개선) 동시에 롱을 늘렸다 — Fed 인상이 확정된 이후 달러 강세 베팅이 재개되는 신호로 판단된다. 종합하면 EUR는 Reduce, JPY는 Buy(단기 변동성 유의), USD는 Hold를 권고한다.</p>
+  <p><b>BTC:</b> 비트코인은 현물과 선물 시장의 신호가 엇갈렸다. 현물 ETF는 9월 17일부터 7거래일 연속 순유입을 기록하며 주간 약 29.8억 달러가 유입, 연초 이후 누적 흐름도 플러스로 전환됐다(Farside 기반 보도 9/26). 반면 CME 비트코인 선물에서 Lev Funds는 롱 800계약을 청산하고 숏을 799계약 늘려 순숏을 -7,953까지 확대했다. 배경에는 Fed·BOJ의 동시 인상에 따른 금리·달러 강세가 있다 — &#39;Bitcoin Drops as Rising Yields and Dollar Weigh on Crypto&#39;(Bloomberg 9/24), &#39;Bitcoin Rally Wobbles as Macro Risks Overshadow ETF Demand&#39;(Bloomberg 9/28)라는 제목이 이 흐름을 요약한다. 다만 Lev Funds의 3년 백분위는 86으로, 통상 상시 순숏 구조인 이 그룹 기준으로는 오히려 역사적으로 가장 덜 비관적인 구간에 속해 있다. 즉 이번 주의 숏 확대는 극단적 약세 전환이 아니라 매크로 이벤트에 대응한 단기 헤지로 판단되며, ETF 자금의 구조적 유입이 하단을 지지할 것으로 예상돼 Buy 의견을 유지한다.</p>
+  <p><b>종합 권고:</b> Fed·BOJ 동시 긴축이라는 매크로 변곡점 속에서 ES·EUR는 비중 축소, NQ·WTI·USD는 관망(Hold), JPY·BTC는 단기 변동성을 감내하며 스마트머니의 구조적 강세 시그널에 편승하는 전략을 권고한다.<br>모니터링: ① 10/2 미국 9월 고용보고서 — Fed 추가 긴축 경로 판단의 핵심 변수 ② BOJ 추가 인상 시그널 및 엔화 실제 개입 여부(160엔 근접 경계) ③ ECB 12월 회의 — 2.75~3% 목표 인상 여부 및 슈나벨 후임 인선 ④ 미-중 관세 휴전 만료(2027-01-10)까지 이행 상황 ⑤ VIX 변동성 확대 지속 여부(9/28 +10.83%) — 국채 셀오프 연계 리스크 </p>
+</div>
+
+<hr class="divider">
+
+<div class="section-title">⑫ 구글 시트 복붙용 수치 표</div>
+<div class="sheet-box">날짜	ES Net	NQ Net	WTI Net	EUR Net	JPY Net	BTC Net	ES점수	NQ점수	WTI점수	EUR점수	JPY점수	BTC점수	투자의견	핵심메모
+2026-09-22	&#39;-375,616	&#39;-35,670	&#39;+101,828	&#39;+216,483	&#39;+7,423	&#39;-7,953	35	52	51	27	59	58	NQ/WTI/USD Hold, ES/EUR Reduce, JPY/BTC Buy	Fed·BOJ 동시 인상/ES Lev숏 63.8천계약 급증/EUR AM롱 26주 최저/JPY 차익실현 15.7천계약/BTC ETF 7일 연속 유입</div>
+
+<hr class="divider">
+
+<div class="section-title">⑬ 다주차 트렌드 인사이트 (2026-08-18 ~ 2026-09-22, 6주)</div>
+<div class="exec-box" style="margin-bottom:1rem;">
+  <p>지난 6주간 quant 점수 흐름을 보면 ES·EUR·USD는 9월 중순 저점을 찍고 반등하거나 고점에서 급락하는 등 변곡점이 뚜렷했던 반면, NQ·WTI·BTC는 완만한 레인지 흐름을 유지했다. 특히 JPY는 9/15 quant 99라는 사실상 극단치를 찍은 뒤 이번 주 65로 급락해 전 시장에서 가장 드라마틱한 되돌림을 보였다. 3년 장기 추세에서는 EUR(30→13)와 ES(57→31)가 한 달 새 뚜렷한 약세 전환을, JPY(19→88)와 USD(87→42, 이미 되돌림)가 극심한 변동성을 겪어 매크로 이벤트(Fed·BOJ 동시 인상)가 포지셔닝에 본격 반영되기 시작한 국면으로 판단된다.</p>
+</div>
+<div class="trend-panel">
+  <div class="trend-head"><span class="trend-name">NQ (나스닥100)</span><div class="trend-mini"><div class="trend-bar" style="height:12px;background:#EF9F27;" title="2026-08-18: 58점"></div><div class="trend-bar" style="height:14px;background:#1baf7a;" title="2026-08-25: 72점"></div><div class="trend-bar" style="height:15px;background:#1baf7a;" title="2026-09-01: 76점"></div><div class="trend-bar" style="height:13px;background:#1baf7a;" title="2026-09-08: 65점"></div><div class="trend-bar" style="height:16px;background:#1baf7a;" title="2026-09-15: 79점"></div><div class="trend-bar" style="height:11px;background:#EF9F27;" title="2026-09-22: 56점"></div></div></div>
+<div class="trend-row"><span class="trend-tag">단기</span><span class="trend-desc">이번 주 Lev Funds 순숏 전주 대비 22,618계약 급증, quant 점수 79→56 급락</span></div><div class="trend-row"><span class="trend-tag">중기</span><span class="trend-desc">최근 6주 quant 58→72→76→65→79→56, 8월 중순 이후 이어지던 강세 흐름이 이번 주 처음 꺾임</span></div><div class="trend-row"><span class="trend-tag">장기</span><span class="trend-desc">3년 백분위 39(4주 전)→55(현재)로 완만한 개선 추세였으나 이번 주 급변, 156주 지수 56으로 중립권</span></div>  <div class="trend-row"><span class="trend-tag">퀀트</span><span class="trend-desc">58 → 72 → 76 → 65 → 79 → 56 (최근 6주 퀀트 점수)</span></div>
+</div>
+<div class="trend-panel">
+  <div class="trend-head"><span class="trend-name">ES (S&amp;P500)</span><div class="trend-mini"><div class="trend-bar" style="height:13px;background:#1baf7a;" title="2026-08-18: 64점"></div><div class="trend-bar" style="height:7px;background:#2a78d6;" title="2026-08-25: 34점"></div><div class="trend-bar" style="height:7px;background:#2a78d6;" title="2026-09-01: 36점"></div><div class="trend-bar" style="height:4px;background:#2a78d6;" title="2026-09-08: 21점"></div><div class="trend-bar" style="height:11px;background:#EF9F27;" title="2026-09-15: 53점"></div><div class="trend-bar" style="height:7px;background:#2a78d6;" title="2026-09-22: 37점"></div></div></div>
+<div class="trend-row"><span class="trend-tag">단기</span><span class="trend-desc">순숏 63,785계약 확대로 전 시장 중 최대 주간 변화, quant 53→37 급락</span></div><div class="trend-row"><span class="trend-tag">중기</span><span class="trend-desc">최근 6주 64→34→36→21→53→37, 8월 말 이후 quant 점수가 40 안팎에서 등락하며 약세 우위 고착화</span></div><div class="trend-row"><span class="trend-tag">장기</span><span class="trend-desc">3년 백분위 57→31로 한 달 새 반전, 156주 지수 44로 중장기적으로도 중립 이하 정착</span></div>  <div class="trend-row"><span class="trend-tag">퀀트</span><span class="trend-desc">64 → 34 → 36 → 21 → 53 → 37 (최근 6주 퀀트 점수)</span></div>
+</div>
+<div class="trend-panel">
+  <div class="trend-head"><span class="trend-name">WTI 원유</span><div class="trend-mini"><div class="trend-bar" style="height:10px;background:#EF9F27;" title="2026-08-18: 49점"></div><div class="trend-bar" style="height:7px;background:#2a78d6;" title="2026-08-25: 34점"></div><div class="trend-bar" style="height:10px;background:#EF9F27;" title="2026-09-01: 48점"></div><div class="trend-bar" style="height:13px;background:#1baf7a;" title="2026-09-08: 66점"></div><div class="trend-bar" style="height:11px;background:#EF9F27;" title="2026-09-15: 56점"></div><div class="trend-bar" style="height:11px;background:#EF9F27;" title="2026-09-22: 54점"></div></div></div>
+<div class="trend-row"><span class="trend-tag">단기</span><span class="trend-desc">2주 연속 신규 숏 구축, quant 56→54로 완만한 둔화</span></div><div class="trend-row"><span class="trend-tag">중기</span><span class="trend-desc">최근 6주 49→34→48→66→56→54, 9월 초 고점(66) 이후 점진적 하락</span></div><div class="trend-row"><span class="trend-tag">장기</span><span class="trend-desc">3년 백분위 35(4주 전)→52로 개선됐으나 156주 지수는 42로 중장기 기준 중립</span></div>  <div class="trend-row"><span class="trend-tag">퀀트</span><span class="trend-desc">49 → 34 → 48 → 66 → 56 → 54 (최근 6주 퀀트 점수)</span></div>
+</div>
+<div class="trend-panel">
+  <div class="trend-head"><span class="trend-name">BTC (비트코인)</span><div class="trend-mini"><div class="trend-bar" style="height:14px;background:#1baf7a;" title="2026-08-18: 69점"></div><div class="trend-bar" style="height:12px;background:#EF9F27;" title="2026-08-25: 58점"></div><div class="trend-bar" style="height:16px;background:#1baf7a;" title="2026-09-01: 78점"></div><div class="trend-bar" style="height:12px;background:#1baf7a;" title="2026-09-08: 61점"></div><div class="trend-bar" style="height:15px;background:#1baf7a;" title="2026-09-15: 74점"></div><div class="trend-bar" style="height:13px;background:#1baf7a;" title="2026-09-22: 65점"></div></div></div>
+<div class="trend-row"><span class="trend-tag">단기</span><span class="trend-desc">Lev Funds 순숏 1,599계약 확대(Long 청산), quant 74→65로 조정</span></div><div class="trend-row"><span class="trend-tag">중기</span><span class="trend-desc">최근 6주 69→58→78→61→74→65, 9월 초 고점권 이후 완만한 조정 국면</span></div><div class="trend-row"><span class="trend-tag">장기</span><span class="trend-desc">3년 백분위 86으로 4주 전과 동일하게 고점권 유지, 156주 지수 85로 3년래 최상위 구간 지속</span></div>  <div class="trend-row"><span class="trend-tag">퀀트</span><span class="trend-desc">69 → 58 → 78 → 61 → 74 → 65 (최근 6주 퀀트 점수)</span></div>
+</div>
+<div class="trend-panel">
+  <div class="trend-head"><span class="trend-name">EUR/USD</span><div class="trend-mini"><div class="trend-bar" style="height:11px;background:#EF9F27;" title="2026-08-18: 55점"></div><div class="trend-bar" style="height:14px;background:#1baf7a;" title="2026-08-25: 68점"></div><div class="trend-bar" style="height:13px;background:#1baf7a;" title="2026-09-01: 67점"></div><div class="trend-bar" style="height:9px;background:#EF9F27;" title="2026-09-08: 46점"></div><div class="trend-bar" style="height:12px;background:#EF9F27;" title="2026-09-15: 59점"></div><div class="trend-bar" style="height:5px;background:#2a78d6;" title="2026-09-22: 26점"></div></div></div>
+<div class="trend-row"><span class="trend-tag">단기</span><span class="trend-desc">AM 순롱 35,215 급감, quant 59→26로 2주 연속 급락</span></div><div class="trend-row"><span class="trend-tag">중기</span><span class="trend-desc">최근 6주 55→68→67→46→59→26, 9월 들어 고점 대비 반토막</span></div><div class="trend-row"><span class="trend-tag">장기</span><span class="trend-desc">3년 백분위 30(4주 전)→13으로 급락, 156주 지수 25로 중장기적으로도 약세권 진입</span></div>  <div class="trend-row"><span class="trend-tag">퀀트</span><span class="trend-desc">55 → 68 → 67 → 46 → 59 → 26 (최근 6주 퀀트 점수)</span></div>
+</div>
+<div class="trend-panel">
+  <div class="trend-head"><span class="trend-name">USD/JPY (엔)</span><div class="trend-mini"><div class="trend-bar" style="height:10px;background:#EF9F27;" title="2026-08-18: 51점"></div><div class="trend-bar" style="height:9px;background:#EF9F27;" title="2026-08-25: 47점"></div><div class="trend-bar" style="height:3px;background:#2a78d6;" title="2026-09-01: 5점"></div><div class="trend-bar" style="height:14px;background:#1baf7a;" title="2026-09-08: 68점"></div><div class="trend-bar" style="height:20px;background:#1baf7a;" title="2026-09-15: 99점"></div><div class="trend-bar" style="height:13px;background:#1baf7a;" title="2026-09-22: 65점"></div></div></div>
+<div class="trend-row"><span class="trend-tag">단기</span><span class="trend-desc">Lev Funds 순롱 15,747 급감(Long 청산), quant 99→65로 급락</span></div><div class="trend-row"><span class="trend-tag">중기</span><span class="trend-desc">최근 6주 51→47→5→68→99→65, 9월 중순 BOJ 인상 기대 선반영 후 되돌림 중</span></div><div class="trend-row"><span class="trend-tag">장기</span><span class="trend-desc">3년 백분위 19(4주 전)→88로 폭등했던 포지션이 여전히 유지, 156주 지수 80으로 3년래 최상위권 지속</span></div>  <div class="trend-row"><span class="trend-tag">퀀트</span><span class="trend-desc">51 → 47 → 5 → 68 → 99 → 65 (최근 6주 퀀트 점수)</span></div>
+</div>
+<div class="trend-panel">
+  <div class="trend-head"><span class="trend-name">USD Index (DXY)</span><div class="trend-mini"><div class="trend-bar" style="height:15px;background:#1baf7a;" title="2026-08-18: 73점"></div><div class="trend-bar" style="height:15px;background:#1baf7a;" title="2026-08-25: 74점"></div><div class="trend-bar" style="height:13px;background:#1baf7a;" title="2026-09-01: 67점"></div><div class="trend-bar" style="height:13px;background:#1baf7a;" title="2026-09-08: 63점"></div><div class="trend-bar" style="height:4px;background:#2a78d6;" title="2026-09-15: 20점"></div><div class="trend-bar" style="height:10px;background:#EF9F27;" title="2026-09-22: 51점"></div></div></div>
+<div class="trend-row"><span class="trend-tag">단기</span><span class="trend-desc">Lev Funds·AM 동시 롱 확대, quant 20→51로 큰 폭 반등</span></div><div class="trend-row"><span class="trend-tag">중기</span><span class="trend-desc">최근 6주 73→74→67→63→20→51, 9/15 저점 이후 Fed 인상 확인되며 반등</span></div><div class="trend-row"><span class="trend-tag">장기</span><span class="trend-desc">3년 백분위 87(4주 전)→42로 급락 후 바닥 다지는 국면, 156주 지수 39로 중립 하단</span></div>  <div class="trend-row"><span class="trend-tag">퀀트</span><span class="trend-desc">73 → 74 → 67 → 63 → 20 → 51 (최근 6주 퀀트 점수)</span></div>
+</div>
+
+<hr class="divider">
+
+<div class="section-title">⑭ 3년 순포지션 추이 차트</div>
+<div class="legend"><span><i style="background:#2a78d6;"></i>Leveraged Funds / Managed Money</span><span><i style="background:#c2650a;"></i>Asset Managers</span><span style="color:#888780;">점선 = 3년 최고/최저 · 마우스 오버 시 주간 수치</span></div>
+<div class="chart-grid">
+</div>
+<div class="score-note">COT Index = 기간 내 최저~최고 순포지션 사이에서 현재 위치(0~100). 주간변화 z = 이번 주 순변화 ÷ 3년 주간 변화 표준편차 (|z| ≥ 2 이면 이례적 변화).</div>
+
+<hr class="divider">
+<div class="section-title">이번 주 헤드라인 (RSS 자동 수집)</div>
+<div class="rss-grid">
+  <div class="panel">
+    <div class="panel-title">ECB</div>
+    <div class="rss-item"><span class="rss-date">09-28</span><a href="https://www.ecb.europa.eu//press/key/date/2026/html/ecb.sp260928~a875675544.en.html" target="_blank" rel="noopener">Christine Lagarde: Hearing of the Committee on Economic and Monetary Affairs of the European Parliament</a></div>
+    <div class="rss-item"><span class="rss-date">09-24</span><a href="https://www.ecb.europa.eu//press/pr/date/2026/html/ecb.pr260924~bea1dd9824.en.html" target="_blank" rel="noopener">ECB Executive Board member Isabel Schnabel to resign to take senior role at IMF</a></div>
+    <div class="rss-item"><span class="rss-date">09-24</span><a href="https://www.ecb.europa.eu//press/key/date/2026/html/ecb.sp260924~e0eceef02c.en.pdf" target="_blank" rel="noopener">Philip R. Lane: The outlook for the euro area economy</a></div>
+    <div class="rss-item"><span class="rss-date">09-23</span><a href="https://www.ecb.europa.eu//press/key/date/2026/html/ecb.sp260923_1~ac21bf46e3.en.pdf" target="_blank" rel="noopener">Philip R. Lane: The Outlook for the Euro Area Economy</a></div>
+    <div class="rss-item"><span class="rss-date">09-23</span><a href="https://www.ecb.europa.eu//press/key/date/2026/html/ecb.sp260923~87850778f5.en.pdf" target="_blank" rel="noopener">The digitalisation of money, payments and finance</a></div>
+    <div class="rss-item"><span class="rss-date">09-23</span><a href="https://www.ecb.europa.eu//press/pr/date/2026/html/ecb.pr260923~6ebddaf01e.en.html" target="_blank" rel="noopener">Almost ten million people took part in ECB survey on new euro banknotes</a></div>
+    <div class="rss-item"><span class="rss-date">09-22</span><a href="https://www.ecb.europa.eu//press/inter/date/2026/html/ecb.in260922~5f89d300ee.en.html" target="_blank" rel="noopener">Philip R. Lane: Interview with Le Temps</a></div>
+    <div class="rss-item"><span class="rss-date">09-21</span><a href="https://www.ecb.europa.eu//press/pr/date/2026/html/ecb.pr260921_1~5a011ecbea.en.html" target="_blank" rel="noopener">ECB to invest part of own funds in tokenised securities, with settlement via Pontes</a></div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">BOJ</div>
+    <div class="rss-item"><span class="rss-date">09-28</span><a href="http://www.boj.or.jp/en/mopo/mpmsche_minu/minu_2026/g260731.pdf" target="_blank" rel="noopener">Minutes of the Monetary Policy Meeting on July 30 and 31, 2026</a></div>
+    <div class="rss-item"><span class="rss-date">09-28</span><a href="http://www.boj.or.jp/en/statistics/pi/cspi_release/sppi2608.pdf" target="_blank" rel="noopener">Services Producer Price Index (Aug.)</a></div>
+    <div class="rss-item"><span class="rss-date">09-25</span><a href="http://www.boj.or.jp/en/mopo/mpmdeci/mpr_2026/mpr260925a.pdf" target="_blank" rel="noopener">Conduct of Funds-Supplying Operations against Pooled Collateral</a></div>
+    <div class="rss-item"><span class="rss-date">09-25</span><a href="http://www.boj.or.jp/en/statistics/boj/other/mei/release/2026/mei260918.xlsx" target="_blank" rel="noopener">Japanese Government Bonds Held by the Bank of Japan</a></div>
+    <div class="rss-item"><span class="rss-date">09-25</span><a href="http://www.boj.or.jp/en/research/wps_rev/rev_2026/rev26e13.htm" target="_blank" rel="noopener">(BOJ Review)The Expansion and Diversification of Private Credit Funds</a></div>
+    <div class="rss-item"><span class="rss-date">09-25</span><a href="http://www.boj.or.jp/en/research/wps_rev/rev_2026/rev26e12.htm" target="_blank" rel="noopener">(BOJ Review) Granular Insights into Depositor Dynamics and Deposit Spreads in Japanese G-SIBs&#39; Foreign Currency Deposits</a></div>
+    <div class="rss-item"><span class="rss-date">09-25</span><a href="http://www.boj.or.jp/en/research/research_data/cpi/index.htm" target="_blank" rel="noopener">Indicators for Core CPI</a></div>
+    <div class="rss-item"><span class="rss-date">09-25</span><a href="http://www.boj.or.jp/en/statistics/boj/other/acmai/release/2026/ac260920.htm" target="_blank" rel="noopener">Bank of Japan Accounts (September 20)</a></div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">BOJ·엔화</div>
+    <div class="rss-item"><span class="rss-date">09-28</span><a href="https://news.google.com/rss/articles/CBMisgFBVV95cUxNM0Rid1RQcVo2QlNMTTZDOGEyYmRtQnFYVVJDN1pBMGpwNGxzS19vN1VBMHVXbDFtWkZHOVJhZTNxaWptMGsxbkxDQ2ZSNjZkNFdMTUQwZEhuaW1FUGhHUnJhWGU1eU5NQ1QwRWpDUURJQS1HUUdNYmFZbldSdFk4VGRXSGhUTkVPbk1QSUxzMV9ZckpvMWJYaTNPaWswYnpCTkpEUk9xNUhFMjEyVDRJek93?oc=5" target="_blank" rel="noopener">Bank of Japan debated need for faster rate hikes, July minutes show - Reuters</a></div>
+    <div class="rss-item"><span class="rss-date">09-28</span><a href="https://news.google.com/rss/articles/CBMiugFBVV95cUxQYzFRTndpRkJHX2FfcTFFdHFvNVVrQU5MZVAxM0Z1T1p3TjRyaUtyNFRaNjRQQjQwYjJaVW5ocTlGYU1iU0w4WGNISjhWb0ZsWHpTYkZ5aEhPX1B1blRyak40X0FHMDdWdnUzSGFYczRrXzd1bXBPODRNbDdnN2NPcTZLZFpIaWhTRkQ0bVZIMGxGcFo0S1B1M3RrV0pWU1h6d0d6NC1SMkhwdl9ESGJiZFVXLWl4Mll4bUE?oc=5" target="_blank" rel="noopener">EXCLUSIVE: Japan&#39;s currency diplomat Mimura urges markets to heed &#39;very clear&#39; warning on yen - Reuters</a></div>
+    <div class="rss-item"><span class="rss-date">09-28</span><a href="https://news.google.com/rss/articles/CBMitAFBVV95cUxNZXVpOHFqRXZvTTJYU0cwN0Zpd0hEc3B4dTVYbHBjeU9IMWxrX0l2cHhrT0lsXy11cXIzRFBQTEtMVWstUTFtRWxscXdHdXR2QjlCMndQaktwZ3ItVmNfUktQcHV0dHJZSjByMkdZM2RQbkxvNEt6ck9MLVFpeGRWYm0zX0w0MUxjdDFvelRmWHNsb0x6dFZNeVhPSllYd3lxcVdBZUNfVkR1Ql9VajVLQUdVazQ?oc=5" target="_blank" rel="noopener">Japan’s Two-Year Bond Yield Nears 2% as BOJ Rate Hike Bets Mount - Bloomberg.com</a></div>
+    <div class="rss-item"><span class="rss-date">09-25</span><a href="https://news.google.com/rss/articles/CBMiqAFBVV95cUxPRG1BRVp6QjNMSmVsZEcwN1pwVDZDX1RoR2tBUG1DT2hhMFBQUHFhTnZZcWlOSHJVRThKamhGRkpFeWkyTFJaUG10ZW9tWDNSRzJUN3FDQnA1Qzd1aV9sS3hlUWtlSjJ3S0NQbXFISDN0Umc4Mnp0cDJQMVRsUEZjQS1hMnR5RTVqdlYyZE5fOWZQM0xxaDBsX2QwSUJHWnRkZ3d5OXN3dVQ?oc=5" target="_blank" rel="noopener">Japan&#39;s bond &#39;falling knife&#39; stalls repatriation rush - Reuters</a></div>
+    <div class="rss-item"><span class="rss-date">09-25</span><a href="https://news.google.com/rss/articles/CBMiuwFBVV95cUxOa3VnY0xlZ0NXQzJnSXFtQ0VQTnpnNk13cDA3aDBXWWQ2ckFvdjlqWi1fVGZDbDAwLUo2SFBEbldPRkJjNEhOM3BVZ3FpRkJ5dHBscFdEQUVpUndoR3NuWF9nUmc1OFR5S243Vm8xVmZaQ1luN2dlMkZjeHJYS3d4N3NIakE5NFlXb05KeGIyemoxYVQydlUwTHZpRjRYWHhxczIxRENxYzBvaHhDdU0tQXF2blZxcDkyZVZv?oc=5" target="_blank" rel="noopener">Trump Expressed Concerns About Yen Weakness, Japan Finance Minister Says - WSJ</a></div>
+    <div class="rss-item"><span class="rss-date">09-25</span><a href="https://news.google.com/rss/articles/CBMihAFBVV95cUxNNHNueHE3WldVU08xREJoeGhHUzVYNTR4SGRWa09SZTNaWTZ5b0JLRExrZUJ5ek95Y1pXMmVUa2t2aHpKbjlWNlFLSG8xRlFzZzdwWnd3UzM4ZF9udDRRWG1xLUoxalptc29tNnZTSFhDb1B5TWJpOHlIZkZHbU9rVWFmd0Q?oc=5" target="_blank" rel="noopener">Donald Trump raised weak yen with Sanae Takaichi, Japan finance minister says - Financial Times</a></div>
+    <div class="rss-item"><span class="rss-date">09-25</span><a href="https://news.google.com/rss/articles/CBMiogFBVV95cUxNZEliX2ZMV1UwSDZPa3liWjlRUk4tT192UjJmelY5OEpFcmVSWHlBRHVuUXNHSW5jTEI1TGlxT1kxS2gyZ2RtVGRJampmMndMMjVERnl0WVZ1ZDdhZndLd0htM1BpZlJmM1o0dU1sSDRqRWp0NkVTUTJkVU9fNGw0QndUYlJqV2plRXpySGpOeXBHdTRtcUYxOXlmVDE4MU9Eanc?oc=5" target="_blank" rel="noopener">Dollar dips as oil eases, yen jumps on Japan remarks - Reuters</a></div>
+    <div class="rss-item"><span class="rss-date">09-24</span><a href="https://news.google.com/rss/articles/CBMiswFBVV95cUxOZzU5RlZUczkxZUtLOFZVcXJrdHhiZkNVTDB3cWsxRi1TRklCclBhTFpDWk04NFdCelRQczNfOXpKQlhndWljcWVncUtEalZFdmFyLVc4NWNBa0thV2l4M1NQWXkyOVg3bE8wWUNqUmxtTjhnMFZQQ1hMbjR4cmh3ZG5LM0paT3NtRmgydmxCZHpNZnFnRXB0MERxcl9zRDhJTUhDNW9qbFg5N1A5Qjl0Q2Ytbw?oc=5" target="_blank" rel="noopener">JPY/USD: Japanese Yen Intervention Risk Re-Emerges as 160 Per Dollar Level Nears - Bloomberg.com</a></div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">미국 증시</div>
+    <div class="rss-item"><span class="rss-date">09-28</span><a href="https://news.google.com/rss/articles/CBMiswFBVV95cUxNc3Q4ZUs1VmE0dld6TVJWM0JPem5yWFJGSWo2N25UNW5MZ3dBQXQ2OXRGY2pIT0JIS0tILVRTZFhCbEdYNmNsNWpHdlZYaUNiQXBNc2I1RGczdWU4TE5reXozU0paY0lfZVNNeXl2SC1tSWctQm5NVXl3MG9CQm5HSy15UlcxR2c0Ym5SUXQxVlZ2NVNmMGREM2VTdWo0T29vaU5ZcWtqaHIxVlRpdGIzODh0bw?oc=5" target="_blank" rel="noopener">Treasury Selloff Extends, Stock Futures Slide to Kickoff Jobs Week - WSJ</a></div>
+    <div class="rss-item"><span class="rss-date">09-25</span><a href="https://news.google.com/rss/articles/CBMiwAFBVV95cUxOazZwSUsxTDltUG1palRCRG1iQnVRWFQxSGRoVFNKbnVoWExJYk13bVFFMEtkSndpTlh5eVNGYVJlTXpWSmtJZXpTVXRDazdBaUw1eFlUcjdob21NWF9hT2NNWDllOW1fc0lHdjBrQVBmeXY0ZWJLS25xdEJZMFJMUkVsa3NwRS0xSG1LUGVJVkVuSEVOVDlQR2pwWnZjRzliZXNQSTdyREhFVlBuQ185VEYxUWRab01zcThMWUtvOFI?oc=5" target="_blank" rel="noopener">Wall Street ends higher as investors buy AI stocks; Microsoft rallies - Reuters</a></div>
+    <div class="rss-item"><span class="rss-date">09-25</span><a href="https://news.google.com/rss/articles/CBMirAFBVV95cUxOSEVnSDJQSW85S2ZsX3J4VjI4cFBQMjU1QkpfRnR6ckRRT1FnZGFRRzRoZFdiYlFTR00xRHpMWGpOYVNBdUg2dXNnUlZmSTcxbmFDNXVfNGd6ZVFieU1keVhqOG5QRlptMDA4Y1ZkZllsRThFVXRKd1dLYzRzSXRpYTJKWWFleldEUmhHcTVkZGhFSl81Y1pzc2dLaXc5X3lUdG5WWjliMVVHVkY3?oc=5" target="_blank" rel="noopener">Stocks Rise to Cap Week of Increasing Yields, Volatile Oil Prices - WSJ</a></div>
+    <div class="rss-item"><span class="rss-date">09-25</span><a href="https://news.google.com/rss/articles/CBMihwFBVV95cUxNcUxQR0lxanNFM3VOUGhsUDV5REVpTkFRX05fdko1UnFrTGxKb2FqYnptbVliWndPaExHWGhXU0VQV2JPYm44MkdPS0xYN29XM3pKdURYWUMtOW1wU2djSjdyempRX0FWemkzNkVvNWFMTWpzR29Bc0RkUVZLQV9iVjNnaHI4RUE?oc=5" target="_blank" rel="noopener">U.S. Stocks Rise To End Volatile Week - WSJ</a></div>
+    <div class="rss-item"><span class="rss-date">09-24</span><a href="https://news.google.com/rss/articles/CBMisgFBVV95cUxNdkxPUUdXbDkwcTdtbC1yM0NWMldPb2lpeExQRVh2SVFWQUl4Q3haSlp4U04yU1BoanNVeWF5bTIwbWJRQXVEQkIwMm0taFZ4eDJ3dUVjOTVuSWhEMVRZNV9vdUNab01CS1o4aUpoQVE5TmFqV1BMTFVaZVJzVEFES3Y4S1BLZFQ1TDFtR2dLZklJRkdFN3hTaENjVDhSc05sT1BVZ09idlU1ZGkwdTZLRi1n?oc=5" target="_blank" rel="noopener">S&amp;P 500 ends marginally lower as investors focus on US-Iran war - Reuters</a></div>
+    <div class="rss-item"><span class="rss-date">09-23</span><a href="https://news.google.com/rss/articles/CBMisAFBVV95cUxQeEU4dTJoZV9XeFR4cENDYXhRMG1Tb3E4aHFNc1RoUEpHeVJNYmtnS1RHb0lVdzg5S1BKelZiUkR4eER2bkFZc0tjcWxlRFEyODRlVlRoNlNmblFabUhsZnJwTllqbmd2RUQ5NmI0M0JVc3B3aVkwcmt0SE9vTERyLVhFRzIybV9OMU94QlF6UGdORGhJZldzTUJ6X1F2TjhTRVpLNDZWeVN6WU1hR0ZLRw?oc=5" target="_blank" rel="noopener">Wall Street ends down as oil prices, Treasury yields rise - Reuters</a></div>
+    <div class="rss-item"><span class="rss-date">09-23</span><a href="https://news.google.com/rss/articles/CBMisgFBVV95cUxPbkdxd3BfVEw4UWYweEFZc3VGdTFOeDNYZ1JGSGdLZWNlSlc2bjJ5N3p6YmNTSTdOdDdQbkxEY2piQ0R0MjFnYWZ0OGxtNUVsYjhMbkx5V0lzWnFPSkVyZFJZTDBBYm1tVDVZU3lBQjRyZTFsMzlqaENEaUk1Uy1FY01CUVhIUExBQ0RwWkhhbWxZbE5HOGdwVzF2TW4wRUsydWF2a1J4MGJBMkNOWVFxSDln?oc=5" target="_blank" rel="noopener">U.S. Stocks Decline as Treasury Selloff Deepens - WSJ</a></div>
+    <div class="rss-item"><span class="rss-date">09-23</span><a href="https://news.google.com/rss/articles/CBMie0FVX3lxTFBYNkdDWExac0tiSmtsc3Exd0ZHOTVDZFJCbTRtZW9jM3hTLU84b3JWbHQ1WmZsUE5pSmUzTHBFUXQzaHBnb01UQXV5ZUljTFl2cS1fbHhFMUtDblA3NHRjeXRzbEpYMjNZempPSmRPbEpIajV0T1BuRDl1SQ?oc=5" target="_blank" rel="noopener">Nasdaq sets record high, oil dips on improved crude flows - Reuters</a></div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">비트코인</div>
+    <div class="rss-item"><span class="rss-date">09-28</span><a href="https://news.google.com/rss/articles/CBMirgFBVV95cUxOQWpvSDVtc1BwQ3ZFV05fNGg5d1JnckFiOERIX3dWUzFJRFZpVnlhekFWOVJoa2ZSSU5pQWVta19fTDVpUlk4LU4yZVQ0Y2tkdmhxeGFzcVJPa284WEV6bzhkcDBPM0MxYzdnUnJIUHAyNTBTVWN5WXNPMlpNbHRPWEp5MkwydElpWmRDdHd4LXVJd1FCOTZsRjNhRHN5OVc1TDFaUkRBb09obXl3V1E?oc=5" target="_blank" rel="noopener">Bitcoin Rally Wobbles as Macro Risks Overshadow ETF Demand - Bloomberg.com</a></div>
+    <div class="rss-item"><span class="rss-date">09-25</span><a href="https://news.google.com/rss/articles/CBMirgFBVV95cUxPTE1XSWM0dHZXSUNnNEdvZTBaRDhBUmFFUzlQOEtJOFRadDdvZUhOVTE0Yy1FcTRGWTZOLXVicG53dFhfS2wwRjVLZmFDdzBOcjdqaHRveGpfTVhQd003ZEw3Um5DUTROTFMzME8xWkE3SzZYUVBrZkdUNmp0a2dUNWZGVDM1N1piM0RkSjVBbkx1TnFwYl95QWJjTHJqd3FxY2xBZEUxSGFfVkE3akE?oc=5" target="_blank" rel="noopener">Bitget Hack Pushes North Korean Crypto Haul Past $1 Billion - Bloomberg.com</a></div>
+    <div class="rss-item"><span class="rss-date">09-25</span><a href="https://news.google.com/rss/articles/CBMiiAFBVV95cUxPNHF5WDFfZ0hlU0xtd3pXUW5ZZUdldER2MnpiQnZrX2lOeTVPd0tmQWhWbGYwVDB3WGFzRTJlU1JEcjJZd05wbE5QQVlSbG1taGp2RVhrWHpHcVRhVXA2OEJhcjVrdHRMeVM4ODBBODFVSEp4Ujl5Tm5NUzVVSjdBTWF3OWFGQ0Zi?oc=5" target="_blank" rel="noopener">Crypto&#39;s biggest hacks and heists - Reuters</a></div>
+    <div class="rss-item"><span class="rss-date">09-25</span><a href="https://news.google.com/rss/articles/CBMihAFBVV95cUxOVnotblJrazRfOTh4SWppazhaUWlhQ1pZaVJudDR2RFhaVUctYTFUa3ByRXZrTVZRTnY1NElYNnM3S3RJZy02ckYzTVlENEZBWTFWX3J3WDAxQ2tWeTNDdkR6THJlTVI0dkFRRzRCd1ZaaEprbFRpVnNBX3RLVThsMVhzMjE?oc=5" target="_blank" rel="noopener">Bitget crypto exchange hit by $390mn hack - Financial Times</a></div>
+    <div class="rss-item"><span class="rss-date">09-24</span><a href="https://news.google.com/rss/articles/CBMisgFBVV95cUxPSzJTNlFLOVduQU9HQW5vOFU0bHVCaXo2SlV6VEdPRW9nekhJUEJaVWxVb1p0N0tPWWRyekVKb1hHX3hpYzh1aXJvb2wzZlhRMDNTREpieFVCdEI3RmpucngwaDhsVk1mOWJYdmhOQ2hIZVFWWTdwcGpjakRyZDd2el9HWFozbUQxUmRhVGNUMkh6NTdyNm80UFh6S1pRV2tNV2VfLUdyaDNva1BUVDNnVjNR?oc=5" target="_blank" rel="noopener">Bitcoin Drops as Rising Yields and Dollar Weigh on Crypto - Bloomberg.com</a></div>
+    <div class="rss-item"><span class="rss-date">09-24</span><a href="https://news.google.com/rss/articles/CBMivAFBVV95cUxQV21iaG1yOGJPNmtUTnJDYzVxbnVlYU90Z0ktck9sR2hyYm1ZR1R5bXp5OVNTQ3YyRG5KZjctM1dhMDh3ZEl0Z1cxWlJUM0RGUDdxejdjWG1pSzN6cVlpdE9tRkZqQkNjYTVyZnhTNnJBZU00Y1ZyM0p1OElzVjBoTlQzSFFmWDkxLS1tejM1T3dpVGFMVFM2REN1Y0RidXlVUjluSGpJWU5ObUlqZ2p5dkpkeUZIX1pvVTVTMw?oc=5" target="_blank" rel="noopener">Exclusive | BlackRock Investment Portfolios Debut on the Blockchain as Digital Tokens - WSJ</a></div>
+    <div class="rss-item"><span class="rss-date">09-23</span><a href="https://news.google.com/rss/articles/CBMipwFBVV95cUxNRFgzaTZudUxoaXQ0TFAxVDRVdDEtZmR3MWVaYkVaeG9nUGhVLTlxbGpFY1FJQTlucHFjbmxJTTl1OEFFNTFkckQ5akprN1BZRzRHcWNWdVM4RVg3NXBIYk5pN0tkb2lna3UzR0drMXNqUUFnbk5xMi16NTV0SE1VdnpITHRobnZHR2lacEFsZVBWZmVlRzZzNjl3bHJPMUNFSndfOHN2Yw?oc=5" target="_blank" rel="noopener">NYSE and Blockchain.com to explore selling tokenised stocks - Reuters</a></div>
+    <div class="rss-item"><span class="rss-date">09-23</span><a href="https://news.google.com/rss/articles/CBMitgFBVV95cUxPRHpzMG9XU0ZpLXVBeENIV3RsVFh6NW5WcWtqc3NYR1BTTllPbjdZMC1pN25jVm1LY25DemF0R3FveFpPOWxtQzUxV05TcnhIOFJybkM3bk1FWTRDQ3FOa25QcHNwUGlYeURWRDJsbkJYT3dFaGpDZXl4Nmt4cXRjYWdXTXNNLVZhMzFkU0Yta1djVHVwVDJwa2Q1TVp4bzMzNnFDdFVsSFRnRlpQTUdBSFdaRnl1UQ?oc=5" target="_blank" rel="noopener">Biggest Long-Bond ETF Hits Record Low as Traders Dump Treasuries - Bloomberg.com</a></div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">미중 관세</div>
+    <div class="rss-item"><span class="rss-date">09-28</span><a href="https://news.google.com/rss/articles/CBMixAFBVV95cUxPaTBqVzRGcGNNZ2M5YWVLbUQxanlOVWhxYU5lWjNuYzJSWmtHV2lQTWdSUXlpTGM3M1UzU2JUckNLUGxIc3dFVWx5WlExNnotSmtQblE4UnM0Sk1OVnQycjVkR0ozUlpzMW5MMExHNll4NDR2dXpfWTNCMVpQT0docjI1SHFDeFdwYnZGVlVocXhzTy10WWViRk54VklyNzNiRFczXy04aURCdVdmSEdNbjNrRHpXNXM5LWRCZzJQajZVMVBx?oc=5" target="_blank" rel="noopener">China, US agree to tariff cuts on $60 billion of goods including agriculture, household items - Reuters</a></div>
+    <div class="rss-item"><span class="rss-date">09-28</span><a href="https://news.google.com/rss/articles/CBMirwFBVV95cUxPejAwODBlZm1pdk5leVFwbHA2cnRWRkZXT2R2ejVDNjhtV01qb3ZFQ0hoMW9pWTVHN3dqOXBramZyY0RDdDJkMEQyUGRaVHh5QUFnak1SQ0c4dkp6aE5QYjdEd25ZMXFheXhRcmVXLXZJV1ZLNmk1MndtZ3FaNmNPcDNXSkxkV1Rvb2x6MmZBWVBvOV9rTmZMS0ljRENGWGY3d0ZFbFpTajZGVW1PZGdz?oc=5" target="_blank" rel="noopener">US, China Release Product Lists for $30 Billion Tariff Deal - Bloomberg.com</a></div>
+    <div class="rss-item"><span class="rss-date">09-28</span><a href="https://news.google.com/rss/articles/CBMitAFBVV95cUxORkZ2YThoWFBHQnpCeFVvX0FTaGVCRmNndUxRUGwwZ2Y1dGt4cnBWaHhlUU9hZW42a0laMlhjQl9peHhSNXZYTzFIWXcyVERRVlJZVzBXSTg0QmtDSmU1U0lFZVZnWlE2LTEtOEVCWjF4MmRsM1NRTWI3aGhWbWZfRm16OWpXa205TGR6REk1b1pjWC10T1Y0cUJ5XzZrM0ZGZ25VWUE3MUkyYm0tc2xaWGVVNTI?oc=5" target="_blank" rel="noopener">Here’s the List of Goods the US, China Agreed on for Tariff Cuts - Bloomberg.com</a></div>
+    <div class="rss-item"><span class="rss-date">09-28</span><a href="https://news.google.com/rss/articles/CBMipAFBVV95cUxOcS1oNDFMWG5pMzdiVDYzYlpoWmx2dXh2Z3FDbUJ5T09CbEFBV251Rkc2cFZTcnlPTDZ6N2hJbThrNTRrc255d0NZUWJhendkbXBNc3M4cWRWV1RaVkg3ZXg5Q2ZQVEZxWW1hX1V3UjJUOEJMZGlCRXJEdUpvZzUtQzdreVY5azNfSGxwakVfZFJOa0F0Y1NDWVllMHhaZEQybjRTdg?oc=5" target="_blank" rel="noopener">China to cut tariffs on US farm goods, but list excludes soybeans - Reuters</a></div>
+    <div class="rss-item"><span class="rss-date">09-28</span><a href="https://news.google.com/rss/articles/CBMihAFBVV95cUxQMFBnYU9HTGlGbC1FM3JwQmxHMmpuUWk4NVpFbFFFbnAzN0l5WG02ZE1qOWxIREtuaHlqN2wwRlduZDd3T292QTYwSTVVaG82bWxnR3FlWGotN2xIakpDRW5uSGpRYjNFX3c5SXNTTU51OGNmN1ViTU1ZYS14N3dKWFFTUXA?oc=5" target="_blank" rel="noopener">US and China agree $60bn low tariff regime for goods from foie gras to camels - Financial Times</a></div>
+    <div class="rss-item"><span class="rss-date">09-28</span><a href="https://news.google.com/rss/articles/CBMitgFBVV95cUxQUWtxY1RYZjRlTks1S2Y0M2VFN1pKMG02SmlsT0I4SzV6bC01Q2dPbzJIX3E1ZWY2ZHNTaXZZYzB6WGIyYnAxbDBMYU1jdzkwSWdBVHhDUUh6LXQ0NjBVWDVCZG9VQTFBNGdTdlFvLS1MaVlxLV9iR19BblIzXzhTNV9xaFJ2V19YMTJEMkNsMGhxVWoxTFVTVGpaR1hkNThqRkRWcnp5bnVtNkNRZ2VKZVF3MndGdw?oc=5" target="_blank" rel="noopener">Grains Fall as Traders Seek China Buying Signs After Tariff Cuts - Bloomberg.com</a></div>
+    <div class="rss-item"><span class="rss-date">09-28</span><a href="https://news.google.com/rss/articles/CBMitgFBVV95cUxPUXpzR1ZrMkZNUDFRU3I0Tk40akg4M3Z4NHpzX0hkVzZHaGZEUkpGRFBCYVlKRlJCQU9fY2t0YjAwZTJGTXlHRjkwNlkzRWVsdnlFN3Z4encxR1pvbUN2T1hicXRtUFBHbnVUUERVSnBrc1I4cllGNHR6R1UzVFlOY1dEOWhrRVBoU3JyeEZNUGxpakg1a1dOMTl6WnUtVjIyUjQyaWYzODZ0cWdRWlU0NU96cXRHdw?oc=5" target="_blank" rel="noopener">China’s US Coal Buying Pledge Looks Like an Easy Promise to Keep - Bloomberg.com</a></div>
+    <div class="rss-item"><span class="rss-date">09-26</span><a href="https://news.google.com/rss/articles/CBMingFBVV95cUxORGhfcEduZHZpNWZlWnZwMld5d1BseFpWcXFfXzktTUJWVldFUlJWYnloUUhldXRSQ3d5MDA5aVZjQjZKQ3VNdGFLN0xUNTVrQnRaa2ViT2ZkOEtOaTRZTXZRYWd0bHdFdkFvdnQtZU9QcU5MYVgtNFdtbGhFTlBwZERzRzRXN0tBSnFMQS1Fc2ZVS3pZSWxiZU9kWHI1Zw?oc=5" target="_blank" rel="noopener">U.S., China Agree to Trim Tariffs, Start AI Dialogue - WSJ</a></div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">Fed·금리</div>
+    <div class="rss-item"><span class="rss-date">09-27</span><a href="https://news.google.com/rss/articles/CBMizAFBVV95cUxQU1BJRFhvMUNXeWNuYXllb1I4azYyRUZ5Z19kYW9zMS1FazV3YlBwRWRJQnNjMWM0NDNQSjYtZHFIRkd5b2JvdGlvVXVFTVlXVnFYSWF0Z29VQUxfYzJabDUyNFJ4SGJTRXRORHRoWmFweDNBUDBRMEdjazRiVXVaZ0VZaFIwcFF5czhmUEk4N1pteTJBTzJKd3ZNLTNqeXJ6ZlJXYnIzRHRoYV96SlJ3N05YX3I1LW5teDJiWUpFSkhtU3FQVTFubWFFMVo?oc=5" target="_blank" rel="noopener">COMMENTARY: Where will Fed tightening hit hardest in Asia? - Reuters</a></div>
+    <div class="rss-item"><span class="rss-date">09-26</span><a href="https://news.google.com/rss/articles/CBMiiwFBVV95cUxOdmJoWU1QVUh3UDVrNF9UWlZTX0NDXzk4aEh3djBhVkdJdHotSzNDck1VVGh1RGV6N3JzTktPRFFoT3VVTjB6TUhKck5NS2NMeVpxdkoweTdoZ2JiOUR1aDk5UFJEQzhoYUlTTFN2OXdHYS1ZbU1mQkFGOXRwY2lBSFhBWjZFRXRUeUhN?oc=5" target="_blank" rel="noopener">Transcript - Reuters - Reuters</a></div>
+    <div class="rss-item"><span class="rss-date">09-25</span><a href="https://news.google.com/rss/articles/CBMihAFBVV95cUxNeEhLUFZtTkNDMS1jTFF2am1wTENnbk96c3d2OEVfbGJVaHlIbGg1YmRhNFhyOG9XbmN3VGs5cmc0SlF3TWk3cWwzaEN4MnVPZXkxQ1VzZVY5anBCWVhXSy11RHphcnJCNk4tN1dlekxIRFM5RFNSYjZmM1VDR082WWVjTWY?oc=5" target="_blank" rel="noopener">Soaring bond yields ‘not even close’ to cooling red-hot US economy, investors say - Financial Times</a></div>
+    <div class="rss-item"><span class="rss-date">09-24</span><a href="https://news.google.com/rss/articles/CBMirAFBVV95cUxPS1FaZTVSeTlieFN5WUNJdHE5VVB5VlM2Q0pSY3BtalppeEt0S0s0YnNBMzlTcUpIWGg0V3dxTTBiWWdpbW1OTTJBSFIwMDUzNG80ekkzM3AtMXFoSmRNQVNPQUxBeUVlTmFPNjdWZmk3enE2NFVpY1U1Y1dqSkdDY080OXBZZGRmbWZmYWw2WGdEVmlTOVVhNXVCb0QxU01Lc0tHSTVDS05ZMjJJ?oc=5" target="_blank" rel="noopener">Fed officials see rates likely rising to curb high inflation - Reuters</a></div>
+    <div class="rss-item"><span class="rss-date">09-23</span><a href="https://news.google.com/rss/articles/CBMisAFBVV95cUxQVGROaTNUbzBNRWdvU1J1SVRKaURrN0FDVHMteG50VExEUUhKN3UyQ0pMZ3F0ZUtXRHoyc2c2aDgzRkFrTFhHR01OdVROSVBWVnRLWmhqSjNDdW5FVjdHeEptYW5fUFg1VFVnX0xXZURtemZqOVNqNmRqc19yVjdYX3BwM1I1T0M4VUIwdDNqdmxFcnlXX2pKS3VCNllNbEJTQkZxZTJkd1NpNDZwOGpBSw?oc=5" target="_blank" rel="noopener">Gold loses shine as rate hike bets foster a stronger dollar - Reuters</a></div>
+    <div class="rss-item"><span class="rss-date">09-22</span><a href="https://news.google.com/rss/articles/CBMihAFBVV95cUxPd1dkUTllM3VkU25yYjdsemo2SFBSSnp4WTg1aldNaVlLQkRoTjdnTFh3ZE96RHNpQ3dNTk5hVnBVSDRHdUFQLUl6aklHUDJ0TExMajBKd1UxOEhhbThJNXlFUWtpMXJRM2psSGxzd2RWdGR4M1U5eGVXdHdVNnZqQmtveks?oc=5" target="_blank" rel="noopener">The dying days of the Federal Reserve’s dot plot - Financial Times</a></div>
+    <div class="rss-item"><span class="rss-date">09-22</span><a href="https://news.google.com/rss/articles/CBMioAFBVV95cUxQZ3czUG55WkxGS3BYaDE5c0ZfeXRhTFZNY3Fwd3E3SlN0d3pBenA2SEZZZmtUNXo4dUVJc1Ric1ZQd0QyYmRVc0tQVHFEQ2hkTnhReEQ2XzZTejBUZDdvQ085S3pockVEQmtsMDdLbEFMbVZ5QTh2WlVQWDFjNUxsVnRZbzB4TjFkdmMtYlVDWWoweEJuZDJ4bFA0bnJOZU05?oc=5" target="_blank" rel="noopener">A Tantalizing Answer to Why Rates Are So High - Bloomberg.com</a></div>
+    <div class="rss-item"><span class="rss-date">09-22</span><a href="https://news.google.com/rss/articles/CBMixAFBVV95cUxNOWdjLXFQWXdEdW01bmpGeVpaYTNObkRCci0tOXdPeDRGc1duMXNxOUdqN1VXdG9JbE55QlpncVJybVRDMTVYWDlnY3JwRm91azc5dzYyM1Y0NWFoZURBQzJVYWVyTGhFd0pOWm85b1ZmRlhwOU0zWlFuWUdBY2JzcHBBT2FMaWFKLTVPSjFLeE9Mczh2Y21DanBjVEp4alNISlVCZjFzX0o0MnNHQ1Rqam0tQ2VCX21QdDRDM3ppdU5QQ2ky?oc=5" target="_blank" rel="noopener">COMMENTARY: Losing the plot? Warsh&#39;s Fed more &#39;touchy-feely&#39; than data-driven - Reuters</a></div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">원유·OPEC</div>
+    <div class="rss-item"><span class="rss-date">09-27</span><a href="https://news.google.com/rss/articles/CBMihAFBVV95cUxPQjdxWkpYZTEzaU9qM3RsVjUtcmd6VWdnZnpLV2hjaGdEcmNtMk9sa0I4Z3BtX24yUGFPcTlhV0hOQXlEbmVuMnhsbkZGZDNqMnUwZmswS0lmeTg3ZDFXWUppblhQM1FzOHZ3QW5ndWxTYTZ3OTAteW1oWDVlQlBWa05vbEo?oc=5" target="_blank" rel="noopener">Europe braces for LNG tug of war with Asia - Financial Times</a></div>
+    <div class="rss-item"><span class="rss-date">09-25</span><a href="https://news.google.com/rss/articles/CBMihAFBVV95cUxQTFcwTDNybE1RMjNzOTdOeDdyNjl5YVZSU2NFeGt3R2I0UG9uQTB6eWEyelFjZ3VRQmNoWEFFMzNDd29RUHVpTS1iOTdiVzJ2dWpGSVp2UGZNRFo0aFkzY19XWjRCSzBjcFhzS3VWa1FpU2dTb1Q5cHp2LVEwSlRxUmZpblk?oc=5" target="_blank" rel="noopener">Oilman Scott Sheffield: ‘We’re warming. I see it here in this ranch’ - Financial Times</a></div>
+    <div class="rss-item"><span class="rss-date">09-24</span><a href="https://news.google.com/rss/articles/CBMihAFBVV95cUxOQVVIY1BuTjRuN3VMTUdHWVZmbXVCaVdwNGVoOW1MQkJpeWloOVBIYW14dEI3M3pEVlI2blJKRWFHQjVqQzBIcVh2ZFNCekUzMkZMVlVLbHI0R29BN3pnYWhrYWt3ak96dlFIaXhQZWpSWnpKOXNqX1owT2tRMW91REY0Nkk?oc=5" target="_blank" rel="noopener">Shale oil magnate says Exxon chief ‘threw me under the bus’ after $60bn takeover - Financial Times</a></div>
+    <div class="rss-item"><span class="rss-date">09-23</span><a href="https://news.google.com/rss/articles/CBMihAFBVV95cUxQNHA5S3JZSEotVXc3eUFETE5GTkVuWlVzSmxRRUVBYW9MMjRQRWNvbTB5eDUzb2x4RG5pYzVTVUZEN1F2bUdBaVJoMGx6Z0hySVE2OHpXNWR3X0ttMDlIRnJlSE9EUXJmcGdVb2prOEFqWFgtcUdydHpOWGxqa1hfc1RmQU4?oc=5" target="_blank" rel="noopener">Oil price on track for longest losing streak in more than 12 months - Financial Times</a></div>
+    <div class="rss-item"><span class="rss-date">09-23</span><a href="https://news.google.com/rss/articles/CBMihAFBVV95cUxQMWl6Um1OSVFaTHlqc0JZckZ4cXBHTnFpS0RQTWxHdnNrXzRzNzU5cGRsakhab3VWUW9KNC0tV0syaGdyR282V09vSkltNzd1SDltV0x0aTFSOUZBdU52UnNLYlRaNjZhdU5EOWJyWlNXV1U0WTlFbHRIc2lnbVRnZVlOaDU?oc=5" target="_blank" rel="noopener">How Trump’s diesel export ban will backfire - Financial Times</a></div>
+    <div class="rss-item"><span class="rss-date">09-23</span><a href="https://news.google.com/rss/articles/CBMihAFBVV95cUxQWDlTbEtkcmpvbDkxaVFjaFdzMkpjWXJXRUdvcERmb2NQZXIzdjNyRjdmMmlEd2tsYVpsMkNQbFlMU2w1dnhvM09ZbjNMRGZpd3hjMVZWZW1MYmxnQVoxOThpSmRvLXRTU3JiUWEtbktMY1h1S2VFclozOFJ3QXI3dnVYZ0w?oc=5" target="_blank" rel="noopener">European diesel prices climb over prospect of US export ban - Financial Times</a></div>
+    <div class="rss-item"><span class="rss-date">09-22</span><a href="https://news.google.com/rss/articles/CBMivgFBVV95cUxQOVVMaFBzbF9UZE5pd2VoZlZnclpPTjU3SVRDTkFzSjFOWk04VzREVjRnSlFCZTBJV1g0SXRMT3hJeFRwVjNwM2JuLTBVOHJZcndDZTc0bEt6NFlweElqQ3oyWGFtTzBUVDE1dEV4NFE5UnVDbV9IelEzU2dHNzhSQ3lKbVVBNW1pMTdSbTFqV0RCOXd6Z3FfU2NBMU1tUWZPOXItX3d5Z1RQZnRlU3VzLXVveFN2LThhSjdxaXp3?oc=5" target="_blank" rel="noopener">Traders push for discounts for Venezuelan oil as shipping costs soar, sources say - Reuters</a></div>
+    <div class="rss-item"><span class="rss-date">09-22</span><a href="https://news.google.com/rss/articles/CBMihAFBVV95cUxOWXpnaFo1aGxnUWNfVGE4cDdHQml3Qmx1cGJrVGJuekdYZmJadHFUUGtVSDdEck1jN05jNk80UmxYVzNwRGFETDhPbkVSVkhDX2RNV21nMzUyc1plSlJvUENKUkNYTEFVZ3lwQnkxSWg0bVUyQWZMekFIMG41UF9OUzNMRlk?oc=5" target="_blank" rel="noopener">Saudi Arabia signals reopening of East-West pipeline - Financial Times</a></div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">EIA</div>
+    <div class="rss-item"><span class="rss-date">09-25</span><a href="https://www.eia.gov/todayinenergy/detail.php?id=68204" target="_blank" rel="noopener">Henry Hub natural gas prices this summer were 6% lower than last summer</a></div>
+    <div class="rss-item"><span class="rss-date">09-22</span><a href="https://www.eia.gov/todayinenergy/detail.php?id=68184" target="_blank" rel="noopener">Public companies produce most U.S. crude oil and natural gas</a></div>
+    <div class="rss-item"><span class="rss-date">09-18</span><a href="https://www.eia.gov/todayinenergy/detail.php?id=68164" target="_blank" rel="noopener">What goes into diesel prices?</a></div>
+    <div class="rss-item"><span class="rss-date">09-15</span><a href="https://www.eia.gov/todayinenergy/detail.php?id=68144" target="_blank" rel="noopener">Corpus Christi LNG expansion makes facility the second-largest in the United States</a></div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">ECB·유로</div>
+    <div class="rss-item"><span class="rss-date">09-25</span><a href="https://news.google.com/rss/articles/CBMitAFBVV95cUxNTE1XWHZBMXRBS2NQcjFuc1VWUE4wNV84SlhHbWJLYU5FdVhNUUJxT0pPLTJRN2x4cG1GcFNLY1BWYmxFV2lGZWlsQXJYVzZ4NlExV0loRnp5Rnczc09TZHcwYmJjYWZFZ2pWWGlMV09uOS1ma1pNeHM2SVZvekdpbHI3V05vN1dCUVJlLWgxblF5RmtFMkxFZEVDcjhJQVphbzRIR0RNdnJ0YmlPQ0ZzUFE2VTA?oc=5" target="_blank" rel="noopener">Euro Zone’s Inflation Rate Is About to Reach Highest Since 2023 - Bloomberg.com</a></div>
+    <div class="rss-item"><span class="rss-date">09-25</span><a href="https://news.google.com/rss/articles/CBMingFBVV95cUxOdDV6Y2JIXzM5ZHZ5Q2lPbUFxUk1jU2kyY3VyUGRlWHAwcmtoSEs1YkZib09MV3kzTVQ0SjBNdUpIM0pET3E5NHJTVXNYTmE4bW82MDh1S3Z1ejlNODlJT3AxWHQ2S0RTLWtMc2c1VUQtWUZOZDc1eXNKQjNxSC1PNHVlVGlNbzVybmFoSkRMaXF1Q2VFVUlkbEJWUTJsQQ?oc=5" target="_blank" rel="noopener">Bank Lending to Eurozone Businesses Halved in August - WSJ</a></div>
+    <div class="rss-item"><span class="rss-date">09-25</span><a href="https://news.google.com/rss/articles/CBMirwFBVV95cUxQV0FpMms3NWpmZG9Hc2FpSm4zdFRQUkdpR1BfXy0zZDFGQ044WnZ4UHM0RW9nakRBMjVsTk5XQnNLb1gzWU53NzJlVV9KNlZqckNZaHVSel95QnphaTM1THp3LXdIVWoybG5vZjN6SUdaY2M5aF9CVzJFbWYyRWpaSmk1T01QSWRmOVZyTXZhZXVwX1VNbFIwcVo1TUNlVEdLOG5yM2VGZnFwMGJkVVVr?oc=5" target="_blank" rel="noopener">ECB’s Vujcic Says Energy Prices Will Stay ‘Higher for Longer’ - Bloomberg.com</a></div>
+    <div class="rss-item"><span class="rss-date">09-25</span><a href="https://news.google.com/rss/articles/CBMisgFBVV95cUxPdkZuc3lTTVVuR3UyYTJndlJ1OU5ZcExuOVROdERXZUR1cXRaTDdPNWtabV8tdHFrdVctSkJEM0E2aUVDNzNKbmdTZk9aQm5YMnhoMmlCOGlzNWRTRFRqYmJJZ3JZNXAzcm4waklHdU0zR2pKeTV1WlZoaXdaUUYwVFJUUV9RNFpzeEMxTy11dzhpSWNuYTBaNnk0UnVOTExWa29JZWN3Q29HNVhrcmNuR1lB?oc=5" target="_blank" rel="noopener">France can&#39;t count on ECB to fix debt woes, central bank chief says - Reuters</a></div>
+    <div class="rss-item"><span class="rss-date">09-24</span><a href="https://news.google.com/rss/articles/CBMimgFBVV95cUxOcXFHYzVORnF1a0lxY1c3ZnJnQTR6SFpWcmFGRXZZVGNqZFNfdTBma0t6T2d5OUJjQXhjQjlVUk1GMloyUUdZZzQ3N29FU2s0YllYOVZyemM2SmNyN1p6QV82TUNlSWFaTVZSdWRrSno2ZGVMMTl0cHhSWlhjWFJsczhGMDRSYi1yUjlZUEJRSjc0V3dBaVlVVl9n?oc=5" target="_blank" rel="noopener">Isabel Schnabel sought to bridge Germany and the ECB - Reuters</a></div>
+    <div class="rss-item"><span class="rss-date">09-24</span><a href="https://news.google.com/rss/articles/CBMihAFBVV95cUxOb0JBREZSUWtjVFAtSndEaFoxWFZ6bkxJSXBoUUhnNDQ4cm83Wk9EbXZ2Mi1FeklZSlM3ZXNtWGxoVWFaMkR1U0kwNjN5akl2Q2N2bDMxQ1A3UFVvUEx4NDNKMmVkaHlPU1Jld3ZLNkhxdVBxbXNFekJFVmt2bksweXRqVkc?oc=5" target="_blank" rel="noopener">Isabel Schnabel to leave ECB early to join IMF - Financial Times</a></div>
+    <div class="rss-item"><span class="rss-date">09-24</span><a href="https://news.google.com/rss/articles/CBMitAFBVV95cUxQems5Mm01bGtJSHJUODhxMTBaanBicS1tZjFDZENIS2V1MUQzS3hzVHNRbW9tYWpFbEJLTjBqbTRWNWN6VkVET1dLeVdIVFRMRGVOQ1hBSnc0d0l1cEVFZlRvNVo4VkNMd0gza2c0LUxZRS16c0NYNG1ZcU9rR3NRWE1wSlIxYjRSWTdEUWZaSjlBeERHTm9Yd2luaUcyZ0tPWDJOY184bkZKbVpuOGZqWllPeTE?oc=5" target="_blank" rel="noopener">Knot Would Be Perfect Fit at ECB for Many Nations, Dutch PM Says - Bloomberg.com</a></div>
+    <div class="rss-item"><span class="rss-date">09-24</span><a href="https://news.google.com/rss/articles/CBMiswFBVV95cUxQdjZBcmhmWFdVYTN0ZkRWRlo1LWI4VjFoXzdZd3p4MWZDaG1pUzZqMVUyMG8zZ2RIUFh1RlQzVjZwU3pTTFJSOXNuWnBwWWk2TFNRckliRVBRSVpNNFpsN3dlUDgtaW43a1Rqc1BDTlBEOGNiR2FpNzYzaEFseHU1b040MTNBMS1GTUdaaGI2cGwxQk9rSDVQYk5RZUhRa2F6TWtzRnY5cVVfRy1VdFZ4cVdQOA?oc=5" target="_blank" rel="noopener">BofA sees ECB rate hike in December as energy prices fan inflation - Reuters</a></div>
+  </div>
+</div>
+
+<hr class="divider">
+<div class="section-title">Step 2.5 매크로 뉴스 브리프 &amp; 출처</div>
+<div class="panel" style="margin-bottom:1rem;">
+  <details><summary>뉴스 서치 원문 펼치기</summary><div class="news-box" style="margin-top:8px;">① Fed — FOMC은 9/15~16일 회의에서 연방기금금리를 25bp 인상해 3.75~4.00%로 올렸다(2023년 이후 첫 인상, 12-0 만장일치). 지급준비금 금리는 3.90%로, 1차 신용금리는 4.00%로 각각 상향(9/17 발효). 성명은 &#34;경제활동 견조한 확장, 생산성·설비투자 강함, 고용은 노동력 증가에 부합, 인플레이션은 여전히 높음&#34;이라고 평가했다(federalreserve.gov, 2026-09-16). 이후 시장은 추가 긴축 가능성에 베팅하며 국채금리가 급등했고(&#34;Soaring bond yields &#39;not even close&#39; to cooling red-hot US economy&#34; FT 9/25), 골드는 금리인상 베팅에 따른 달러 강세로 하락했다(&#34;Gold loses shine as rate hike bets foster a stronger dollar&#34; Reuters 9/23). 워시(Warsh) 신임 의장 체제의 정책 신뢰성에 대한 논쟁도 이어졌다(&#34;Losing the plot? Warsh&#39;s Fed more &#39;touchy-feely&#39; than data-driven&#34; Reuters 9/22, &#34;The dying days of the Federal Reserve&#39;s dot plot&#34; FT 9/22).
+출처: https://www.federalreserve.gov/newsevents/pressreleases/monetary20260916a.htm / https://news.google.com/rss/articles/CBMihAFBVV95cUxNeEhLUFZtTkNDMS1jTFF2am1wTENnbk96c3d2OEVfbGJVaHlIbGg1YmRhNFhyOG9XbmN3VGs5cmc0SlF3TWk3cWwzaEN4MnVPZXkxQ1VzZVY5anBCWVhXSy11RHphcnJCNk4tN1dlekxIRFM5RFNSYjZmM1VDR082WWVjTWY?oc=5
+
+② BOJ — 9/17~18일 정책회의에서 정책금리를 1.00~1.25%로 인상했다(보완당좌예금제도 원칙 개정, 9/24 발효; boj.or.jp, 2026-09-18/09-25). 7월 30~31일 회의록은 위원들이 더 빠른 속도의 추가 인상 필요성을 논의했음을 공개했다(&#34;Bank of Japan debated need for faster rate hikes, July minutes show&#34; Reuters 9/28). 엔화는 160엔/달러 근접에 따른 개입 리스크가 재부각됐고(&#34;JPY/USD: Japanese Yen Intervention Risk Re-Emerges as 160 Per Dollar Level Nears&#34; Bloomberg 9/24), 일본 통화당국자 미무라는 시장에 &#34;매우 명확한&#34; 경고를 보냈다(Reuters 9/28). 트럼프 대통령은 일본 재무상에게 엔저 우려를 직접 표명했다(WSJ 9/25, FT 9/25). 일본 2년물 국채금리는 금리인상 기대 속 2%에 근접했다(Bloomberg 9/28).
+출처: https://www.boj.or.jp/en/mopo/mpmdeci/mpr_2026/mpr260918b.pdf / https://www.boj.or.jp/en/mopo/mpmdeci/mpr_2026/mpr260925a.pdf
+
+③ ECB — 라가르드 총재는 9/28일 유럽의회 경제금융위 청문회에서 3대 정책금리를 25bp 인상했다고 밝혔다. 근거로 8월 헤드라인 인플레이션 3.2% 상승, 에너지 인플레이션 14.3% 급등(임금 전이는 아직 제한적)을 들었고, &#34;충격이 크지만 측정된 대응&#34;이라는 중도 경로를 유지하겠다고 했다. 2026년 성장률 전망은 0.9%, 2027년 1.4%, 2028년 1.5%다(ecb.europa.eu, 2026-09-28). 12월 추가 인상(2.75~3% 목표) 기대가 형성돼 있다. 이사회 멤버 슈나벨은 IMF 고위직 이동을 위해 조기 사임했다(ecb.europa.eu / Reuters·FT 9/24). ECB의 부이치치는 에너지 가격이 &#34;더 오래 높게&#34; 유지될 것이라 전망했다(Bloomberg 9/25).
+출처: https://www.ecb.europa.eu//press/key/date/2026/html/ecb.sp260928~a875675544.en.html / https://www.ecb.europa.eu//press/pr/date/2026/html/ecb.pr260924~bea1dd9824.en.html
+
+④ S&amp;P500/나스닥 — 9/21~25일 주간, S&amp;P500은 7,743.41(주간 +1.21%), 나스닥종합은 27,068.72(주간 +2.06%, 장중 사상최고 27,122.09)로 마감했다. AI 종목 매수세와 국제유가 하락에 따른 압력 완화가 상승을 이끌었다(&#34;Wall Street ends higher as investors buy AI stocks; Microsoft rallies&#34; Reuters 9/25, &#34;Nasdaq reaches record high close, AI stocks rally&#34; Reuters 9/22). 다만 주 중반에는 국채금리 급등과 유가 반등으로 하락하는 날도 있었다(&#34;Wall Street ends down as oil prices, Treasury yields rise&#34; Reuters 9/23, &#34;U.S. Stocks Decline as Treasury Selloff Deepens&#34; WSJ 9/23).
+출처: https://news.google.com/rss/articles/CBMiwAFBVV95cUxOazZwSUsxTDltUG1palRCRG1iQnVRWFQxSGRoVFNKbnVoWExJYk13bVFFMEtkSndpTlh5eVNGYVJlTXpWSmtJZXpTVXRDazdBaUw1eFlUcjdob21NWF9hT2NNWDllOW1fc0lHdjBrQVBmeXY0ZWJLS25xdEJZMFJMUkVsa3NwRS0xSG1LUGVJVkVuSEVOVDlQR2pwWnZjRzliZXNQSTdyREhFVlBuQ185VEYxUWRab01zcThMWUtvOFI?oc=5
+
+⑤ AI/빅테크 — 마이크로소프트는 코파일럿 앱에 코딩 도구와 상시 작동 AI 에이전트 등 신기능을 공개하며 랠리를 이끌었다(Reuters 9/25). AI 낙관론이 재점화되며 나스닥 사상 최고 마감에 기여했고 국채금리는 소폭 되돌림을 보였다(&#34;Nasdaq notches record-high close, AI optimism reignites and Treasury yields retreat&#34; Reuters 9/21). 밸류에이션 관련 구체적 수치(멀티플 등)는 신뢰 소스 내 확인 불가.
+출처: https://news.google.com/rss/articles/CBMipwFBVV95cUxOOUI2bTZ5ZFhnZUozYjg5LXM1WHhuT24xUS0zYmRRZkViWVBreE05ZTNMWFBDSGhHTXUyQ3ZyMWhsUFdxSUlxUXVUUXVHWGRVelg3Z2RuVXo3bndwaXJfRXhEUEFERFNSUVZoaDNERnFxdnhuNkxLdVhnNDRpRGhxYndETzVJdVNnZXJESmpMNmw5QVFQODFGY2w2NzVCcFl0bXBSNjRaTQ?oc=5
+
+⑥ VIX — CBOE 공식 데이터 기준 9/28일 VIX 현물은 16.48로 전일 대비 +10.83%(+1.61pt) 급등했다(cboe.com, 2026-09-28). 국채 셀오프와 금리 인상 우려 속 주 후반 변동성이 확대된 것으로 해석된다.
+출처: https://www.cboe.com/tradable_products/vix/
+
+⑦ OPEC+ — 사우디·러시아가 주도하는 OPEC+ 7개국은 9월 초(9/2 잠정, 9/6 확정) 화상회의에서 10월 산유 쿼터를 동결하기로 했다. 연말까지 기존 증산 중단 로드맵을 유지한다는 방침이다(Bloomberg, 2026-09-06). 9/16~28일 구간 내 추가 공식 회동은 확인되지 않았다. 호르무즈 해협은 2/28일 전투 발발 이후 사실상 봉쇄 상태가 지속되고 있다는 보도가 있으나, 이 부분은 허용 소스(Reuters/Bloomberg/FT/WSJ) 내 직접 확인은 되지 않아 &#34;확인 불가&#34;로 남긴다.
+출처: https://www.bloomberg.com/news/articles/2026-09-06/opec-sticks-with-plan-to-keep-oil-production-quotas-unchanged
+
+⑧ WTI 스팟 가격 — 9월 한 달간 &#34;12개월래 최장 하락 랙&#34;에 근접했다는 보도가 있었고(&#34;Oil price on track for longest losing streak in more than 12 months&#34; FT 9/23), 9/23일에는 원유 흐름 개선 기대에 유가가 하락하며 나스닥 사상최고 마감을 도왔다(Reuters 9/23). 반면 9/23일 별도 세션에서는 유가 반등이 증시 하락 요인이 되기도 했다(Reuters 9/23). EIA 주간 재고 결과의 정확한 배럴 수치는 신뢰 소스 원문에서 확인하지 못해 &#34;확인 불가&#34;로 남긴다.
+출처: https://www.eia.gov/petroleum/supply/weekly/ / https://news.google.com/rss/articles/CBMihAFBVV95cUxQNHA5S3JZSEotVXc3eUFETE5GTkVuWlVzSmxRRUVBYW9MMjRQRWNvbTB5eDUzb2x4RG5pYzVTVUZEN1F2bUdBaVJoMGx6Z0hySVE2OHpXNWR3X0ttMDlIRnJlSE9EUXJmcGdVb2prOEFqWFgtcUdydHpOWGxqa1hfc1RmQU4?oc=5
+
+⑨ BTC 현물 ETF — Farside 집계 기준 9월 17일부터 7거래일 연속 순유입이 이어졌고, 9/26일까지 주간 약 29.8억 달러 순유입이 누적됐다. 연초 이후 누적 순유입은 8.868억 달러로 플러스 전환됐다(farside.co.uk 기반 보도, 2026-09-26). 다만 이 수치는 Farside 사이트 직접 접속이 차단되어 2차 보도를 통해 교차 확인한 것으로, 정밀한 일별 수치는 &#34;참고용&#34;으로 처리한다.
+출처: https://farside.co.uk/btc/
+
+⑩ BTC 가격 — 비트코인은 9/23일 기준 8만6천 달러대에서 거래됐으며, $85,000~$87,000 구간이 주요 저항으로 거론된다. 8월 저점 대비 반등 국면에서 $83,400~$84,000대가 지지선으로 언급된다. 다만 이 수치는 허용된 4개 매체(Reuters/Bloomberg/FT/WSJ) 원문에서 직접 확인되지 않아 참고 수준으로만 인용하며, 확정치는 &#34;확인 불가&#34;로 처리한다.
+출처: 확인 불가(비신뢰 소스만 확인됨)
+
+⑪ 미-중 관세 — 미-중은 시진핑 주석의 방미(9/24~9/28경) 계기 무역 휴전을 1/10일까지 2개월 연장하기로 합의했다. 300억 달러 규모 상품에 대한 상호 관세 인하 및 AI 대화체 신설에도 합의했다(Reuters 9/26·9/28, WSJ 9/26, FT 9/28, Bloomberg 9/28). 중국은 미국산 농산물 관세를 인하하되 대두는 목록에서 제외했다(Reuters 9/28).
+출처: https://news.google.com/rss/articles/CBMixAFBVV95cUxPaTBqVzRGcGNNZ2M5YWVLbUQxanlOVWhxYU5lWjNuYzJSWmtHV2lQTWdSUXlpTGM3M1UzU2JUckNLUGxIc3dFVWx5WlExNnotSmtQblE4UnM0Sk1OVnQycjVkR0ozUlpzMW5MMExHNll4NDR2dXpfWTNCMVpQT0docjI1SHFDeFdwYnZGVlVocXhzTy10WWViRk54VklyNzNiRFczXy04aURCdVdmSEdNbjNrRHpXNXM5LWRCZzJQajZVMVBx?oc=5
+
+⑫ 주요 경제지표 — 8월 미국 CPI는 9/11일 발표되어 헤드라인 전년비 3.35%, 근원 2.45%를 기록했다(BLS 일정 기준). 8월 PCE는 9/30일 발표 예정(BEA)이며, 9월 고용보고서는 10/2일 발표 예정이다(bls.gov). 9/16~28일 구간 자체에는 신규 CPI/PCE/고용 발표가 없었다.
+출처: https://www.bls.gov/schedule/ / https://www.bea.gov/data/personal-consumption-expenditures-price-index</div></details>
+  <ol class="src-list" style="margin-top:8px;">
+<li><a href="https://www.federalreserve.gov/newsevents/pressreleases/monetary20260916a.htm" target="_blank" rel="noopener">Federal Reserve issues FOMC statement (Sept 16, 2026)</a></li><li><a href="https://www.boj.or.jp/en/mopo/mpmdeci/mpr_2026/mpr260918b.pdf" target="_blank" rel="noopener">BOJ, Change in Complementary Deposit Facility (Sept 18, 2026)</a></li><li><a href="https://www.boj.or.jp/en/mopo/mpmdeci/mpr_2026/mpr260925a.pdf" target="_blank" rel="noopener">BOJ, Financial Markets Department release (Sept 25, 2026)</a></li><li><a href="https://www.ecb.europa.eu//press/key/date/2026/html/ecb.sp260928~a875675544.en.html" target="_blank" rel="noopener">Christine Lagarde: Hearing of the Committee on Economic and Monetary Affairs (Sept 28, 2026)</a></li><li><a href="https://www.ecb.europa.eu//press/pr/date/2026/html/ecb.pr260924~bea1dd9824.en.html" target="_blank" rel="noopener">ECB Executive Board member Isabel Schnabel to resign to take senior role at IMF</a></li><li><a href="https://www.cboe.com/tradable_products/vix/" target="_blank" rel="noopener">CBOE VIX Index</a></li><li><a href="https://www.bloomberg.com/news/articles/2026-09-06/opec-sticks-with-plan-to-keep-oil-production-quotas-unchanged" target="_blank" rel="noopener">OPEC+ Sticks With Plan to Keep Oil Output Quotas Unchanged - Bloomberg</a></li><li><a href="https://news.google.com/rss/articles/CBMiwAFBVV95cUxOazZwSUsxTDltUG1palRCRG1iQnVRWFQxSGRoVFNKbnVoWExJYk13bVFFMEtkSndpTlh5eVNGYVJlTXpWSmtJZXpTVXRDazdBaUw1eFlUcjdob21NWF9hT2NNWDllOW1fc0lHdjBrQVBmeXY0ZWJLS25xdEJZMFJMUkVsa3NwRS0xSG1LUGVJVkVuSEVOVDlQR2pwWnZjRzliZXNQSTdyREhFVlBuQ185VEYxUWRab01zcThMWUtvOFI?oc=5" target="_blank" rel="noopener">Wall Street ends higher as investors buy AI stocks; Microsoft rallies - Reuters</a></li><li><a href="https://news.google.com/rss/articles/CBMihAFBVV95cUxQNHA5S3JZSEotVXc3eUFETE5GTkVuWlVzSmxRRUVBYW9MMjRQRWNvbTB5eDUzb2x4RG5pYzVTVUZEN1F2bUdBaVJoMGx6Z0hySVE2OHpXNWR3X0ttMDlIRnJlSE9EUXJmcGdVb2prOEFqWFgtcUdydHpOWGxqa1hfc1RmQU4?oc=5" target="_blank" rel="noopener">Oil price on track for longest losing streak in more than 12 months - FT</a></li><li><a href="https://news.google.com/rss/articles/CBMisgFBVV95cUxNM0Rid1RQcVo2QlNMTTZDOGEyYmRtQnFYVVJDN1pBMGpwNGxzS19vN1VBMHVXbDFtWkZHOVJhZTNxaWptMGsxbkxDQ2ZSNjZkNFdMTUQwZEhuaW1FUGhHUnJhWGU1eU5NQ1QwRWpDUURJQS1HUUdNYmFZbldSdFk4VGRXSGhUTkVPbk1QSUxzMV9ZckpvMWJYaTNPaWswYnpCTkpEUk9xNUhFMjEyVDRJek93?oc=5" target="_blank" rel="noopener">Bank of Japan debated need for faster rate hikes, July minutes show - Reuters</a></li><li><a href="https://news.google.com/rss/articles/CBMiswFBVV95cUxOZzU5RlZUczkxZUtLOFZVcXJrdHhiZkNVTDB3cWsxRi1TRklCclBhTFpDWk04NFdCelRQczNfOXpKQlhndWljcWVncUtEalZFdmFyLVc4NWNBa0thV2l4M1NQWXkyOVg3bE8wWUNqUmxtTjhnMFZQQ1hMbjR4cmh3ZG5LM0paT3NtRmgydmxCZHpNZnFnRXB0MERxcl9zRDhJTUhDNW9qbFg5N1A5Qjl0Q2Ytbw?oc=5" target="_blank" rel="noopener">JPY/USD: Japanese Yen Intervention Risk Re-Emerges as 160 Per Dollar Level Nears - Bloomberg</a></li><li><a href="https://news.google.com/rss/articles/CBMiuwFBVV95cUxOa3VnY0xlZ0NXQzJnSXFtQ0VQTnpnNk13cDA3aDBXWWQ2ckFvdjlqWi1fVGZDbDAwLUo2SFBEbldPRkJjNEhOM3BVZ3FpRkJ5dHBscFdEQUVpUndoR3NuWF9nUmc1OFR5S243Vm8xVmZaQ1luN2dlMkZjeHJYS3d4N3NIakE5NFlXb05KeGIyemoxYVQydlUwTHZpRjRYWHhxczIxRENxYzBvaHhDdU0tQXF2blZxcDkyZVZv?oc=5" target="_blank" rel="noopener">Trump Expressed Concerns About Yen Weakness, Japan Finance Minister Says - WSJ</a></li><li><a href="https://news.google.com/rss/articles/CBMixAFBVV95cUxPaTBqVzRGcGNNZ2M5YWVLbUQxanlOVWhxYU5lWjNuYzJSWmtHV2lQTWdSUXlpTGM3M1UzU2JUckNLUGxIc3dFVWx5WlExNnotSmtQblE4UnM0Sk1OVnQycjVkR0ozUlpzMW5MMExHNll4NDR2dXpfWTNCMVpQT0docjI1SHFDeFdwYnZGVlVocXhzTy10WWViRk54VklyNzNiRFczXy04aURCdVdmSEdNbjNrRHpXNXM5LWRCZzJQajZVMVBx?oc=5" target="_blank" rel="noopener">China, US agree to tariff cuts on $60 billion of goods including agriculture, household items - Reuters</a></li><li><a href="https://www.bls.gov/schedule/" target="_blank" rel="noopener">BLS Schedule of Selected Releases</a></li><li><a href="https://www.bea.gov/data/personal-consumption-expenditures-price-index" target="_blank" rel="noopener">BEA Personal Consumption Expenditures Price Index</a></li><li><a href="https://farside.co.uk/btc/" target="_blank" rel="noopener">Farside Investors — Bitcoin ETF Flow</a></li>  </ol>
+</div>
+
+<div class="footnote">
+  데이터: CFTC Commitments of Traders · Futures Only · 시장 코드 NQ=20974+, ES=13874+, WTI=067651, BTC=133741, EUR=099741, JPY=097741, USD=098662<br>
+  AI 상담용 텍스트 요약: <a href="reports/2026-09-22.md">2026-09-22.md</a> ·
+  원문 확인: <a href="https://www.cftc.gov/dea/futures/financial_lf.htm">금융선물</a> · <a href="https://www.cftc.gov/dea/futures/petroleum_lf.htm">WTI 원유</a>
+ · 분석: Claude (Claude)<br>
+  본 자료는 투자 참고용이며 투자 권유가 아닙니다.
+</div>
+
 </div>
 </body>
 </html>

@@ -3,11 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>COT 주간 분석</title>
+<title>COT 기록</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; background: #f5f5f0; color: #0b0b0b; padding: 16px; }
 .wrap { max-width: 900px; margin: 0 auto; padding: 1rem 0; }
+.tabs { display: flex; gap: 6px; overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 2px 0 12px; margin-bottom: 1rem; border-bottom: 0.5px solid #e0dfd8; scrollbar-width: none; }
+.tabs::-webkit-scrollbar { display: none; }
+.tab { flex-shrink: 0; font-size: 12px; padding: 6px 12px; border-radius: 20px; background: #ffffff; border: 0.5px solid #e0dfd8; color: #52514e; text-decoration: none; white-space: nowrap; }
+.tab.on { background: #0b0b0b; border-color: #0b0b0b; color: #ffffff; font-weight: 500; }
 h1 { font-size: 20px; font-weight: 500; margin-bottom: 4px; }
 .sub { font-size: 12px; color: #52514e; margin-bottom: 1.25rem; line-height: 1.6; }
 .section-title { font-size: 13px; font-weight: 500; color: #52514e; text-transform: uppercase; letter-spacing: 0.06em; margin: 1.5rem 0 0.75rem; }
@@ -28,18 +32,12 @@ td a { color: #185FA5; text-decoration: none; font-weight: 500; }
 </head>
 <body>
 <div class="wrap">
-  <h1>CFTC COT 주간 분석</h1>
-  <div class="sub">글로벌 매크로 CIO 시각의 스마트머니 포지션 분석 · 매주 토요일 자동 업데이트 (CFTC 금요일 발표 직후)</div>
-
-  {% if latest %}
-  <a class="panel latest" href="{{ latest.link }}">
-    <div class="t">최신 리포트 — {{ latest.week }} ({{ latest.date }} 기준) →</div>
-    <div class="m">{{ latest.opinion }}<br>{{ latest.memo }}</div>
-  </a>
-  {% endif %}
+  {{ nav|safe }}
+  <h1>COT 기록</h1>
+  <div class="sub">주차별 종합 점수(최근 1년 리포트)와 누적 수치 기록(전체 기간). 매주 토요일 자동 업데이트.</div>
 
   <div class="panel" style="font-size:12px;color:#52514e;line-height:1.7;">
-    <b style="color:#0b0b0b;font-weight:500;">AI에게 물어볼 때</b> — 이 주소를 붙여넣으세요 (텍스트 요약본, 항상 최신 주차):<br>
+    <b style="color:#0b0b0b;font-weight:500;">AI에게 물어볼 때</b> — 이 주소를 붙여넣으세요 (텍스트 요약본, 항상 최신 주차 + 최근 12주 기록):<br>
     <a href="latest.md" style="color:#185FA5;word-break:break-all;">{{ site_url }}/latest.md</a>
   </div>
 

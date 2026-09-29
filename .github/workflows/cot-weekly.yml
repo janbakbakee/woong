@@ -130,7 +130,8 @@ jobs:
   # 텔레그램 / ntfy 알림 (Secrets에 설정된 채널로만 전송)
   notify:
     needs: [report, deploy]
-    if: always() && (needs.report.result == 'failure' || needs.deploy.result == 'failure' || needs.report.outputs.ran == 'true')
+    # 새 리포트 생성·실패 시, 그리고 수동 실행(Run workflow) 시에는 항상 알림 (텔레그램 설정 확인용)
+    if: always() && (needs.report.result == 'failure' || needs.deploy.result == 'failure' || needs.report.outputs.ran == 'true' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -152,5 +153,5 @@ jobs:
           if [[ "$FAILED" == "true" ]]; then
             python -m cot.notify --failure --run-url "$RUN_URL"
           else
-            python -m cot.notify --date "$REPORT_DATE"
+            python -m cot.notify ${REPORT_DATE:+--date "$REPORT_DATE"}
           fi

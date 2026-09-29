@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COT {{ label }}</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; background: #f5f5f0; color: #0b0b0b; padding: 16px; }
+.wrap { max-width: 900px; margin: 0 auto; padding: 1rem 0; }
+.tabs { display: flex; gap: 6px; overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 2px 0 12px; margin-bottom: 1rem; border-bottom: 0.5px solid #e0dfd8; scrollbar-width: none; }
+.tabs::-webkit-scrollbar { display: none; }
+.tab { flex-shrink: 0; font-size: 12px; padding: 6px 12px; border-radius: 20px; background: #ffffff; border: 0.5px solid #e0dfd8; color: #52514e; text-decoration: none; white-space: nowrap; }
+.tab.on { background: #0b0b0b; border-color: #0b0b0b; color: #ffffff; font-weight: 500; }
+h1 { font-size: 20px; font-weight: 500; margin-bottom: 4px; }
+.sub { font-size: 12px; color: #52514e; margin-bottom: 1.25rem; }
+.week { display: block; background: #ffffff; border: 0.5px solid #e0dfd8; border-radius: 12px; padding: 1rem 1.1rem; margin-bottom: 10px; text-decoration: none; color: #0b0b0b; }
+.week-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 8px; }
+.week-title { font-size: 15px; font-weight: 500; }
+.week-date { font-size: 11px; color: #888780; white-space: nowrap; }
+.chips { display: grid; grid-template-columns: repeat(auto-fit, minmax(72px, 1fr)); gap: 6px; margin-bottom: 8px; }
+.chip { text-align: center; padding: 6px 4px; border-radius: 8px; border: 0.5px solid #e0dfd8; background: #fafaf8; }
+.chip-k { font-size: 10px; color: #52514e; }
+.chip-s { font-size: 15px; font-weight: 500; }
+.chip-v { font-size: 10px; font-weight: 500; }
+.opinion { font-size: 12px; color: #0b0b0b; line-height: 1.6; }
+.memo { font-size: 11px; color: #52514e; line-height: 1.6; margin-top: 2px; }
+.links { font-size: 11px; margin-top: 8px; color: #185FA5; }
+.warn { display: inline-block; font-size: 10px; background: #faeeda; color: #854F0B; border-radius: 10px; padding: 1px 7px; margin-left: 6px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  {{ nav|safe }}
+  <h1>{{ label }}</h1>
+  <div class="sub">{{ weeks|length }}개 주차 · 카드를 누르면 전체 리포트가 열립니다.</div>
+
+  {% for w in weeks %}
+  <a class="week" href="../reports/{{ w.file }}.html">
+    <div class="week-head">
+      <span class="week-title">{{ w.week }}{% if not w.ai %}<span class="warn">수치만</span>{% endif %}</span>
+      <span class="week-date">기준일 {{ w.date }}</span>
+    </div>
+    <div class="chips">
+      {% for k in keys %}{% set s = w.scores.get(k) %}
+      <div class="chip"{% if s is not none %} style="background:{{ s|scorebg }};border-color:{{ s|scorebg }};"{% endif %}>
+        <div class="chip-k">{{ k }}</div>
+        <div class="chip-s" style="color:{{ s|scorefg if s is not none else '#888780' }};">{{ s if s is not none else '—' }}</div>
+        <div class="chip-v" style="color:{{ s|scorefg if s is not none else '#888780' }};">{{ w.verdicts.get(k, '') }}</div>
+      </div>
+      {% endfor %}
+    </div>
+    {% if w.opinion %}<div class="opinion">{{ w.opinion }}</div>{% endif %}
+    {% if w.memo %}<div class="memo">{{ w.memo }}</div>{% endif %}
+    <div class="links">리포트 보기 →</div>
+  </a>
+  {% endfor %}
+</div>
+</body>
+</html>

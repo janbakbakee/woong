@@ -181,7 +181,7 @@ ANALYSIS_INSTRUCTIONS = """아래 [COT 지표]와 [뉴스 브리프]로 이번 �
 
 필드 안내:
 - markets: 지표에 있는 모든 시장에 대해 1개씩.
-  rating_label: 배지 문구 (보통 Bullish/Neutral/Bearish, 통화는 "JPY 강세 지속"처럼 방향을 풀어써도 됨)
+  rating_label: 배지 문구, 12자 이내 (보통 Bullish/Neutral/Bearish, 통화는 "JPY 강세 지속"처럼 짧게)
   stars: 1~5 / card_note: 카드 하단 한 줄 (전주 대비 변화 요약, 예: "2주 연속 숏 커버링 (전주 −90,587)")
   change_note: ② 전주 대비 진단 한 줄. 앞에 [diag] 라벨이 자동으로 붙으므로 diag 단어는 반복하지 말고 수치·연속성·그룹 간 차이를 설명
   smart_money: ③ 그룹 간 의견 일치/불일치 + 신뢰 시그널 한 줄
