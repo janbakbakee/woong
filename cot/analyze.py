@@ -49,6 +49,16 @@ CFTC COT 기준일은 {report_date}(화), 공식 발표일은 {release_date}(금
 ⑪ 미-중 관세 — 협상 진행 또는 교착 최신 상황
 ⑫ 주요 경제지표 — 해당 주 발표된 CPI/PCE/고용 결과
 
+[미국 주요 경제지표 — 최근 2주 발표분 + 다음 1주 예정] (bls.gov, bea.gov, census.gov, federalreserve.gov,
+ dol.gov, ismworld.org, sca.isr.umich.edu, conference-board.org 원본 + Reuters/Bloomberg 컨센서스 우선)
+⑬ 고용: 비농업고용(NFP), 실업률, 평균시급, 신규 실업수당청구, JOLTS
+⑭ 물가: CPI·근원 CPI, PCE·근원 PCE, PPI
+⑮ 소비·심리: 소매판매, 미시간대 소비자심리·기대인플레, 컨퍼런스보드 소비자신뢰
+⑯ 경기: ISM 제조업·서비스업 PMI, GDP, 내구재 주문
+→ 지표마다: 발표일 / 실제치 / 컨센서스 / 이전치 / 서프라이즈 방향 / 발표 직후 시장 반응(금리·달러·주가)
+→ 다음 1주 발표 예정 지표와 날짜
+→ 해당 기간에 발표가 없었던 지표는 생략 (추정치 금지)
+
 규칙:
 - 검색은 허용된 공신력 사이트(Reuters, Bloomberg, FT, WSJ, 각국 중앙은행, BLS, BEA, EIA, Farside, CBOE, CME)만 사용.
 - 각 항목마다 핵심 사실 1~3줄 + 날짜 + 수치. 출처 사이트명을 괄호로 표기.
@@ -175,6 +185,14 @@ ANALYSIS_SCHEMA = _obj({
     "trend_overview": {"type": "string"},
     "sheet_opinion": {"type": "string"},
     "sheet_memo": {"type": "string"},
+    "one_liner": {"type": "string"},
+    "macro_view": {"type": "string"},
+    "macro": {"type": "array", "items": _obj({
+        "indicator": {"type": "string"}, "date": {"type": "string"},
+        "actual": {"type": "string"}, "consensus": {"type": "string"}, "previous": {"type": "string"},
+        "surprise": {"type": "string", "enum": ["상회", "부합", "하회", "예정"]},
+        "market_view": {"type": "string"},
+    })},
 })
 
 ANALYSIS_INSTRUCTIONS = """아래 [COT 지표]와 [뉴스 브리프]로 이번 주 분석을 작성해라.
@@ -196,6 +214,12 @@ ANALYSIS_INSTRUCTIONS = """아래 [COT 지표]와 [뉴스 브리프]로 이번 �
 - trend_overview: ⑬ 다주차 트렌드 요약 문단
 - sheet_opinion: 구글 시트용 투자의견 요약 (예: "NQ/ES/WTI Hold, JPY Buy, EUR/BTC Reduce")
 - sheet_memo: 구글 시트용 핵심메모 (슬래시로 구분, 80자 내외)
+- one_liner: 텔레그램 알림용 CIO 한줄 코멘트 (60자 내외). 이번 주 포지셔닝의 핵심과 가장 주목할 행동을 한 문장으로.
+  예: "엔화 롱 청산·달러 롱 동반 — 이벤트 전까지 JPY 추격매수 자제, BTC 숏커버 흐름 주목"
+- macro: 뉴스 브리프의 미국 주요 경제지표(⑬~⑯)를 지표별 1행으로. 발표된 지표는 actual/consensus/previous를
+  브리프에 나온 값 그대로(단위 포함) 쓰고 surprise는 상회/부합/하회, 다음 주 예정 지표는 actual을 "-"로 두고 surprise "예정".
+  market_view: 이 결과가 금리·달러·주식·COT 포지셔닝에 주는 의미 한 문장. 브리프에 없는 지표는 넣지 않는다.
+- macro_view: 경제지표 종합 시장 관점 3~5문장 (경기·물가·고용 흐름 → Fed 경로 → 자산별 함의, COT 포지션과의 정합성)
 """
 
 
@@ -307,10 +331,10 @@ def postprocess(result: dict, metrics: dict) -> dict:
 
     defaults = fallback_analysis(metrics, "")
     for key in ("smart_money_highlight", "exec_theme", "exec_recommendation", "trend_overview",
-                "sheet_opinion", "sheet_memo"):
+                "sheet_opinion", "sheet_memo", "one_liner", "macro_view"):
         if not isinstance(result.get(key), str) or not result.get(key):
             result[key] = defaults[key] if key.startswith("sheet") else ""
-    for key in ("sentiment", "top5", "exec_paragraphs"):
+    for key in ("sentiment", "top5", "exec_paragraphs", "macro"):
         v = result.get(key)
         result[key] = [x for x in v if isinstance(x, dict)] if isinstance(v, list) else []
     mon = result.get("monitoring")
@@ -360,5 +384,6 @@ def fallback_analysis(metrics: dict, reason: str) -> dict:
         "trend_overview": "",
         "sheet_opinion": " / ".join(f"{k} {fallback_market(m)['verdict']}" for k, m in metrics.items()),
         "sheet_memo": "퀀트 점수 기반 (AI 미실행)",
+        "one_liner": "", "macro_view": "", "macro": [],
         "ai": False,
     }

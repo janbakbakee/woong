@@ -187,6 +187,26 @@ details summary { cursor: pointer; font-size: 12px; color: #52514e; }
   {% endfor %}
 </div>
 
+{% if analysis.macro or analysis.macro_view %}
+<div class="panel" style="margin-bottom:1rem;">
+  <div class="panel-title">④-1 미국 주요 경제지표 &amp; 시장 관점</div>
+  {% if analysis.macro %}
+  <div class="table-scroll">
+  <table class="data-table">
+    <tr><th>지표</th><th>발표일</th><th>실제</th><th>예상</th><th>이전</th><th>결과</th><th style="text-align:left;">시장 관점</th></tr>
+    {% for x in analysis.macro %}
+    <tr><td>{{ x.indicator }}</td><td>{{ x.date }}</td><td><b style="font-weight:500;">{{ x.actual }}</b></td><td>{{ x.consensus }}</td><td>{{ x.previous }}</td>
+      <td><span class="badge {{ {'상회':'bull','하회':'bear'}.get(x.surprise, 'neut') }}">{{ x.surprise }}</span></td>
+      <td style="text-align:left;white-space:normal;min-width:220px;color:#52514e;line-height:1.5;">{{ x.market_view }}</td></tr>
+    {% endfor %}
+  </table>
+  </div>
+  {% endif %}
+  {% if analysis.macro_view %}<div class="warn-box" style="margin-top:10px;background:#f0efec;"><span style="font-size:12px;color:#0b0b0b;line-height:1.6;">{{ analysis.macro_view }}</span></div>{% endif %}
+  <div class="score-note" style="margin:6px 0 0;">상회/하회 = 컨센서스 대비. 물가·고용 지표의 '상회'는 매파(금리↑·달러↑) 재료일 수 있으니 시장 관점을 함께 볼 것.</div>
+</div>
+{% endif %}
+
 <hr class="divider">
 
 <div class="row2">
@@ -264,6 +284,7 @@ details summary { cursor: pointer; font-size: 12px; color: #52514e; }
 
 <div class="section-title">⑪ 종합 결론 — CIO Executive Summary</div>
 <div class="exec-box">
+  {% if analysis.one_liner %}<p style="font-size:14px;"><b>💬 {{ analysis.one_liner }}</b></p>{% endif %}
   <p><b>핵심 테마: {{ analysis.exec_theme }}</b></p>
   {% for p in analysis.exec_paragraphs %}
   <p>{% if p.label and p.label != '개요' %}<b>{{ p.label }}:</b> {% endif %}{{ p.text }}</p>

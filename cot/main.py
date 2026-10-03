@@ -184,6 +184,7 @@ def publish(state: dict, analysis: dict, news: dict | None, out: Path, model: st
         "scores": {k: analysis["markets"][k]["score"] for k in metrics},
         "verdicts": {k: analysis["markets"][k]["verdict"] for k in metrics},
         "sheet_opinion": analysis.get("sheet_opinion", ""), "sheet_memo": analysis.get("sheet_memo", ""),
+        "comment": analysis.get("one_liner", ""),
     }
     data_path = out / "data" / "reports" / f"{target.isoformat()}.json"
     data_path.parent.mkdir(parents=True, exist_ok=True)

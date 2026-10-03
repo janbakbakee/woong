@@ -2,12 +2,15 @@ name: COT 주간 리포트
 
 on:
   schedule:
-    # CFTC 발표: 금요일 15:30 ET. KST 기준 토요일 오전 실행,
+    # CFTC 발표: 금요일 15:30 ET (KST 토 04:30~05:30). 토요일 10시부터 실행,
     # 공휴일 등으로 발표가 늦어질 경우를 대비해 일·월·화에도 재시도 (완료된 주차는 자동 건너뜀)
-    - cron: "37 0 * * 6"   # 토 09:37 KST
-    - cron: "37 0 * * 0"   # 일 09:37 KST
-    - cron: "37 0 * * 1"   # 월 09:37 KST
-    - cron: "37 12 * * 2"  # 화 21:37 KST
+    # 정각은 GitHub 예약이 몰려 지연되기 쉬워 7분으로 설정. 완성된 주차는 이후 실행에서 자동 건너뜀
+    - cron: "7 1 * * 6"    # 토 10:07 KST (1차)
+    - cron: "7 4 * * 6"    # 토 13:07 KST (2차 재시도)
+    - cron: "7 7 * * 6"    # 토 16:07 KST (3차 재시도)
+    - cron: "7 1 * * 0"    # 일 10:07 KST
+    - cron: "7 1 * * 1"    # 월 10:07 KST
+    - cron: "37 12 * * 2"  # 화 21:37 KST (마지막 — 실패 시 알림)
   workflow_dispatch:
     inputs:
       date:
@@ -82,7 +85,7 @@ jobs:
             work/prompt.md 파일을 Read 도구로 읽고, 그 안의 지시를 처음부터 끝까지 정확히 수행해라.
             결과는 지시서에 적힌 두 파일(work/news.md, work/analysis.json)에만 Write로 저장한다.
           claude_args: |
-            --max-turns 80
+            --max-turns 120
             --allowedTools "Read,Write,WebSearch,WebFetch"
             ${{ vars.COT_MODEL && format('--model {0}', vars.COT_MODEL) || '' }}
 

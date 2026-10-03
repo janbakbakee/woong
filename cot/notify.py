@@ -36,6 +36,8 @@ def success_message(meta: dict) -> tuple[str, str, str]:
         lines.append("⚠️ AI 분석 미실행 — 수치·차트만 게시")
     if meta.get("missing"):
         lines.append("⏳ 데이터 대기: " + ", ".join(meta["missing"]))
+    if meta.get("comment"):
+        lines.append(f"💬 {meta['comment']}")
     lines += [
         f"투자의견: {meta.get('sheet_opinion', '')}",
         f"점수: {scores}",

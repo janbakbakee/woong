@@ -190,6 +190,12 @@ def _fake_claude_analysis(keys):
         "exec_paragraphs": [{"label": "개요", "text": "p"}], "exec_recommendation": "권고",
         "monitoring": ["FOMC"], "trend_overview": "o", "sheet_opinion": "EUR Reduce", "sheet_memo": "m",
         "sources": [{"title": "Reuters", "url": "https://www.reuters.com/a"}, {"title": "bad", "url": "x"}],
+        "one_liner": "엔화 롱 청산 주의, BTC 숏커버 주목",
+        "macro_view": "고용 둔화와 물가 고착이 공존",
+        "macro": [{"indicator": "비농업고용", "date": "2026-10-02", "actual": "98K", "consensus": "120K",
+                   "previous": "142K", "surprise": "하회", "market_view": "금리 하락·달러 약세"},
+                  {"indicator": "CPI", "date": "2026-10-14", "actual": "-", "consensus": "0.3%",
+                   "previous": "0.4%", "surprise": "???", "market_view": "예정"}],
     }
 
 
@@ -214,6 +220,12 @@ def test_prepare_then_render_with_claude_output(tmp_path, fake_fetch, monkeypatc
     html = (out / "reports" / f"{TARGET}.html").read_text(encoding="utf-8")
     assert "주간 테마" in html and "뉴스 근거 추론" in html and "FOMC statement" in html
     assert "reuters.com/a" in html and 'href="x"' not in html
+    assert "④-1 미국 주요 경제지표" in html and "비농업고용" in html and "💬 엔화 롱 청산" in html
+    md = (out / "latest.md").read_text(encoding="utf-8")
+    assert "3-1. 미국 주요 경제지표" in md and "| 비농업고용 | 2026-10-02 | 98K |" in md
+    meta_c = json.loads((out / "data" / "reports" / f"{TARGET}.json").read_text(encoding="utf-8"))["meta"]
+    from cot import notify
+    assert "💬 엔화 롱 청산 주의" in notify.success_message(meta_c)[1]
     meta = json.loads((out / "data" / "reports" / f"{TARGET}.json").read_text(encoding="utf-8"))["meta"]
     assert meta["ai"] is True
     for k, s in meta["scores"].items():  # score 0 → 퀀트 −15 이내로 보정

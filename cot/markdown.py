@@ -72,6 +72,18 @@ def render(meta: dict, metrics: dict, analysis: dict, record_rows: list[dict], r
                     f"- Contrarian: {_cell(a.get('contrarian'))}",
                     f"- 트렌드: 단기 {_cell(a.get('trend_short'))} / 중기 {_cell(a.get('trend_mid'))} / "
                     f"장기 {_cell(a.get('trend_long'))}", ""]
+        if analysis.get("one_liner"):
+            out += [f"> 💬 CIO 한줄: {analysis['one_liner']}", ""]
+        if analysis.get("macro") or analysis.get("macro_view"):
+            out += ["## 3-1. 미국 주요 경제지표 & 시장 관점", ""]
+            if analysis.get("macro"):
+                out += ["| 지표 | 발표일 | 실제 | 예상 | 이전 | 결과 | 시장 관점 |", "|---|---|---|---|---|---|---|"]
+                out += ["| " + " | ".join(_cell(x.get(k)) for k in
+                        ("indicator", "date", "actual", "consensus", "previous", "surprise", "market_view")) + " |"
+                        for x in analysis["macro"]]
+            if analysis.get("macro_view"):
+                out += ["", f"**종합:** {_cell(analysis['macro_view'])}"]
+            out.append("")
         if analysis.get("sentiment"):
             out += ["## 4. 기관 심리 & 거시 베팅", ""]
             out += [f"- **{s.get('label', '')}**: {_cell(s.get('text'))}" for s in analysis["sentiment"]]

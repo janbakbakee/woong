@@ -67,6 +67,8 @@ NEWS_DOMAINS = [
     "federalreserve.gov", "bls.gov", "bea.gov", "eia.gov",
     "boj.or.jp", "ecb.europa.eu", "farside.co.uk", "cboe.com",
     "cmegroup.com",  # FedWatch 금리 확률 원본
+    # 미국 경제지표 원본
+    "census.gov", "dol.gov", "ismworld.org", "conference-board.org", "umich.edu",
 ]
 
 # 템플릿 하드코딩 색상
