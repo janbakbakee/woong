@@ -214,8 +214,10 @@ ANALYSIS_INSTRUCTIONS = """아래 [COT 지표]와 [뉴스 브리프]로 이번 �
 - trend_overview: ⑬ 다주차 트렌드 요약 문단
 - sheet_opinion: 구글 시트용 투자의견 요약 (예: "NQ/ES/WTI Hold, JPY Buy, EUR/BTC Reduce")
 - sheet_memo: 구글 시트용 핵심메모 (슬래시로 구분, 80자 내외)
-- one_liner: 텔레그램 알림용 CIO 한줄 코멘트 (60자 내외). 이번 주 포지셔닝의 핵심과 가장 주목할 행동을 한 문장으로.
-  예: "엔화 롱 청산·달러 롱 동반 — 이벤트 전까지 JPY 추격매수 자제, BTC 숏커버 흐름 주목"
+- one_liner: 텔레그램 알림용 CIO 한줄 코멘트 (100자 내외). 반드시 나스닥(NQ)·S&P500(ES)·비트코인(BTC)·
+  달러(USD)·유가(WTI) 5개를 이 순서로 각각 짧게 언급하고 방향(↑/→/↓ 또는 매수/관망/축소)을 붙인다.
+  EUR·JPY는 이번 주 가장 중요한 변화일 때만 끝에 덧붙인다.
+  예: "나스닥↑ 숏커버 지속 · S&P→ Lev숏 과다 · BTC↑ 숏커버 · 달러↑ 동반 롱 · 유가↓ MM 롱청산 3주째"
 - macro: 뉴스 브리프의 미국 주요 경제지표(⑬~⑯)를 지표별 1행으로. 발표된 지표는 actual/consensus/previous를
   브리프에 나온 값 그대로(단위 포함) 쓰고 surprise는 상회/부합/하회, 다음 주 예정 지표는 actual을 "-"로 두고 surprise "예정".
   market_view: 이 결과가 금리·달러·주식·COT 포지셔닝에 주는 의미 한 문장. 브리프에 없는 지표는 넣지 않는다.
