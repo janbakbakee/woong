@@ -91,18 +91,23 @@ def test_run_ranks_excludes_bad_news_and_skips_today_in_morning():
     data = {"000001": _rows(), "000002": _rows(), "000003": _rows()}
     fake_news = lambda name: [(f"{name} 유상증자 결정", "u")] if name == "악재기업" else [(f"{name} 수주", "u")]
 
-    picks, scanned, passed = main.run("close", FakeKIS(data), [good, weak, bad, skip], news=fake_news,
+    kq = kis.Stock("000005", "코닥기업", "KOSDAQ", 20000, 100, 15, True, 1e11)
+    data["000005"] = _rows()
+    by, stats = main.run("close", FakeKIS(data), [good, weak, bad, skip, kq], news=fake_news,
                                       today="20261009")
-    assert scanned == 3 and passed == 3
-    assert [p.stock.name for p in picks] == ["좋은기업", "악재기업", "보통기업"]
+    picks = by["KOSPI"]
+    assert stats == {"scanned": 4, "errors": 0, "passed": {"KOSPI": 3, "KOSDAQ": 1}}
+    assert [p.stock.name for p in picks] == ["좋은기업", "악재기업", "보통기업"]  # 시장별로 따로 순위
+    assert [p.stock.name for p in by["KOSDAQ"]] == ["코닥기업"]
     assert picks[1].flags and picks[1].parts["뉴스"] == 10
 
-    morning, _, _ = main.run("morning", FakeKIS({"000001": _rows(frgn=40000)}), [good], news=lambda n: [], today="20261009")
-    assert morning[0].date == "20261008"
+    morning, _ = main.run("morning", FakeKIS({"000001": _rows(frgn=40000)}), [good], news=lambda n: [], today="20261009")
+    assert morning["KOSPI"][0].date == "20261008"
 
-    text = main.message("close", picks, scanned, passed, dart_on=False)
+    text = main.message("close", "KOSPI", picks, {**stats, "errors": 2}, dart_on=False)
+    assert "KOSPI 수급 TOP 5" in text and "조회 실패 2종목" in text
     assert "좋은기업 (000001·KOSPI)" in text and "⚠️ 악재기업 유상증자 결정" in text and "DART 미연결" in text
-    assert "통과한 종목이 없습니다" in main.message("morning", [], 10, 0, True)
+    assert "통과한 종목이 없습니다" in main.message("morning", "KOSDAQ", [], {"scanned": 10, "errors": 0, "passed": {"KOSDAQ": 0}}, True)
 
 
 def test_bad_words():
@@ -140,6 +145,30 @@ def test_zero_close_rows_and_per_stock_errors_dont_crash():
 
     a = kis.Stock("000001", "정상", "KOSPI", 20000, 100, 15, True, 1e11)
     b = kis.Stock("000002", "에러", "KOSPI", 20000, 100, 15, True, 1e11)
-    picks, scanned, passed = main.run("close", Flaky({"000001": _rows()}), [a, b], news=lambda n: [],
+    by, stats = main.run("close", Flaky({"000001": _rows()}), [a, b], news=lambda n: [],
                                       today="20261009")
-    assert scanned == 2 and passed == 1 and picks[0].stock.name == "정상"
+    assert stats["scanned"] == 2 and stats["errors"] == 1 and by["KOSPI"][0].stock.name == "정상"
+
+
+def test_large_caps_get_lower_cap_ratio_bar():
+    big = kis.Stock("005930", "대형", "KOSPI", mcap=200_000, op_profit=1, roe=12, ok=True, prev_value=1e12)
+    rows = _rows(frgn=400_000, orgn=200_000)  # 20일 누적 약 0.6조원
+    pb = sc.analyze(big, rows)
+    pb.flow20 = 0.2 / 100 * 200_000 * sc.EOK
+    s_big = sc.score(pb).parts["수급"]
+    pb.flow20 = 0.35 / 100 * 200_000 * sc.EOK
+    assert sc.score(pb).parts["수급"] - s_big == 4  # 0.2% → 6점, 0.35% → 10점
+
+
+def test_news_keeps_only_titles_with_name(monkeypatch):
+    xml = ("<rss><channel><item><title>미코 주가 상승</title><link>a</link></item>"
+           "<item><title>무료 슬롯 머신 가이드</title><link>b</link></item></channel></rss>").encode()
+
+    class R:
+        content = xml
+
+        def raise_for_status(self):
+            pass
+
+    monkeypatch.setattr(extras.requests, "get", lambda *a, **k: R())
+    assert extras.news("미코") == [("미코 주가 상승", "a")]

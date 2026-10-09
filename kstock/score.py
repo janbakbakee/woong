@@ -17,6 +17,8 @@ MIN_AVG_VALUE = 50 * EOK                         # 20일 평균 거래대금
 MIN_FLOW5 = {"KOSPI": 50 * EOK, "KOSDAQ": 20 * EOK}  # 5일 외국인+기관 누적 순매수 (잡음 제거)
 MAX_DAY_CHG = 15.0    # 당일 +15% 이상은 추격 매수로 제외
 MAX_5D_RET = 30.0     # 5일 +30% 이상 제외
+# 20일 외국인+기관 누적 ÷ 시총 만점 기준 (%) — (시총 하한(억), 기준). 절반이면 6점
+CAP_FULL = ((100_000, 0.3), (20_000, 0.6), (0, 1.0))
 
 
 def _f(row: dict, key: str) -> float:
@@ -101,7 +103,8 @@ def score(p: Pick) -> Pick:
     r5 = p.flow5 / p.avg_value
     s_amt = 15 if r5 >= 1 else 10 if r5 >= 0.5 else 5 if r5 >= 0.2 else 0
     r20 = p.flow20 / (p.stock.mcap * EOK) * 100
-    s_cap = 10 if r20 >= 1 else 6 if r20 >= 0.5 else 2 if r20 > 0 else 0
+    full = next(t for cap, t in CAP_FULL if p.stock.mcap >= cap)  # 대형주일수록 시총 대비 기준을 낮춤
+    s_cap = 10 if r20 >= full else 6 if r20 >= full / 2 else 2 if r20 > 0 else 0
     s_streak = 10 if 3 <= p.streak <= 10 else 5 if p.streak in (1, 2) else 4 if p.streak > 10 else 0
     s_quality = 5 if p.orgn5 > 0 and p.quality5 >= 0.5 * p.orgn5 else 0
     # ② 거래량·가격 25
