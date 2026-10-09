@@ -81,6 +81,8 @@ jobs:
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          # 코딩용 플러그인(ponytail)은 시장 분석에 불필요 → 이 실행에서는 끔
+          settings: '{"enabledPlugins":{"ponytail@ponytail":false}}'
           prompt: |
             work/prompt.md 파일을 Read 도구로 읽고, 그 안의 지시를 처음부터 끝까지 정확히 수행해라.
             결과는 지시서에 적힌 두 파일(work/news.md, work/analysis.json)에만 Write로 저장한다.
