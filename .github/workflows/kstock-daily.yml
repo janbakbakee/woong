@@ -2,15 +2,16 @@ name: 국내주식 수급 추천
 
 on:
   schedule:
-    # GitHub 예약은 10~30분 늦기 쉬워 미리 실행. 휴장일은 코드에서 KIS 휴장일 조회로 건너뜀
-    - cron: "47 22 * * 0-4"  # 평일 07:47 KST — 장 전 (전일 확정 수급)
+    # GitHub 예약은 수~수십 분 늦을 수 있어 조금 일찍. 휴장일은 코드에서 KIS 휴장일 조회로 건너뜀
+    - cron: "50 21 * * 0-4"  # 평일 06:50 KST — 장 전 (07시 전후 도착 목표, 전일 확정 수급 + 미국 시장)
+    - cron: "35 5 * * 1-5"   # 평일 14:35 KST — 장중 예비 (14:30 잠정 가집계 반영, 신호 있을 때만 전송)
     - cron: "7 9 * * 1-5"    # 평일 18:07 KST — 장 마감 후 (투자자 확정치 반영 이후)
   workflow_dispatch:
     inputs:
       session:
-        description: "morning(장 전) / close(장 마감)"
+        description: "morning(장 전) / intraday(장중 예비) / close(장 마감)"
         type: choice
-        options: [close, morning]
+        options: [close, morning, intraday]
         default: close
       dry_run:
         description: "텔레그램 전송 없이 로그로만 확인"
@@ -49,6 +50,7 @@ jobs:
       # 국장톡 분리용 (있으면 우선 사용, 없으면 위 COT 봇/방으로 전송)
       KSTOCK_TELEGRAM_BOT_TOKEN: ${{ secrets.KSTOCK_TELEGRAM_BOT_TOKEN }}
       KSTOCK_TELEGRAM_CHAT_ID: ${{ secrets.KSTOCK_TELEGRAM_CHAT_ID }}
+      KSTOCK_CAPITAL: ${{ secrets.KSTOCK_CAPITAL }}   # 선택: 계좌 자본 → 진입 신호에 매수 수량 표시
     steps:
       - uses: actions/checkout@v4
 
@@ -65,7 +67,7 @@ jobs:
         id: run
         run: |
           # 수동 실행은 입력값, 예약 실행은 어떤 cron이 울렸는지로 판별 (지연돼도 정확)
-          SESSION="${{ inputs.session || (github.event.schedule == '47 22 * * 0-4' && 'morning' || 'close') }}"
+          SESSION="${{ inputs.session || (github.event.schedule == '50 21 * * 0-4' && 'morning' || (github.event.schedule == '35 5 * * 1-5' && 'intraday' || 'close')) }}"
           if [ "${{ inputs.site_only }}" = "true" ]; then
             echo "session=close" >> "$GITHUB_OUTPUT"   # 아래 커밋·배포 단계 사용 (메시지 파일이 없어 전송은 안 됨)
             python -m kstock.main --rebuild-site
@@ -74,10 +76,10 @@ jobs:
           echo "session=$SESSION" >> "$GITHUB_OUTPUT"
           python -m kstock.main --session "$SESSION" --dry-run ${{ inputs.force && '--force' || '' }}
 
-      # 웹페이지는 장 마감만 갱신. COT와 같은 Pages 사이트(docs/)를 쓰므로 최신을 받아 얹는다
+      # 웹페이지는 장 마감·장중 예비 상자만 갱신. COT와 같은 Pages 사이트(docs/)를 쓰므로 최신을 받아 얹는다
       - name: 웹페이지 커밋
         id: commit
-        if: steps.run.outputs.session == 'close' && !inputs.dry_run
+        if: (steps.run.outputs.session == 'close' || steps.run.outputs.session == 'intraday') && !inputs.dry_run
         run: |
           git config user.name "kstock-bot"
           git config user.email "kstock-bot@users.noreply.github.com"

@@ -158,3 +158,15 @@ class KIS:
             "FID_INPUT_DATE_1": "00" + start, "FID_INPUT_DATE_2": "00" + end})
         rows = [r for r in body.get("output", []) if r.get("stck_bsop_date")]
         return sorted(rows, key=lambda r: r["stck_bsop_date"], reverse=True)
+
+    def price(self, code: str) -> dict:
+        """현재가 시세 (장중: 시가·고가·저가·현재가·누적거래량·등락률)."""
+        return self.get("/uapi/domestic-stock/v1/quotations/inquire-price", "FHKST01010100",
+                        {"FID_COND_MRKT_DIV_CODE": "J", "FID_INPUT_ISCD": code}).get("output", {})
+
+    def investor_estimate(self, code: str) -> dict:
+        """종목별 외국인·기관(종합, 금투 포함) 장중 추정 가집계 중 가장 최근 입력분 (수량).
+        입력 시각: 외국인 09:30·11:20·13:20·14:30 / 기관 10:00·11:20·13:20·14:30."""
+        rows = self.get("/uapi/domestic-stock/v1/quotations/investor-trend-estimate", "HHPTJ04160200",
+                        {"MKSC_SHRN_ISCD": code}).get("output2", [])
+        return max(rows, key=lambda r: r.get("bsop_hour_gb", "")) if rows else {}

@@ -1,6 +1,7 @@
 """국내주식 수급 추천 실행 → 텔레그램.
 
     python -m kstock.main --session morning      # 장 전 (전일 확정 수급 + 밤사이 뉴스 + 미국 시장)  ※ pre 도 가능
+    python -m kstock.main --session intraday     # 장중 14:35 (전일 후보만 잠정 수급으로 재판정, 신호 있을 때만 전송)
     python -m kstock.main --session close        # 장 마감 후
     python -m kstock.main --session close --dry-run   # 전송 없이 출력만
     python -m kstock.main --send work/kstock-20261012-close-msg.json   # 저장된 메시지만 전송
@@ -9,6 +10,7 @@
 
 환경변수: KIS_APP_KEY, KIS_APP_SECRET (필수) · TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID
           (국장 전용 KSTOCK_TELEGRAM_BOT_TOKEN, KSTOCK_TELEGRAM_CHAT_ID 우선) · DART_API_KEY (선택)
+          KSTOCK_CAPITAL (선택, 계좌 자본 — 있으면 진입 신호에 매수 수량까지 표시)
 """
 from __future__ import annotations
 
@@ -26,7 +28,7 @@ from pathlib import Path
 
 import requests
 
-from . import extras, kis as kis_mod, score as sc, site
+from . import extras, kis as kis_mod, score as sc, signals as sg, site
 
 log = logging.getLogger("kstock")
 KST = timezone(timedelta(hours=9))
@@ -36,11 +38,12 @@ MARKETS = ("KOSPI", "KOSDAQ")
 INDEX_CODE = {"KOSPI": "0001", "KOSDAQ": "1001"}
 MIN_PREV_VALUE = 10 * sc.EOK   # 전일 거래대금 사전 필터 (API 호출 수 절감)
 WORKERS = 8                    # 동시 조회 수 (초당 한도는 KIS 클래스가 지킴)
-SESSION_LABEL = {"morning": "장 전 브리핑", "close": "장 마감"}
+SESSION_LABEL = {"morning": "장 전 브리핑", "intraday": "장중 예비", "close": "장 마감"}
+MAX_SIGNALS = 3                # 보유 한도(2~3종목)에 맞춰 신호도 시장별 최대 3개
 # 해외 지수·환율 코드 (2026-10 실조회 확인). 조회 실패 항목은 메시지에서 빠짐
 MACRO = (("나스닥", "N", "COMP"), ("S&P500", "N", "SPX"), ("필라델피아반도체", "N", "SOX"), ("원/달러", "X", "FX@KRW"))
 WORK = Path("work")            # 후보 기록 CSV·메시지 원문 (Actions 아티팩트로 보관, 레포 커밋 안 함)
-SITE = Path("docs/kstock")     # 웹페이지 (장 마감 실행만 갱신·커밋)
+SITE = Path("docs/kstock")     # 웹페이지 (장 마감 + 장중 예비 상자만 갱신·커밋)
 
 
 def candidates(stocks: list[kis_mod.Stock]) -> list[kis_mod.Stock]:
@@ -67,8 +70,8 @@ def market_context(client, session: str, today: str) -> dict[str, dict]:
 
 
 def run(session: str, client, stocks: list[kis_mod.Stock], ctx: dict, dart=None, news=extras.news,
-        today: str | None = None) -> tuple[dict[str, list[sc.Pick]], list[sc.Pick], dict]:
-    """({시장: 추천}, 조건 통과 전체, {scanned, errors, stale, dq, passed: {시장: 수}})"""
+        today: str | None = None) -> tuple[dict, list[sc.Pick], dict, dict]:
+    """({시장: 추천}, 조건 통과 전체, {scanned, errors, stale, dq, passed: {시장: 수}}, {시장: 진입 신호})"""
     today = today or datetime.now(KST).strftime("%Y%m%d")
     pool = candidates(stocks)
 
@@ -113,7 +116,25 @@ def run(session: str, client, stocks: list[kis_mod.Stock], ctx: dict, dart=None,
         picks[m] = sorted(checked, key=lambda p: p.score, reverse=True)[:TOP]
     stats = {"scanned": len(pool), "errors": errors, "stale": stale, "dq": dq,
              "passed": {m: sum(p.stock.market == m for p in passed) for m in MARKETS}}
-    return picks, passed, stats
+    return picks, passed, stats, find_signals(passed, ctx, dart, news)
+
+
+def find_signals(passed: list[sc.Pick], ctx: dict, dart=None, news=extras.news) -> dict[str, list[sg.Signal]]:
+    """조건 통과 종목 중 셋업 A/B 충족 종목. 뉴스·공시를 아직 안 본 종목은 확인 후 다시 판정."""
+    out = {m: [] for m in MARKETS}
+    for p in passed:
+        light = ctx[p.stock.market]["light"]
+        if not sg.evaluate(p.stock, p.rows, light, p.rs20, p.flags):
+            continue
+        if not p.news:
+            if dart and any(extras.is_bad(t) for t in dart.recent(p.stock.code)):
+                continue
+            p.news = news(p.stock.name)
+            p.flags = [t for t, _ in p.news if extras.is_bad(t)]
+        s = sg.evaluate(p.stock, p.rows, light, p.rs20, p.flags)
+        if s:
+            out[p.stock.market].append((p.score, s))
+    return {m: [s for _, s in sorted(v, key=lambda x: (x[1].grade, -x[0]))][:MAX_SIGNALS] for m, v in out.items()}
 
 
 def save_csv(path: Path, session: str, passed: list[sc.Pick], picks: dict[str, list[sc.Pick]]) -> None:
@@ -162,8 +183,82 @@ def _eok(x: float) -> str:
     return f"{x / sc.EOK:+,.0f}억"
 
 
+def capital() -> float:
+    """계좌 자본 (GitHub Secret KSTOCK_CAPITAL, 숫자만). 없으면 비중(%)만 안내."""
+    digits = "".join(ch for ch in os.environ.get("KSTOCK_CAPITAL", "") if ch.isdigit())
+    return float(digits) if digits else 0.0
+
+
+def signal_lines(sigs: list[sg.Signal], session: str, cap: float = 0.0) -> list[str]:
+    """진입 신호 블록. 신호가 없으면 장 마감만 '없음'을 알린다 (장중은 빈 목록)."""
+    e = html.escape
+    title = {"close": "🎯 내일 진입 후보", "morning": "🎯 오늘 진입 계획 (어제 종가 기준)",
+             "intraday": "⏱ 장중 예비 신호 — 15:20 종가 동시호가 / 놓치면 15:40 시간외 종가"}[session]
+    if not sigs:
+        return [f"<b>{title.split(' —')[0]}</b>: 없음 — 쉬는 것도 매매", ""] if session != "intraday" else []
+    out = [f"<b>{title}</b>"]
+    for x in sigs:
+        qty = f" · 약 {x.shares(cap):,}주" if cap and x.shares(cap) else ""
+        out.append(f"{x.grade}급 {'🅐눌림' if x.setup == 'A' else '🅑돌파'} <b>{e(x.name)}</b> <code>{x.code}</code>")
+        price = (f"현재가 {x.entry:,.0f}" if session == "intraday"
+                 else f"매수 {x.entry:,.0f}~{x.buy_max:,.0f}")
+        out.append(f"    {price} · 손절 {x.stop:,.0f} (−{x.stop_pct:.1f}%) · 1R {x.r1:,.0f} / 2R {x.r2:,.0f}")
+        out.append(f"    비중 계좌의 {x.weight:.0f}% (위험 {x.risk_pct:g}%){qty}"
+                   + (f" · 시초가 {x.gap_skip:,.0f}↑면 패스" if session != "intraday" else ""))
+        out += [f"    {e(n)}" for n in x.notes]
+    out.append("※ 손절가는 키움 자동감시주문으로 미리 걸어두기")
+    return out + [""]
+
+
+def _rs20(rows: list[dict], index: dict[str, float]) -> float | None:
+    if len(rows) <= 20 or rows[0]["stck_bsop_date"] not in index or rows[20]["stck_bsop_date"] not in index:
+        return None
+    c0, c20 = sc._f(rows[0], "stck_clpr"), sc._f(rows[20], "stck_clpr")
+    i0, i20 = index[rows[0]["stck_bsop_date"]], index[rows[20]["stck_bsop_date"]]
+    return ((c0 / c20) - (i0 / i20)) * 100 if c20 and i20 else None
+
+
+def run_intraday(client, ctx: dict, watch: list[dict], today: str, now: datetime) -> dict[str, list[sg.Signal]]:
+    """전일 장 마감 조건 통과 종목만: 현재가 + 외인·기관 잠정 가집계로 '오늘 종가 기준' 셋업을 미리 판정.
+    당일 거래량은 경과 시간으로 하루치 환산(예상)."""
+    frac = min(1.0, max(0.1, (now.hour * 60 + now.minute - 540) / 390))  # 09:00~15:30 = 390분
+
+    def one(w: dict):
+        hist = [r for r in client.investor_daily(w["code"], today) if r["stck_bsop_date"] < today]
+        q, est = client.price(w["code"]), client.investor_estimate(w["code"])
+        if w is watch[0]:
+            log.info("장중 응답 확인 — 현재가 %s · 가집계 %s", q.get("stck_prpr"), est)
+        if not hist or not sc._f(q, "stck_prpr"):
+            return None
+        row = {"stck_bsop_date": today, "stck_clpr": q["stck_prpr"], "stck_oprc": q.get("stck_oprc"),
+               "stck_hgpr": q.get("stck_hgpr"), "stck_lwpr": q.get("stck_lwpr"), "acml_vol": q.get("acml_vol"),
+               "prdy_ctrt": q.get("prdy_ctrt"), "frgn_ntby_qty": est.get("frgn_fake_ntby_qty", 0),
+               "orgn_ntby_qty": est.get("orgn_fake_ntby_qty", 0), "scrt_ntby_qty": 0}  # 잠정 기관은 금투 포함
+        stock = kis_mod.Stock(w["code"], w["name"], w["market"], 0, 0, 0, True, 0, w.get("sector", ""))
+        x = sg.evaluate(stock, [row] + hist, ctx[w["market"]]["light"], _rs20(hist, ctx[w["market"]]["index"]),
+                        [], vol_scale=1 / frac)
+        if x:
+            price = sc._f(q, "stck_prpr")
+            x.notes.append(f"잠정 외인 {sc._f(row, 'frgn_ntby_qty') * price / sc.EOK:+,.0f}억 · "
+                           f"기관(금투 포함) {sc._f(row, 'orgn_ntby_qty') * price / sc.EOK:+,.0f}억 · "
+                           f"거래량은 하루치 환산 예상")
+        return x
+
+    def safe(w):
+        try:
+            return one(w)
+        except Exception as e:
+            log.warning("장중 %s: %s", w["code"], e)
+            return None
+
+    with ThreadPoolExecutor(WORKERS) as ex:
+        found = [x for x in ex.map(safe, watch) if x]
+    return {m: sorted([x for x in found if x.market == m], key=lambda x: x.grade)[:MAX_SIGNALS] for m in MARKETS}
+
+
 def message(session: str, market: str, picks: list[sc.Pick], stats: dict, ctx: dict, dart_on: bool,
-            today: str, macro: str = "", hist: dict | None = None, url: str = "") -> str:
+            today: str, macro: str = "", hist: dict | None = None, url: str = "",
+            sigs: list | None = None, cap: float = 0.0) -> str:
     """텔레그램 HTML 메시지: 순위와 한 줄 코멘트만. 근거(차트·수급표·목표가)는 웹페이지."""
     e = html.escape
     c = ctx[market]
@@ -180,6 +275,8 @@ def message(session: str, market: str, picks: list[sc.Pick], stats: dict, ctx: d
     if session == "morning":
         lines.append("※ 전일 종가 기준 — 시초가 갭상승 시 추격 주의")
     lines.append("")
+    if sigs is not None:
+        lines += signal_lines(sigs, session, cap)
     if not picks:
         lines.append("조건(외인·기관 동반 순매수 + 유동성 + 과열 제외)을 충족한 종목이 없습니다.")
     for i, p in enumerate(picks, 1):
@@ -207,6 +304,24 @@ def message(session: str, market: str, picks: list[sc.Pick], stats: dict, ctx: d
         if stats[key]:
             status += f" · {label} {stats[key]}"
     lines.append(status + ("" if dart_on else " · DART 미연결") + "\n※ 관찰 후보 · 투자 권유 아님 · 코드를 누르면 복사")
+    return "\n".join(lines)[:4000]
+
+
+def save_signals(path: Path, sigs: dict[str, list[sg.Signal]]) -> None:
+    """신호 기록 (사후 검증용 아티팩트): 신호가·손절·셋업·등급."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps([site.signal_record(x) for m in MARKETS for x in sigs[m]], ensure_ascii=False),
+                    encoding="utf-8")
+
+
+def intraday_message(sigs: dict[str, list[sg.Signal]], now: datetime, url: str, cap: float) -> str:
+    lines = [f"<b>⏱ 장중 예비 신호 {now:%H:%M}</b> — 잠정 수급·예상 거래량 기준, 장 마감 때 바뀔 수 있음", ""]
+    for m in MARKETS:
+        if sigs[m]:
+            lines += [f"<b>{m}</b>"] + signal_lines(sigs[m], "intraday", cap)
+    if url:
+        lines.append(f'<a href="{html.escape(url)}">📊 웹페이지 장중 상자</a>')
+    lines.append("※ 관찰 후보 · 투자 권유 아님 · 코드를 누르면 복사")
     return "\n".join(lines)[:4000]
 
 
@@ -253,28 +368,48 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     client = kis_mod.KIS()
-    today = datetime.now(KST).strftime("%Y%m%d")
+    now = datetime.now(KST)
+    today = now.strftime("%Y%m%d")
     if not a.force and not client.is_open(today):
         log.info("휴장일 %s — 건너뜀", today)
         return 0
-    ctx = market_context(client, session, today)
-    dart = extras.Dart.from_env()
-    picks, passed, stats = run(session, client, kis_mod.load_master(), ctx, dart=dart, today=today)
-    save_csv(WORK / f"kstock-{today}-{session}.csv", session, passed, picks)
     url = os.environ.get("KSTOCK_SITE_URL") or site_url()
-    if session == "close":  # 웹페이지는 장 마감만 갱신 (장 전 데이터는 전일 장 마감과 같음)
-        attach_opinions(client, picks, today)
-        site.save_day(SITE, ctx[MARKETS[0]]["ref"], picks, ctx, stats, dart is not None)
+    cap = capital()
+    WORK.mkdir(exist_ok=True)
+
+    if session == "intraday":  # 전일 장 마감 조건 통과 종목만 장중 재판정 (지수·신호등은 전일 확정 기준)
+        ctx = market_context(client, "morning", today)
+        days = site.load_days(SITE)
+        watch = days[0].get("watch", []) if days else []
+        sigs = run_intraday(client, ctx, watch, today, now)
+        site.save_intraday(SITE, today, now.strftime("%H:%M"), sigs)
         site.build(SITE, url)
-    days = site.load_days(SITE)
-    macro = macro_line(client, today) if session == "morning" else ""
-    texts = []
-    for m in MARKETS:  # 시장별로 한 통씩
-        hist = site.history(days, m) if days else None
-        if hist and session == "morning":
-            hist["exits"] = []  # 이탈은 장 마감 간 비교에서만 의미
-        texts.append(message(session, m, picks[m], stats, ctx, dart is not None, today, macro, hist, url))
-    (WORK / f"kstock-{today}-{session}-msg.json").write_text(json.dumps(texts, ensure_ascii=False), encoding="utf-8")
+        save_signals(WORK / f"kstock-{today}-intraday-signals.json", sigs)
+        found = [x for m in MARKETS for x in sigs[m]]
+        log.info("장중 대상 %d종목 · 신호 %d", len(watch), len(found))
+        texts = [intraday_message(sigs, now, url, cap)] if found else []  # 신호 없으면 보내지 않음
+    else:
+        ctx = market_context(client, session, today)
+        dart = extras.Dart.from_env()
+        picks, passed, stats, sigs = run(session, client, kis_mod.load_master(), ctx, dart=dart, today=today)
+        save_csv(WORK / f"kstock-{today}-{session}.csv", session, passed, picks)
+        save_signals(WORK / f"kstock-{today}-{session}-signals.json", sigs)
+        if session == "close":  # 웹페이지는 장 마감만 갱신 (장 전 데이터는 전일 장 마감과 같음)
+            attach_opinions(client, picks, today)
+            site.save_day(SITE, ctx[MARKETS[0]]["ref"], picks, ctx, stats, dart is not None, sigs, passed)
+            site.build(SITE, url)
+        days = site.load_days(SITE)
+        macro = macro_line(client, today) if session == "morning" else ""
+        texts = []
+        for m in MARKETS:  # 시장별로 한 통씩
+            hist = site.history(days, m) if days else None
+            if hist and session == "morning":
+                hist["exits"] = []  # 이탈은 장 마감 간 비교에서만 의미
+            texts.append(message(session, m, picks[m], stats, ctx, dart is not None, today, macro, hist, url,
+                                 sigs[m], cap))
+    if texts:
+        (WORK / f"kstock-{today}-{session}-msg.json").write_text(json.dumps(texts, ensure_ascii=False),
+                                                                encoding="utf-8")
     for text in texts:
         print(text, "\n")
         if not a.dry_run:
