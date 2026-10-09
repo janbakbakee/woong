@@ -59,7 +59,11 @@ def build(main, url: str, cap: float) -> list[str]:
             p.news = [(f"{st.name}, 4분기 실적 개선 기대에 목표가 상향", "")]
             picks.append(sc.score(p))
     picks.sort(key=lambda p: p.score, reverse=True)
-    sigs = [x for p in picks if (x := sg.evaluate(p.stock, p.rows, "🟢", p.rs20, p.flags))]
+    sigs = []
+    for p in picks:
+        if x := sg.evaluate(p.stock, p.rows, "🟢", p.rs20, p.flags):
+            x.notes.insert(0, main.flow_note(p))
+            sigs.append(x)
     stats = {"scanned": 573, "errors": 0, "stale": 0, "dq": 0, "passed": {m: len(picks) for m in main.MARKETS}}
     hist = {"seen": {"900001": {"count": 3}}, "window": 10, "exits": ["데모바이오"]}
     macro = "🌎 나스닥 +0.85% | S&P500 +0.41% | 필라델피아반도체 +1.62% | 원/달러 1,338.5"

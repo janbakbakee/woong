@@ -124,6 +124,10 @@ def run(session: str, client, stocks: list[kis_mod.Stock], ctx: dict, dart=None,
     return picks, passed, stats, find_signals(passed, ctx, dart, news)
 
 
+def flow_note(p: sc.Pick) -> str:
+    return f"5일 외인 {_eok(p.frgn5)} · 기관 {_eok(p.orgn5)}" + (f" · 쌍끌이 {p.streak}일" if p.streak else "")
+
+
 def find_signals(passed: list[sc.Pick], ctx: dict, dart=None, news=extras.news) -> dict[str, list[sg.Signal]]:
     """조건 통과 종목 중 셋업 A/B 충족 종목. 뉴스·공시를 아직 안 본 종목은 확인 후 다시 판정."""
     out = {m: [] for m in MARKETS}
@@ -138,6 +142,7 @@ def find_signals(passed: list[sc.Pick], ctx: dict, dart=None, news=extras.news) 
             p.flags = [t for t, _ in p.news if extras.is_bad(t)]
         s = sg.evaluate(p.stock, p.rows, light, p.rs20, p.flags)
         if s:
+            s.notes.insert(0, flow_note(p))
             out[p.stock.market].append((p.score, s))
     return {m: [s for _, s in sorted(v, key=lambda x: (x[1].grade, -x[0]))][:MAX_SIGNALS] for m, v in out.items()}
 
@@ -294,17 +299,13 @@ def message(session: str, market: str, picks: list[sc.Pick], stats: dict, ctx: d
         lines += signal_lines(sigs, session, cap)
     if not picks:
         lines.append("조건(외인·기관 동반 순매수 + 유동성 + 과열 제외)을 충족한 종목이 없습니다.")
+    if picks:
+        lines.append(LIGHT_LEGEND)
+    codes = {x.code for x in sigs or []}
     for i, p in enumerate(picks, 1):
-        tags = [f"외인 {_eok(p.frgn5)}", f"기관 {_eok(p.orgn5)}",
-                "고가 마감" if p.clv >= 0.7 else "윗꼬리" if p.upper_wick >= 0.5 else f"거래량 {p.vol_ratio:.1f}배"]
         seen = hist["seen"].get(p.stock.code)
-        tags.append(f"🔁 {seen['count']}/{hist['window']}일" if seen and seen["count"] > 1 else "🆕")
-        if p.ext_atr > 3.5:
-            tags.append("⚠️과열")
-        if p.flags:
-            tags.append("⚠️악재뉴스")
-        lines += [f"{i}) <b>{e(p.stock.name)}</b> <code>{p.stock.code}</code> {p.score}점",
-                  "    " + " · ".join(tags)]
+        lines += pick_lines(site.record(p, i), p.stock.code in codes,
+                            f"🔁 {seen['count']}/{hist['window']}일" if seen and seen["count"] > 1 else "🆕")
     if 0 < len(picks) < TOP:
         lines.append(f"(조건 충족 {len(picks)}종목 — 기준 미달로 채우지 않음)")
     top_sector = Counter(p.stock.sector for p in picks if p.stock.sector).most_common(1)
@@ -320,6 +321,37 @@ def message(session: str, market: str, picks: list[sc.Pick], stats: dict, ctx: d
             status += f" · {label} {stats[key]}"
     lines.append(status + ("" if dart_on else " · DART 미연결") + "\n※ 관찰 후보 · 투자 권유 아님 · 코드를 누르면 복사")
     return "\n".join(lines)[:4000]
+
+
+LIGHT_LEGEND = "<i>종목 신호등 🟢 진입 자리 · 🟡 관찰 · 🔴 주의(악재·과열·윗꼬리)</i>"
+
+
+def stock_light(rec: dict, signaled: bool) -> str:
+    """종목 신호등: 시장 신호등과 별개로 '지금 이 종목을 어떻게 볼지'."""
+    if rec["flags"] or rec["ext_atr"] > 3.5 or rec["upper_wick"] >= 0.5:
+        return "🔴"
+    return "🟢" if signaled else "🟡"
+
+
+def pick_lines(rec: dict, signaled: bool, seen: str = "") -> list[str]:
+    """TOP 종목 2줄 (rec = site.record 형식, 금액은 억 단위)."""
+    tags = [f"외인 {rec['frgn5']:+,.0f}억", f"기관 {rec['orgn5']:+,.0f}억"]
+    if rec["streak"]:
+        tags.append(f"쌍끌이 {rec['streak']}일")
+    tags.append(f"거래량 {rec['vol_ratio']:.1f}배")
+    if rec["clv"] >= 0.7:
+        tags.append("고가 마감")
+    elif rec["upper_wick"] >= 0.5:
+        tags.append("윗꼬리")
+    if seen:
+        tags.append(seen)
+    if rec["ext_atr"] > 3.5:
+        tags.append("⚠️과열")
+    if rec["flags"]:
+        tags.append("⚠️악재뉴스")
+    return [f"{stock_light(rec, signaled)} {rec['rank']}) <b>{html.escape(rec['name'])}</b> "
+            f"<code>{rec['code']}</code> {rec['score']}점",
+            "    " + " · ".join(tags)]
 
 
 def as_signal(rec: dict) -> sg.Signal:
@@ -340,7 +372,11 @@ def morning_message(market: str, day: dict, macro: str, url: str, cap: float) ->
     lines += ["※ 전일 종가 기준 — 시초가 갭상승 시 추격 주의", ""]
     lines += signal_lines([as_signal(r) for r in mk.get("signals", [])], "morning", cap)
     if mk["picks"]:
-        lines.append("어제 TOP: " + " · ".join(f"{e(p['name'])} {p['score']}" for p in mk["picks"]))
+        codes = {r["code"] for r in mk.get("signals", [])}
+        lines += [f"<b>어제 TOP {len(mk['picks'])}</b>", LIGHT_LEGEND]
+        for r in mk["picks"]:
+            lines += pick_lines(r, r["code"] in codes)
+        lines.append("")
     if url:
         lines.append(f'<a href="{e(url)}#{market.lower()}">📊 상세 보기 — 차트·수급표·목표가</a>')
     lines.append("※ 관찰 후보 · 투자 권유 아님 · 코드를 누르면 복사")

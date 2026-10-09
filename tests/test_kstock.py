@@ -399,3 +399,13 @@ def test_demo_builds_three_messages(tmp_path, monkeypatch):
     assert all(len(t) <= 4096 for t in texts)
     monkeypatch.chdir(tmp_path)
     assert main.main(["--demo", "--dry-run"]) == 0 and (tmp_path / "work/kstock-demo-demo-msg.json").exists()
+
+
+def test_stock_light_and_flow_line():
+    rec = {"rank": 1, "code": "000001", "name": "가<나>", "score": 80, "frgn5": 87.4, "orgn5": -3.0,
+           "streak": 0, "vol_ratio": 1.8, "clv": 0.8, "upper_wick": 0.1, "ext_atr": 1.0, "flags": []}
+    head, tags = main.pick_lines(rec, signaled=True)
+    assert head.startswith("🟢 1) <b>가&lt;나&gt;</b>") and "외인 +87억 · 기관 -3억 · 거래량 1.8배 · 고가 마감" in tags
+    assert main.stock_light(rec, False) == "🟡"
+    assert main.stock_light({**rec, "ext_atr": 4.0}, True) == "🔴"
+    assert main.stock_light({**rec, "flags": ["횡령"]}, True) == "🔴"
