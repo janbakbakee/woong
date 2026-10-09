@@ -20,12 +20,16 @@ BAD_WORDS = ("유상증자", "전환사채", "신주인수권", "교환사채", 
              "감사의견", "불성실공시", "블록딜", "오버행", "소송", "적자전환", "압수수색", "검찰")
 
 
+# 동명이인·스팸 기사 대신 증권 기사만 걸리도록 함께 검색 (예: '미코' → 미스코리아 기사)
+NEWS_HINT = "주가 OR 주식 OR 실적 OR 수주 OR 증권 OR 특징주"
+
+
 def is_bad(title: str) -> bool:
     return any(w in title for w in BAD_WORDS)
 
 
 def news(name: str, limit: int = 3) -> list[tuple[str, str]]:
-    url = ("https://news.google.com/rss/search?q=" + quote_plus(f'"{name}" when:3d')
+    url = ("https://news.google.com/rss/search?q=" + quote_plus(f'"{name}" ({NEWS_HINT}) when:3d')
            + "&hl=ko&gl=KR&ceid=KR:ko")
     try:
         resp = requests.get(url, headers=HEADERS, timeout=TIMEOUT)

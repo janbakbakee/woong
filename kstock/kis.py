@@ -19,7 +19,7 @@ log = logging.getLogger(__name__)
 BASE = "https://openapi.koreainvestment.com:9443"
 MASTER_URL = "https://new.real.download.dws.co.kr/common/master/{}_code.mst.zip"
 TIMEOUT = 20
-MIN_INTERVAL = 0.07  # 실전 계좌 초당 20건 제한 → 여유 있게 (스레드 전체 합산)
+MIN_INTERVAL = 0.1   # 초당 10건 (문서상 한도 20건이지만 실측 0.07초 간격에서 한도 초과 발생)
 
 
 @dataclass
@@ -97,7 +97,7 @@ class KIS:
     def get(self, path: str, tr_id: str, params: dict) -> dict:
         headers = {"authorization": f"Bearer {self.token}", "appkey": self.key, "appsecret": self.secret,
                    "tr_id": tr_id, "custtype": "P", "content-type": "application/json; charset=utf-8"}
-        for attempt in range(4):
+        for attempt in range(8):
             with self._lock:  # 호출 시작 간격만 직렬화, 응답 대기는 병렬
                 slot = max(time.monotonic(), self._last + MIN_INTERVAL)
                 self._last = slot
@@ -106,7 +106,7 @@ class KIS:
             if body.get("rt_cd") == "0":
                 return body
             if body.get("msg_cd") == "EGW00201":  # 초당 거래건수 초과
-                time.sleep(1 + attempt)
+                time.sleep(1 + attempt)  # 1+2+…+7초까지 대기
                 continue
             raise RuntimeError(f"KIS {tr_id}: {body.get('msg_cd')} {body.get('msg1')}")
         raise RuntimeError(f"KIS {tr_id}: 호출 한도 초과 반복")
