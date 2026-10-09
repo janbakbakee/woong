@@ -32,7 +32,7 @@ class Stock:
     roe: float
     ok: bool           # 보통주 · 정상 거래 (관리/정지/경고/스팩/우선주 아님)
     prev_value: float  # 전일 거래대금 근사 (원) = 기준가 × 전일거래량
-    sector: str = ""   # 지수업종 대분류 코드 (쏠림 진단용)
+    sector: str = ""   # 지수업종 중분류 코드 (쏠림 진단용 — 대분류는 대부분 "제조업"이라 변별력 없음)
 
 
 # 마스터 레코드 = 한글명 등 가변부 + 고정폭 꼬리(part2). 꼬리 길이와 앞쪽 필드 위치는 시장별로 다름.
@@ -66,7 +66,7 @@ def parse_master(text: str, market: str) -> list[Stock]:
         out.append(Stock(
             code=head[0:9].strip(), name=head[21:].strip(), market=market,
             mcap=_num(tail[-15:-6]), op_profit=_num(tail[-55:-46]), roe=_num(tail[-32:-23]),
-            ok=ok, prev_value=_num(f["price"]) * _num(f["prev_vol"]), sector=tail[3:7].strip(),
+            ok=ok, prev_value=_num(f["price"]) * _num(f["prev_vol"]), sector=tail[7:11].strip(),
         ))
     return out
 

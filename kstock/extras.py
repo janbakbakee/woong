@@ -40,7 +40,10 @@ def news(name: str, limit: int = 3) -> list[tuple[str, str]]:
         resp.raise_for_status()
         items = ET.fromstring(resp.content).iter("item")
         found = [(" ".join((i.findtext("title") or "").split()), i.findtext("link") or "") for i in items]
-        return [(t, u) for t, u in found if name in t][:limit]  # 제목에 종목명 없는 스팸·무관 기사 제외
+        # 제목에 종목명 없는 스팸·무관 기사 제외. 두 글자 이하 이름('미코')은 동음이의가 많아 증권 단어도 요구
+        hints = NEWS_HINT.split(" OR ") + ["목표가", "매출", "영업이익"]
+        return [(t, u) for t, u in found
+                if name in t and (len(name) > 2 or any(h in t for h in hints))][:limit]
     except Exception as e:  # 뉴스 실패는 추천을 막지 않는다
         log.warning("뉴스 실패 %s: %s", name, e)
         return []

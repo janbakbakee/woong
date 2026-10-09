@@ -213,6 +213,10 @@ def test_news_keeps_only_titles_with_name(monkeypatch):
 
     monkeypatch.setattr(extras.requests, "get", lambda *a, **k: R())
     assert extras.news("미코") == [("미코 주가 상승", "a")]
+    xml = ("<rss><channel><item><title>개그맨, '미코' 출신 아내와 이혼</title><link>c</link></item>"
+           "</channel></rss>").encode()
+    R.content = xml
+    assert extras.news("미코") == []  # 짧은 이름은 증권 단어 없으면 제외
 
 
 def test_cron_is_kst_weekday_0747_and_1807_and_no_cot_dependency():

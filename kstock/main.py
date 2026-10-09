@@ -33,7 +33,7 @@ INDEX_CODE = {"KOSPI": "0001", "KOSDAQ": "1001"}
 MIN_PREV_VALUE = 10 * sc.EOK   # 전일 거래대금 사전 필터 (API 호출 수 절감)
 WORKERS = 8                    # 동시 조회 수 (초당 한도는 KIS 클래스가 지킴)
 SESSION_LABEL = {"morning": "장 전 브리핑", "close": "장 마감"}
-# shortcut: 해외 지수·환율 코드는 KIS 공식 샘플에 없어 미검증 — 조회 실패 항목은 메시지에서 빠짐. 첫 장 전 실행 로그로 확인
+# 해외 지수·환율 코드 (2026-10 실조회 확인). 조회 실패 항목은 메시지에서 빠짐
 MACRO = (("나스닥", "N", "COMP"), ("S&P500", "N", "SPX"), ("필라델피아반도체", "N", "SOX"), ("원/달러", "X", "FX@KRW"))
 WORK = Path("work")            # 후보 기록 CSV (Actions 아티팩트로 보관, 레포 커밋 안 함)
 
