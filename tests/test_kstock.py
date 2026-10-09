@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from datetime import date, timedelta
 
-from kstock import extras, kis, main, score as sc
+from kstock import extras, kis, main, score as sc, site
 
 
 def _master_line(market, code, name, *, grp="ST", mang="N", warn="00", mcap=5000, op=100, roe=12.5):
@@ -155,16 +155,48 @@ def test_run_ranks_by_market_excludes_stale_errors_and_bad_news(tmp_path):
     assert [p.stock.name for p in by["KOSPI"]] == ["좋은기업", "악재기업", "보통기업"]
     assert by["KOSPI"][1].parts["뉴스"] == -5 and [p.stock.name for p in by["KOSDAQ"]] == ["코닥기업"]
 
-    text = main.message("close", "KOSPI", by["KOSPI"], stats, ctx, False, "20261009")
-    for s in ("KOSPI 수급 TOP 5", "🟢", "조회 실패 1", "기준일 불일치 1", "DART 미연결", "기관(금투제외)",
-              "고가 마감", "지수대비", "⚠️ 악재기업 유상증자 결정", "m.stock.naver.com/domestic/stock/000001/total",
-              "조건 충족 3종목"):
+    hist = {"seen": {"000001": {"count": 3}}, "window": 10, "exits": ["빠진<기업>"]}
+    text = main.message("close", "KOSPI", by["KOSPI"], stats, ctx, False, "20261009", hist=hist,
+                        url="https://x.github.io/woong/kstock/")
+    for s in ("<b>📈 KOSPI TOP 5</b>", "🟢", "조회 실패 1", "기준일 불일치 1", "DART 미연결", "<code>000001</code>",
+              "고가 마감", "🔁 3/10일", "🆕", "⚠️악재뉴스", "🚪 이탈: 빠진&lt;기업&gt;", "조건 충족 3종목",
+              'href="https://x.github.io/woong/kstock/#kospi"'):
         assert s in text, s
     assert "당일 데이터 미갱신" in main.message("close", "KOSPI", [], stats, ctx, False, "20261010")
 
-    main.save_csv(tmp_path / "c.csv", "close", passed)
+    main.save_csv(tmp_path / "c.csv", "close", passed, by)
     lines = (tmp_path / "c.csv").read_text(encoding="utf-8").splitlines()
-    assert len(lines) == 1 + 4 and lines[0].startswith("date,session,market,code")
+    assert len(lines) == 1 + 4 and lines[0].startswith("date,session,market,top_rank,code")
+    assert sorted(l.split(",")[3] for l in lines[1:]) == ["1", "1", "2", "3"]  # 코스피 1~3위 + 코스닥 1위
+
+    # 웹페이지: 이틀치 저장 → 이탈·연속 등장·차트·목표가가 페이지에 나온다
+    root = tmp_path / "site"
+    by["KOSPI"][0].opinions = [{"stck_bsop_date": "20261001", "hts_goal_prc": "60000", "invt_opnn": "매수",
+                                "mbcr_name": "OO증권"}]
+    ctx_prev = {m: {**c, "ref": "20261008"} for m, c in ctx.items()}
+    site.save_day(root, "20261008", {"KOSPI": by["KOSPI"] + [by["KOSDAQ"][0]], "KOSDAQ": []}, ctx_prev, stats, False)
+    site.save_day(root, "20261009", by, ctx, stats, False)
+    site.build(root, "https://x/")
+    days = site.load_days(root)
+    h = site.history(days, "KOSPI")
+    assert h["seen"]["000001"]["count"] == 2 and h["exits"] == ["코닥기업"] and h["window"] == 2
+    page = (root / "index.html").read_text(encoding="utf-8")
+    for s in ("10/09(금)", 'href="20261008.html"', "<svg", "OO증권 매수 60,000원", "+20.0%", "🚪 전일 TOP에서 이탈: 코닥기업",
+              "m.stock.naver.com/domestic/stock/000001/total", "finance.naver.com/item/main.naver?code=000001",
+              "2일 중 2일"):
+        assert s in page, s
+    assert (root / "20261008.html").exists()
+
+
+def test_site_keeps_only_recent_days(tmp_path):
+    for i in range(site.KEEP + 3):
+        d = f"202610{i + 1:02d}"
+        (tmp_path / "data").mkdir(exist_ok=True)
+        (tmp_path / "data" / f"{d}.json").write_text('{"date": "%s", "markets": {}}' % d)
+        (tmp_path / f"{d}.html").write_text("x")
+    days = site.load_days(tmp_path)
+    assert len(days) == site.KEEP and days[0]["date"] == "20261013"
+    assert not (tmp_path / "data" / "20261001.json").exists() and not (tmp_path / "20261001.html").exists()
 
 
 def test_morning_drops_today_row():

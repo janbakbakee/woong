@@ -145,3 +145,11 @@ class KIS:
             "FID_INPUT_DATE_2": end, "FID_PERIOD_DIV_CODE": "D"})
         return {r["stck_bsop_date"]: float(r["ovrs_nmix_prpr"]) for r in body.get("output2", [])
                 if r.get("stck_bsop_date") and float(r.get("ovrs_nmix_prpr") or 0) > 0}
+
+    def invest_opinion(self, code: str, start: str, end: str) -> list[dict]:
+        """증권사 투자의견·목표가 (최신 먼저). 날짜 인자는 YYYYMMDD — API는 앞에 00을 붙인 10자리를 받는다."""
+        body = self.get("/uapi/domestic-stock/v1/quotations/invest-opinion", "FHKST663300C0", {
+            "FID_COND_MRKT_DIV_CODE": "J", "FID_COND_SCR_DIV_CODE": "16633", "FID_INPUT_ISCD": code,
+            "FID_INPUT_DATE_1": "00" + start, "FID_INPUT_DATE_2": "00" + end})
+        rows = [r for r in body.get("output", []) if r.get("stck_bsop_date")]
+        return sorted(rows, key=lambda r: r["stck_bsop_date"], reverse=True)

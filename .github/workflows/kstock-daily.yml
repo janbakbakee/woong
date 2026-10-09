@@ -22,7 +22,9 @@ on:
         default: false
 
 permissions:
-  contents: read
+  contents: write   # 장 마감 웹페이지(docs/kstock) 커밋
+  pages: write
+  id-token: write
 
 concurrency:
   group: kstock-daily
@@ -32,6 +34,8 @@ jobs:
   recommend:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    outputs:
+      deploy: ${{ steps.upload.outcome == 'success' }}
     env:
       KIS_APP_KEY: ${{ secrets.KIS_APP_KEY }}
       KIS_APP_SECRET: ${{ secrets.KIS_APP_SECRET }}
@@ -52,12 +56,42 @@ jobs:
       - name: 의존성 설치
         run: pip install -r requirements.txt
 
-      - name: 추천 생성 · 전송
+      # 분석·웹페이지 생성까지만 하고 전송은 아래에서 (페이지 커밋 뒤 링크가 맞도록)
+      - name: 추천 생성
+        id: run
         run: |
           # 수동 실행은 입력값, 예약 실행은 어떤 cron이 울렸는지로 판별 (지연돼도 정확)
           SESSION="${{ inputs.session || (github.event.schedule == '47 22 * * 0-4' && 'morning' || 'close') }}"
-          python -m kstock.main --session "$SESSION" \
-            ${{ inputs.dry_run && '--dry-run' || '' }} ${{ inputs.force && '--force' || '' }}
+          echo "session=$SESSION" >> "$GITHUB_OUTPUT"
+          python -m kstock.main --session "$SESSION" --dry-run ${{ inputs.force && '--force' || '' }}
+
+      # 웹페이지는 장 마감만 갱신. COT와 같은 Pages 사이트(docs/)를 쓰므로 최신을 받아 얹는다
+      - name: 웹페이지 커밋
+        id: commit
+        if: steps.run.outputs.session == 'close' && !inputs.dry_run
+        run: |
+          git config user.name "kstock-bot"
+          git config user.email "kstock-bot@users.noreply.github.com"
+          git add docs/kstock
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "국장 수급 페이지 업데이트 ($(TZ=Asia/Seoul date +%Y-%m-%d))"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git push
+
+      - name: Pages 아티팩트 업로드
+        id: upload
+        if: steps.commit.outcome == 'success'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+      - name: 텔레그램 전송
+        if: ${{ !inputs.dry_run }}
+        run: |
+          # 휴장일 등으로 메시지가 없으면 보내지 않음
+          for f in work/kstock-*-${{ steps.run.outputs.session }}-msg.json; do
+            if [ -e "$f" ]; then python -m kstock.main --send "$f"; fi
+          done
 
       # 백테스트용 후보 기록 — 레포에 커밋하지 않고 Actions 아티팩트로 90일 보관
       - name: 후보 기록 보관
@@ -65,10 +99,21 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: kstock-${{ github.run_id }}
-          path: work/kstock-*.csv
+          path: work/kstock-*
           retention-days: 90
           if-no-files-found: ignore
 
       - name: 실패 알림
         if: failure()
         run: python -m kstock.main --failure "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+  deploy:
+    needs: recommend
+    if: needs.recommend.outputs.deploy == 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

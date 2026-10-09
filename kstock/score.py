@@ -74,6 +74,8 @@ class Pick:
     parts: dict = field(default_factory=dict)
     news: list = field(default_factory=list)   # [(title, url)]
     flags: list = field(default_factory=list)  # 악재 헤드라인
+    opinions: list = field(default_factory=list)  # 증권사 투자의견 원본 행 (웹페이지용)
+    rows: list = field(default_factory=list, repr=False)  # 일별 원본 (웹페이지 차트·표용, 최신 먼저)
 
     @property
     def flow5(self) -> float:
@@ -128,6 +130,7 @@ def analyze(stock: Stock, rows: list[dict], index: dict[str, float] | None = Non
         above_ma20=close[0] > ma20, ma_aligned=ma20 > ma60,
         near_high=close[0] >= 0.95 * max(_f(r, "stck_hgpr") for r in rows[:60]),
         disparity=(close[0] / ma20 - 1) * 100, ext_atr=(close[0] - ma20) / atr if atr > 0 else 0.0, rs20=rs20,
+        rows=rows[:60],
     )
 
 
