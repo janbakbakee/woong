@@ -103,7 +103,12 @@ class KIS:
                 slot = max(time.monotonic(), self._last + MIN_INTERVAL)
                 self._last = slot
             time.sleep(max(0.0, slot - time.monotonic()))
-            body = self.s.get(BASE + path, headers=headers, params=params, timeout=TIMEOUT).json()
+            try:
+                body = self.s.get(BASE + path, headers=headers, params=params, timeout=TIMEOUT).json()
+            except (requests.ConnectionError, requests.Timeout) as e:  # 일시적 연결 끊김은 재시도
+                log.info("KIS %s 재시도 (%s)", tr_id, e)
+                time.sleep(1 + attempt)
+                continue
             if body.get("rt_cd") == "0":
                 return body
             if body.get("msg_cd") == "EGW00201":  # 초당 거래건수 초과
