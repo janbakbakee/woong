@@ -165,3 +165,4 @@ def build(root: Path, url: str = "") -> None:
         (root / f"{d['date']}.html").write_text(html, encoding="utf-8")
         if i == 0:
             (root / "index.html").write_text(html, encoding="utf-8")
+    (root / "guide.html").write_text(env.get_template("guide.html.j2").render(tabs=tabs), encoding="utf-8")

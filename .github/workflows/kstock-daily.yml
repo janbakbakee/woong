@@ -20,6 +20,10 @@ on:
         description: "휴장일에도 실행"
         type: boolean
         default: false
+      site_only:
+        description: "분석·텔레그램 없이 웹페이지만 다시 생성·배포 (양식 변경 반영용)"
+        type: boolean
+        default: false
 
 permissions:
   contents: write   # 장 마감 웹페이지(docs/kstock) 커밋
@@ -62,6 +66,11 @@ jobs:
         run: |
           # 수동 실행은 입력값, 예약 실행은 어떤 cron이 울렸는지로 판별 (지연돼도 정확)
           SESSION="${{ inputs.session || (github.event.schedule == '47 22 * * 0-4' && 'morning' || 'close') }}"
+          if [ "${{ inputs.site_only }}" = "true" ]; then
+            echo "session=close" >> "$GITHUB_OUTPUT"   # 아래 커밋·배포 단계 사용 (메시지 파일이 없어 전송은 안 됨)
+            python -m kstock.main --rebuild-site
+            exit 0
+          fi
           echo "session=$SESSION" >> "$GITHUB_OUTPUT"
           python -m kstock.main --session "$SESSION" --dry-run ${{ inputs.force && '--force' || '' }}
 

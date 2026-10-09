@@ -37,7 +37,9 @@ COT와 별개로 돌아가는 패키지. `cot/`를 import 하지 않고, 워크�
 영역별 점수 막대와 세부 지표, 현재가(기준일 종가)·평균 목표가(최근 리포트 건수·기간·증권사), 10일 중 등장 횟수·첫 등장 대비 수익률,
 전일 TOP에서 이탈한 종목, 네이버증권 모바일/PC 링크.
 
-양식은 템플릿 한 곳(`templates/day.html.j2`)에서만 정한다. 장 마감마다 보관 중인 10거래일 JSON으로 모든 탭을 다시 그리므로
+탭 맨 앞 **📖 지표 해설**(`guide.html`)에 지표별 의미·값 구간·점수를 정리했다.
+
+양식은 템플릿(`templates/day.html.j2`, 해설 `guide.html.j2`, 공통 스타일 `_style.html.j2`)에서만 정한다. 장 마감마다 보관 중인 10거래일 JSON으로 모든 탭을 다시 그리므로
 양식을 고치면 과거 탭까지 같은 모양으로 바뀐다. 색은 고정값(상승 빨강·하락 파랑·흰 배경).
 
 ## 파일
@@ -55,6 +57,7 @@ COT와 별개로 돌아가는 패키지. `cot/`를 import 하지 않고, 워크�
 ```
 python -m kstock.main --session close --dry-run    # 전송 없이 출력 (pre = morning)
 python -m kstock.main --send work/kstock-20261012-close-msg.json   # 저장된 메시지만 전송
+python -m kstock.main --rebuild-site       # 분석 없이 웹페이지만 다시 생성 (Actions: site_only)
 ```
 Actions에서는 `--dry-run`으로 분석·페이지 생성 → 페이지 커밋·Pages 업로드 → `--send`로 텔레그램 전송 순서로 돈다
 (링크를 눌렀을 때 새 페이지가 열리도록). 수동 실행의 `dry_run`을 켜면 커밋·전송 단계를 건너뛴다.
