@@ -339,13 +339,14 @@ class IntradayKIS(FakeKIS):
 def test_intraday_signals_message_and_site_box(tmp_path):
     from datetime import datetime
     hist = _breakout()[1:]  # 오늘(장중) 행은 현재가로 대신한다
-    fake = IntradayKIS({"000001": hist})
+    fake = IntradayKIS({})   # 장중에는 일별 투자자 API를 부르지 않는다 (KIS 00:00~15:40 조회 불가)
     ctx = main.market_context(fake, "morning", "20261009")
     for c in ctx.values():
         c["light"] = "🟢"
     watch = [{"code": "000001", "name": "돌파기업", "market": "KOSPI", "sector": ""}]
     now = datetime(2026, 10, 9, 14, 35, tzinfo=main.KST)
-    sigs = main.run_intraday(fake, ctx, watch, "20261009", now)
+    assert main.run_intraday(fake, ctx, watch, {}, "20261009", now) == {"KOSPI": [], "KOSDAQ": []}  # 캐시 없음
+    sigs = main.run_intraday(fake, ctx, watch, {"000001": hist}, "20261009", now)
     x = sigs["KOSPI"][0]
     assert x.setup == "B" and x.entry == 11000 and x.vol_ratio > 2   # 2,000,000주를 하루치로 환산
     assert "잠정 외인" in x.notes[-1]
@@ -360,6 +361,9 @@ def test_intraday_signals_message_and_site_box(tmp_path):
     site.build(root)
     page = (root / "index.html").read_text(encoding="utf-8")
     assert "⏱ 장중 예비 신호" in page and "돌파기업" in page and "다음 거래일 진입 후보" in page
+    morning = main.morning_message("KOSPI", site.load_days(root)[0], "🌎 나스닥 +1.00%", "https://x/", 0)
+    assert "🌅 KOSPI 장 전 브리핑" in morning and "오늘 진입 계획" in morning and "돌파기업" in morning
+    assert "나스닥" in morning and "시초가" in morning
     site.save_day(root, "20261009", {"KOSPI": [], "KOSDAQ": []}, {m: {**c, "close": 1.0, "chg": 0.0,
                   "above_ma20": True} for m, c in ctx.items()}, {"scanned": 0, "errors": 0, "stale": 0, "dq": 0,
                   "passed": {"KOSPI": 0, "KOSDAQ": 0}}, False)
@@ -368,8 +372,30 @@ def test_intraday_signals_message_and_site_box(tmp_path):
     assert "⏱ 장중 예비 신호" not in (root / "index.html").read_text(encoding="utf-8")
 
 
+def test_save_rows_keeps_only_needed_fields(tmp_path):
+    p = sc.analyze(STOCK, _rows(), _index())
+    main.save_rows(tmp_path / "rows.json", [p])
+    import json
+    rows = json.loads((tmp_path / "rows.json").read_text())["005930"]
+    assert len(rows) == 40 and set(rows[0]) == set(main.ROW_KEYS)
+    assert sg.evaluate(STOCK, _pullback(), "🟢", 5, []) is not None
+
+
 def test_signal_lines_in_close_message():
     x = sg.evaluate(STOCK, _pullback(), "🟢", 5, [])
     text = "\n".join(main.signal_lines([x], "close", 10_000_000))
     assert "🎯 내일 진입 후보" in text and "매수 14,450~" in text and "시초가" in text and "자동감시주문" in text
     assert "없음" in "\n".join(main.signal_lines([], "close")) and main.signal_lines([], "intraday") == []
+
+
+
+def test_demo_builds_three_messages(tmp_path, monkeypatch):
+    from kstock import demo
+    texts = demo.build(main, "https://x/", 10_000_000)
+    assert len(texts) == 3 and all(t.startswith(demo.TAG) for t in texts)
+    assert "① 장 전" in texts[0] and "오늘 진입 계획" in texts[0] and "🌎" in texts[0]
+    assert "② 장중" in texts[1] and "⏱ 장중 예비 신호" in texts[1]
+    assert "③ 장 마감" in texts[2] and "내일 진입 후보" in texts[2] and "🅐눌림" in texts[2] and "🅑돌파" in texts[2]
+    assert all(len(t) <= 4096 for t in texts)
+    monkeypatch.chdir(tmp_path)
+    assert main.main(["--demo", "--dry-run"]) == 0 and (tmp_path / "work/kstock-demo-demo-msg.json").exists()
