@@ -4,6 +4,7 @@
     python -m kstock.main --session close        # 장 마감 후
     python -m kstock.main --session close --dry-run   # 전송 없이 출력만
     python -m kstock.main --send work/kstock-20261012-close-msg.json   # 저장된 메시지만 전송
+    python -m kstock.main --rebuild-site       # 분석 없이 웹페이지만 다시 생성 (양식 변경 반영)
     python -m kstock.main --failure https://github.com/.../actions/runs/123
 
 환경변수: KIS_APP_KEY, KIS_APP_SECRET (필수) · TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID
@@ -236,7 +237,11 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--force", action="store_true", help="휴장일에도 실행")
     ap.add_argument("--failure", metavar="RUN_URL")
     ap.add_argument("--send", metavar="MSG_JSON", help="저장된 메시지만 전송 (웹페이지 배포 뒤에 보낼 때)")
+    ap.add_argument("--rebuild-site", action="store_true", help="분석 없이 저장된 데이터로 웹페이지만 다시 생성")
     a = ap.parse_args(argv)
+    if a.rebuild_site:
+        site.build(SITE, os.environ.get("KSTOCK_SITE_URL") or site_url())
+        return 0
     if a.send:
         for text in json.loads(Path(a.send).read_text(encoding="utf-8")):
             send_telegram(text)

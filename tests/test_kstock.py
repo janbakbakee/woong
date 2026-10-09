@@ -186,6 +186,9 @@ def test_run_ranks_by_market_excludes_stale_errors_and_bad_news(tmp_path):
               "2일 중 2일"):
         assert s in page, s
     assert (root / "20261008.html").exists()
+    guide = (root / "guide.html").read_text(encoding="utf-8")
+    assert 'href="20261009.html"' in guide and "ATR 배수" in guide and "종가 위치" in guide
+    assert 'href="guide.html"' in page
 
 
 def test_site_keeps_only_recent_days(tmp_path):
