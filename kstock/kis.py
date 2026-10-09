@@ -32,6 +32,7 @@ class Stock:
     roe: float
     ok: bool           # 보통주 · 정상 거래 (관리/정지/경고/스팩/우선주 아님)
     prev_value: float  # 전일 거래대금 근사 (원) = 기준가 × 전일거래량
+    sector: str = ""   # 지수업종 대분류 코드 (쏠림 진단용)
 
 
 # 마스터 레코드 = 한글명 등 가변부 + 고정폭 꼬리(part2). 꼬리 길이와 앞쪽 필드 위치는 시장별로 다름.
@@ -65,7 +66,7 @@ def parse_master(text: str, market: str) -> list[Stock]:
         out.append(Stock(
             code=head[0:9].strip(), name=head[21:].strip(), market=market,
             mcap=_num(tail[-15:-6]), op_profit=_num(tail[-55:-46]), roe=_num(tail[-32:-23]),
-            ok=ok, prev_value=_num(f["price"]) * _num(f["prev_vol"]),
+            ok=ok, prev_value=_num(f["price"]) * _num(f["prev_vol"]), sector=tail[3:7].strip(),
         ))
     return out
 
@@ -128,3 +129,19 @@ class KIS:
         # 휴장일 등 종가 0인 행은 버린다
         rows = [r for r in body.get("output2", []) if r.get("stck_bsop_date") and float(r.get("stck_clpr") or 0) > 0]
         return sorted(rows, key=lambda r: r["stck_bsop_date"], reverse=True)
+
+    def index_daily(self, code: str, start: str, end: str) -> dict[str, float]:
+        """국내 업종지수 일봉 {날짜: 종가}. code: 0001 코스피, 1001 코스닥."""
+        body = self.get("/uapi/domestic-stock/v1/quotations/inquire-daily-indexchartprice", "FHKUP03500100", {
+            "FID_COND_MRKT_DIV_CODE": "U", "FID_INPUT_ISCD": code, "FID_INPUT_DATE_1": start,
+            "FID_INPUT_DATE_2": end, "FID_PERIOD_DIV_CODE": "D"})
+        return {r["stck_bsop_date"]: float(r["bstp_nmix_prpr"]) for r in body.get("output2", [])
+                if r.get("stck_bsop_date") and float(r.get("bstp_nmix_prpr") or 0) > 0}
+
+    def overseas_daily(self, mkt: str, code: str, start: str, end: str) -> dict[str, float]:
+        """해외지수(N)·환율(X) 일봉 {날짜: 종가}."""
+        body = self.get("/uapi/overseas-price/v1/quotations/inquire-daily-chartprice", "FHKST03030100", {
+            "FID_COND_MRKT_DIV_CODE": mkt, "FID_INPUT_ISCD": code, "FID_INPUT_DATE_1": start,
+            "FID_INPUT_DATE_2": end, "FID_PERIOD_DIV_CODE": "D"})
+        return {r["stck_bsop_date"]: float(r["ovrs_nmix_prpr"]) for r in body.get("output2", [])
+                if r.get("stck_bsop_date") and float(r.get("ovrs_nmix_prpr") or 0) > 0}

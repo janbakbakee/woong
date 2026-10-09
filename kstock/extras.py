@@ -24,8 +24,12 @@ BAD_WORDS = ("유상증자", "전환사채", "신주인수권", "교환사채", 
 NEWS_HINT = "주가 OR 주식 OR 실적 OR 수주 OR 증권 OR 특징주"
 
 
+# 악재 단어가 있어도 해소·반대 문맥이면 악재 아님 (예: '유상증자 철회', '소송 승소')
+RELIEF_WORDS = ("철회", "해소", "승소", "무혐의", "취하", "해제")
+
+
 def is_bad(title: str) -> bool:
-    return any(w in title for w in BAD_WORDS)
+    return any(w in title for w in BAD_WORDS) and not any(w in title for w in RELIEF_WORDS)
 
 
 def news(name: str, limit: int = 3) -> list[tuple[str, str]]:
