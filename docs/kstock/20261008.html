@@ -28,6 +28,7 @@
   .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:6px 12px;font-size:13px}
   .tag{display:inline-block;padding:1px 7px;border-radius:9px;background:#eef0f2;font-size:12px;margin:2px 2px 0 0}
   .warn{background:#fff3e0;color:#9a5300}
+  .intra{background:#fff8db;border-color:#f0d36b}
   a{color:#1f5fd1}
   .t{border:0;background:none;padding:0;margin:0;font:inherit;color:inherit;cursor:pointer;border-bottom:1px dotted #9aa0a6}
   .t sup{font-size:9px;color:#9aa0a6;margin-left:1px}
@@ -39,6 +40,8 @@
   .tip .more{text-align:right;font-size:12px;margin-top:4px}
 </style>
 
+
+
 </head>
 <body><main>
 <h1>📈 국장 수급 TOP — 10/08(목) 장 마감</h1>
@@ -46,8 +49,12 @@
 <nav class="tabs"><a href="20261008.html" class="on">10/08(목)</a><a href="guide.html">📖 지표 해설</a></nav>
 
 
+
+
 <h2 id="kospi"><button class="t" popovertarget="tip-light">🔴<sup>ⓘ</sup></button> KOSPI <span class="muted">6625.93 (-2.6%) · 20일선 아래</span></h2>
 <div class="muted">스캔 573 · 조건 통과 23 · DART 미연결(공시 미검증)</div>
+<div class="box"><b><button class="t" popovertarget="tip-setup">🎯 다음 거래일 진입 후보<sup>ⓘ</sup></button></b>
+<div class="muted">없음 — 쉬는 것도 매매</div></div>
 
 
 <div class="box scroll"><table>
@@ -496,6 +503,8 @@
 
 <h2 id="kosdaq"><button class="t" popovertarget="tip-light">🟢<sup>ⓘ</sup></button> KOSDAQ <span class="muted">892.27 (-0.7%) · 20일선 위</span></h2>
 <div class="muted">스캔 573 · 조건 통과 28 · DART 미연결(공시 미검증)</div>
+<div class="box"><b><button class="t" popovertarget="tip-setup">🎯 다음 거래일 진입 후보<sup>ⓘ</sup></button></b>
+<div class="muted">없음 — 쉬는 것도 매매</div></div>
 
 
 <div class="box scroll"><table>
@@ -942,7 +951,7 @@
 </div></details>
 
 
-<p class="muted">생성 2026-10-09 14:45 · 최근 1거래일 보관 · 데이터: 한국투자증권 Open API, Google News</p>
+<p class="muted">생성 2026-10-09 15:33 · 최근 1거래일 보관 · 데이터: 한국투자증권 Open API, Google News</p>
 
 <div popover id="tip-parts" class="tip">
 <button class="x" popovertarget="tip-parts" popovertargetaction="hide">닫기</button><b>점수 구성 (100점)</b>
@@ -1046,6 +1055,15 @@
 <p>지수가 20일선·60일선 <b>둘 다 위 🟢 / 하나만 🟡 / 둘 다 아래 🔴</b>. 🔴이면 강한 종목도 같이 빠질 수 있어 신규 진입은 관찰 위주.</p>
 
 <div class="more"><a href="guide.html#marks">자세히 →</a></div></div>
+<div popover id="tip-setup" class="tip">
+<button class="x" popovertarget="tip-setup" popovertargetaction="hide">닫기</button><b>진입 신호 (셋업 A·B)</b>
+
+<p><b>🅐 눌림</b>: 상승 중인 20일선까지 거래량 줄며 쉬다가(3일 평균 ≤0.8배, 큰손 순매도 없음) 고가권 마감·전일 고가 돌파로 반등.</p>
+<p><b>🅑 돌파</b>: 돌파일을 뺀 직전 20일 박스(고저폭 ≤20%) 고점을 거래량 1.5배↑·고가 마감·외인/기관 동시 매수로 종가 돌파.</p>
+<p><b>A급</b> = 지수 대비 20일 +3%p↑ (B급은 미달). 🟡 시장은 A급만·위험 절반, 🔴는 신규 금지. 손절폭 8% 초과면 무효.</p>
+<p><b>비중</b> = 위험 0.75% ÷ 손절폭 (최대 33%). 예) 손절 5% → 계좌의 15%.</p>
+
+<div class="more"><a href="guide.html#setup">자세히 →</a></div></div>
 <div popover id="tip-exit" class="tip">
 <button class="x" popovertarget="tip-exit" popovertargetaction="hide">닫기</button><b>🚪 이탈</b>
 

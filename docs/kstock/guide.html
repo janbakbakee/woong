@@ -28,6 +28,7 @@
   .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:6px 12px;font-size:13px}
   .tag{display:inline-block;padding:1px 7px;border-radius:9px;background:#eef0f2;font-size:12px;margin:2px 2px 0 0}
   .warn{background:#fff3e0;color:#9a5300}
+  .intra{background:#fff8db;border-color:#f0d36b}
   a{color:#1f5fd1}
   .t{border:0;background:none;padding:0;margin:0;font:inherit;color:inherit;cursor:pointer;border-bottom:1px dotted #9aa0a6}
   .t sup{font-size:9px;color:#9aa0a6;margin-left:1px}
@@ -151,6 +152,34 @@
 <p>영업이익 흑자 6점 · ROE 10% 이상 9점 / 5% 이상 5점. 잡주·적자 기업을 걸러내는 최소 기준입니다 (KIS 종목 마스터 기준).</p></div>
 <div class="box" id="target"><h3>목표가 (점수 미반영)</h3>
 <p>최근 3개월 증권사 리포트 목표가의 <b>평균</b>과 현재가 대비 괴리율. 건수·기간·최근 3건(날짜·증권사·의견·목표가)을 함께 표시합니다. 리포트가 1~2건뿐이면 신뢰도가 낮고, 오래된 리포트는 현재 상황을 반영하지 못할 수 있습니다.</p></div>
+
+<h2>진입 신호 · 비중</h2>
+<div class="box" id="setup"><h3>셋업 🅐 눌림목 (주력)</h3>
+<p>상승 추세 종목이 거래량 줄며 20일선까지 쉬었다가 다시 고개를 드는 자리. 손절이 가까워 손익비가 좋습니다.</p>
+<table><tr><td>추세</td><td>20일선이 5거래일 전보다 높고, 20일선 &gt; 60일선</td></tr>
+<tr><td>위치</td><td>최근 3일 저가가 20일선 + 0.5 ATR 이내로 내려옴, 종가는 20일선 위</td></tr>
+<tr><td>쉬는 모양</td><td>신호일 전 3일 평균 거래량 ≤ 20일 평균 × 0.8</td></tr>
+<tr><td>큰손</td><td>최근 3일 외인+기관(금투 제외) 합계가 순매도 아님</td></tr>
+<tr><td>반등 확인</td><td>종가 위치 ≥ 60% 또는 전일 고가 위 마감</td></tr>
+<tr><td>손절</td><td>최근 3일 최저가 − 0.3 ATR</td></tr></table></div>
+<div class="box"><h3>셋업 🅑 박스 돌파</h3>
+<table><tr><td>박스</td><td>돌파일을 <b>뺀</b> 직전 20일 고저폭 ≤ 20%</td></tr>
+<tr><td>돌파</td><td>종가 &gt; 직전 20일 최고가</td></tr>
+<tr><td>힘</td><td>거래량 ≥ 1.5배 · 종가 위치 ≥ 70% · 윗꼬리 &lt; 25% (5배↑는 이벤트 확인 경고)</td></tr>
+<tr><td>큰손</td><td>돌파일 외인·기관 동시 순매수</td></tr>
+<tr><td>과열 아님</td><td>돌파 전일 (종가−20일선)/ATR ≤ 2.5</td></tr>
+<tr><td>손절</td><td>돌파일 저가와 (박스 고점 − 1 ATR) 중 높은 값</td></tr></table></div>
+<div class="box"><h3>등급 · 시장 · 비중</h3>
+<table><tr><td>A급</td><td>셋업 + 지수 대비 20일 +3%p↑ (시장보다 확실히 강함)</td></tr>
+<tr><td>B급</td><td>셋업은 충족, 상대강도 미달</td></tr>
+<tr><td>🟢 시장</td><td>A·B급 모두, 위험 0.75%</td></tr>
+<tr><td>🟡 시장</td><td>A급만, 위험 절반(0.375%)</td></tr>
+<tr><td>🔴 시장 · 악재뉴스</td><td>신규 진입 금지</td></tr>
+<tr><td>손절폭 8% 초과</td><td>셋업 무효 (손익비 안 나옴)</td></tr></table>
+<p><b>비중 = 거래당 위험 0.75% ÷ 손절폭</b>, 종목당 최대 33%. 예) 손절 5% → 계좌의 15%, 손절되면 계좌 −0.75%. 3종목 동시 손절이어도 약 −2.25%.</p>
+<p><b>실행</b>: 장 마감 신호는 다음 날 매수 구간(🅐 +1%, 🅑 +2%) 안에서만, 시초가가 🅐 +3% · 🅑 +2% 이상 뜨면 패스.
+장중(14:35) 예비 신호는 15:20 종가 동시호가, 놓치면 15:40~16:00 시간외 종가(당일 종가로 체결). 잠정 수급은 확정치와 다를 수 있습니다.</p>
+<p><b>청산 가이드</b>: 손절가는 키움 자동감시주문으로 미리 · +1R에서 손절을 매수가로 · +2R 또는 ATR 3.5배↑에서 절반 익절 · 나머지는 종가 20일선 이탈 시 · 10거래일 안에 +1R 못 가면 정리.</p></div>
 
 <h2>표시 · 경고</h2>
 <div class="box" id="marks"><table>
