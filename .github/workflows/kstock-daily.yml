@@ -1,0 +1,61 @@
+name: 국내주식 수급 추천
+
+on:
+  schedule:
+    # GitHub 예약은 10~30분 늦기 쉬워 미리 실행. 휴장일은 코드에서 KIS 휴장일 조회로 건너뜀
+    - cron: "47 22 * * 0-4"  # 평일 07:47 KST — 장 전 (전일 확정 수급)
+    - cron: "7 9 * * 1-5"    # 평일 18:07 KST — 장 마감 후 (투자자 확정치 반영 이후)
+  workflow_dispatch:
+    inputs:
+      session:
+        description: "morning(장 전) / close(장 마감)"
+        type: choice
+        options: [close, morning]
+        default: close
+      dry_run:
+        description: "텔레그램 전송 없이 로그로만 확인"
+        type: boolean
+        default: false
+      force:
+        description: "휴장일에도 실행"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kstock-daily
+  cancel-in-progress: false
+
+jobs:
+  recommend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      KIS_APP_KEY: ${{ secrets.KIS_APP_KEY }}
+      KIS_APP_SECRET: ${{ secrets.KIS_APP_SECRET }}
+      DART_API_KEY: ${{ secrets.DART_API_KEY }}
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: 의존성 설치
+        run: pip install -r requirements.txt
+
+      - name: 추천 생성 · 전송
+        run: |
+          # 수동 실행은 입력값, 예약 실행은 어떤 cron이 울렸는지로 판별 (지연돼도 정확)
+          SESSION="${{ inputs.session || (github.event.schedule == '47 22 * * 0-4' && 'morning' || 'close') }}"
+          python -m kstock.main --session "$SESSION" \
+            ${{ inputs.dry_run && '--dry-run' || '' }} ${{ inputs.force && '--force' || '' }}
+
+      - name: 실패 알림
+        if: failure()
+        run: python -m kstock.main --failure "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
