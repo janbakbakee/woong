@@ -7,6 +7,7 @@ from __future__ import annotations
 import io
 import logging
 import os
+import threading
 import time
 import zipfile
 from dataclasses import dataclass
@@ -18,7 +19,7 @@ log = logging.getLogger(__name__)
 BASE = "https://openapi.koreainvestment.com:9443"
 MASTER_URL = "https://new.real.download.dws.co.kr/common/master/{}_code.mst.zip"
 TIMEOUT = 20
-MIN_INTERVAL = 0.07  # 실전 계좌 초당 20건 제한 → 여유 있게
+MIN_INTERVAL = 0.07  # 실전 계좌 초당 20건 제한 → 여유 있게 (스레드 전체 합산)
 
 
 @dataclass
@@ -87,6 +88,7 @@ class KIS:
         self.secret = app_secret or os.environ["KIS_APP_SECRET"]
         self.s = requests.Session()
         self._last = 0.0
+        self._lock = threading.Lock()
         resp = self.s.post(f"{BASE}/oauth2/tokenP", timeout=TIMEOUT, json={
             "grant_type": "client_credentials", "appkey": self.key, "appsecret": self.secret})
         resp.raise_for_status()
@@ -96,8 +98,10 @@ class KIS:
         headers = {"authorization": f"Bearer {self.token}", "appkey": self.key, "appsecret": self.secret,
                    "tr_id": tr_id, "custtype": "P", "content-type": "application/json; charset=utf-8"}
         for attempt in range(4):
-            time.sleep(max(0.0, self._last + MIN_INTERVAL - time.monotonic()))
-            self._last = time.monotonic()
+            with self._lock:  # 호출 시작 간격만 직렬화, 응답 대기는 병렬
+                slot = max(time.monotonic(), self._last + MIN_INTERVAL)
+                self._last = slot
+            time.sleep(max(0.0, slot - time.monotonic()))
             body = self.s.get(BASE + path, headers=headers, params=params, timeout=TIMEOUT).json()
             if body.get("rt_cd") == "0":
                 return body
@@ -121,5 +125,6 @@ class KIS:
         body = self.get("/uapi/domestic-stock/v1/quotations/investor-trade-by-stock-daily", "FHPTJ04160001", {
             "FID_COND_MRKT_DIV_CODE": "J", "FID_INPUT_ISCD": code, "FID_INPUT_DATE_1": ymd,
             "FID_ORG_ADJ_PRC": "", "FID_ETC_CLS_CODE": ""})
-        rows = [r for r in body.get("output2", []) if r.get("stck_bsop_date")]
+        # 휴장일 등 종가 0인 행은 버린다
+        rows = [r for r in body.get("output2", []) if r.get("stck_bsop_date") and float(r.get("stck_clpr") or 0) > 0]
         return sorted(rows, key=lambda r: r["stck_bsop_date"], reverse=True)

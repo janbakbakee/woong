@@ -58,7 +58,7 @@ def analyze(stock: Stock, rows: list[dict]) -> Pick | None:
         return None
     close = [_f(r, "stck_clpr") for r in rows]
     vol = [_f(r, "acml_vol") for r in rows]
-    if close[0] <= 0:
+    if min(close) <= 0:
         return None
 
     def amt(r, k):

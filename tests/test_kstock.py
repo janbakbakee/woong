@@ -125,3 +125,21 @@ def test_telegram_prefers_kstock_chat(monkeypatch):
     monkeypatch.setenv("KSTOCK_TELEGRAM_CHAT_ID", "k-chat")
     main.send_telegram("x")
     assert sent == {"url": "https://api.telegram.org/botk-bot/sendMessage", "chat": "k-chat"}
+
+
+def test_zero_close_rows_and_per_stock_errors_dont_crash():
+    rows = _rows()
+    rows[5]["stck_clpr"] = "0"
+    assert sc.analyze(STOCK, rows) is None  # 0으로 나누기 없이 제외
+
+    class Flaky(FakeKIS):
+        def investor_daily(self, code, ymd):
+            if code == "000002":
+                raise RuntimeError("boom")
+            return super().investor_daily(code, ymd)
+
+    a = kis.Stock("000001", "정상", "KOSPI", 20000, 100, 15, True, 1e11)
+    b = kis.Stock("000002", "에러", "KOSPI", 20000, 100, 15, True, 1e11)
+    picks, scanned, passed = main.run("close", Flaky({"000001": _rows()}), [a, b], news=lambda n: [],
+                                      today="20261009")
+    assert scanned == 2 and passed == 1 and picks[0].stock.name == "정상"

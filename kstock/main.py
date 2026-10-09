@@ -14,6 +14,7 @@ import argparse
 import logging
 import os
 import sys
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta, timezone
 
 import requests
@@ -25,6 +26,7 @@ KST = timezone(timedelta(hours=9))
 TOP = 5
 SHORTLIST = 12                 # 뉴스·공시 확인 대상 (예비 점수 상위)
 MIN_PREV_VALUE = 10 * sc.EOK   # 전일 거래대금 사전 필터 (API 호출 수 절감)
+WORKERS = 8                    # 동시 조회 수 (초당 한도는 KIS 클래스가 지킴)
 SESSION_LABEL = {"morning": "장 전 브리핑", "close": "장 마감"}
 
 
@@ -37,19 +39,27 @@ def run(session: str, client: kis_mod.KIS, stocks: list[kis_mod.Stock], dart=Non
     """(추천, 스캔 종목 수, 조건 통과 수)"""
     today = today or datetime.now(KST).strftime("%Y%m%d")
     pool = candidates(stocks)
-    passed, errors = [], 0
-    for s in pool:
-        try:
-            rows = client.investor_daily(s.code, today)
-        except Exception as e:
-            errors += 1
-            log.warning("%s %s: %s", s.code, s.name, e)
-            continue
+
+    def one(s: kis_mod.Stock) -> sc.Pick | None:
+        rows = client.investor_daily(s.code, today)
         if session == "morning":  # 장 전에는 오늘 행(미확정)을 쓰지 않는다
             rows = [r for r in rows if r["stck_bsop_date"] < today]
         p = sc.analyze(s, rows)
-        if p:
-            passed.append(sc.score(p))
+        return sc.score(p) if p else None
+
+    def safe(s: kis_mod.Stock):
+        try:
+            return one(s)
+        except Exception as e:  # 한 종목 실패가 전체를 멈추지 않게
+            log.warning("%s %s: %s", s.code, s.name, e)
+            return e
+
+    log.info("후보 %d종목 조회 시작", len(pool))
+    with ThreadPoolExecutor(WORKERS) as ex:
+        results = list(ex.map(safe, pool))
+    errors = sum(isinstance(r, Exception) for r in results)
+    passed = [r for r in results if isinstance(r, sc.Pick)]
+    log.info("조회 완료: 실패 %d · 조건 통과 %d", errors, len(passed))
     if pool and errors > len(pool) / 2:
         raise RuntimeError(f"KIS 조회 실패 {errors}/{len(pool)}")
 
