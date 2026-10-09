@@ -103,13 +103,15 @@ def message(session: str, market: str, picks: list[sc.Pick], stats: dict, dart_o
             "",
             f"{i}) {s.name} ({s.code}·{s.market}) {p.score}점",
             f"   종가 {p.close:,.0f} ({p.chg:+.1f}%) · 시총 {s.mcap:,.0f}억",
-            f"   5일 외국인 {_eok(p.frgn5)} · 기관 {_eok(p.orgn5)} · 쌍끌이 {p.streak}일 연속",
+            f"   5일 외국인 {_eok(p.frgn5)} · 기관 {_eok(p.orgn5)} · "
+            + (f"쌍끌이 {p.streak}일 연속" if p.streak else "당일 쌍끌이 아님"),
             f"   거래량 {p.vol_ratio:.1f}배 · {trend}",
             f"   영업이익 {'흑자' if s.op_profit > 0 else '적자'} · ROE {s.roe:g}",
             "   " + " · ".join(f"{k} {v}" for k, v in p.parts.items()),
         ]
         lines += [f"   {'⚠️' if t in p.flags else '📰'} {t}" for t, _ in p.news[:2]]
-        lines.append(f"   🔗 https://finance.naver.com/item/main.naver?code={s.code}")
+        # PC용 finance.naver.com 주소는 모바일에서 증권 홈으로 튕겨서 모바일 종목 페이지로 연결
+        lines.append(f"   🔗 https://m.stock.naver.com/domestic/stock/{s.code}/total")
     lines.append("\n※ 수급 기반 후보 목록이며 투자 권유가 아닙니다.")
     return "\n".join(lines)[:4000]
 

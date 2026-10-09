@@ -106,6 +106,7 @@ def test_run_ranks_excludes_bad_news_and_skips_today_in_morning():
 
     text = main.message("close", "KOSPI", picks, {**stats, "errors": 2}, dart_on=False)
     assert "KOSPI 수급 TOP 5" in text and "조회 실패 2종목" in text
+    assert "m.stock.naver.com/domestic/stock/000001/total" in text
     assert "좋은기업 (000001·KOSPI)" in text and "⚠️ 악재기업 유상증자 결정" in text and "DART 미연결" in text
     assert "통과한 종목이 없습니다" in main.message("morning", "KOSDAQ", [], {"scanned": 10, "errors": 0, "passed": {"KOSDAQ": 0}}, True)
 
