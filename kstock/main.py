@@ -23,8 +23,9 @@ from . import extras, kis as kis_mod, score as sc
 
 log = logging.getLogger("kstock")
 KST = timezone(timedelta(hours=9))
-TOP = 5
-SHORTLIST = 12                 # 뉴스·공시 확인 대상 (예비 점수 상위)
+TOP = 5                        # 시장별 추천 수
+SHORTLIST = 10                 # 시장별 뉴스·공시 확인 대상 (예비 점수 상위)
+MARKETS = ("KOSPI", "KOSDAQ")
 MIN_PREV_VALUE = 10 * sc.EOK   # 전일 거래대금 사전 필터 (API 호출 수 절감)
 WORKERS = 8                    # 동시 조회 수 (초당 한도는 KIS 클래스가 지킴)
 SESSION_LABEL = {"morning": "장 전 브리핑", "close": "장 마감"}
@@ -35,8 +36,8 @@ def candidates(stocks: list[kis_mod.Stock]) -> list[kis_mod.Stock]:
 
 
 def run(session: str, client: kis_mod.KIS, stocks: list[kis_mod.Stock], dart=None, news=extras.news,
-        today: str | None = None) -> tuple[list[sc.Pick], int, int]:
-    """(추천, 스캔 종목 수, 조건 통과 수)"""
+        today: str | None = None) -> tuple[dict[str, list[sc.Pick]], dict]:
+    """({시장: 추천}, {scanned, errors, passed: {시장: 수}})"""
     today = today or datetime.now(KST).strftime("%Y%m%d")
     pool = candidates(stocks)
 
@@ -64,27 +65,34 @@ def run(session: str, client: kis_mod.KIS, stocks: list[kis_mod.Stock], dart=Non
         raise RuntimeError(f"KIS 조회 실패 {errors}/{len(pool)}")
 
     passed.sort(key=lambda p: p.score, reverse=True)
-    picks = []
-    for p in passed[:SHORTLIST]:
-        if dart and any(extras.is_bad(t) for t in dart.recent(p.stock.code)):
-            log.info("공시 악재로 제외: %s", p.stock.name)
-            continue
-        p.news = news(p.stock.name)
-        p.flags = [t for t, _ in p.news if extras.is_bad(t)]
-        picks.append(sc.score(p))
-    picks.sort(key=lambda p: p.score, reverse=True)
-    return picks[:TOP], len(pool), len(passed)
+    picks = {}
+    for m in MARKETS:
+        checked = []
+        for p in [p for p in passed if p.stock.market == m][:SHORTLIST]:
+            if dart and any(extras.is_bad(t) for t in dart.recent(p.stock.code)):
+                log.info("공시 악재로 제외: %s", p.stock.name)
+                continue
+            p.news = news(p.stock.name)
+            p.flags = [t for t, _ in p.news if extras.is_bad(t)]
+            checked.append(sc.score(p))
+        picks[m] = sorted(checked, key=lambda p: p.score, reverse=True)[:TOP]
+    stats = {"scanned": len(pool), "errors": errors,
+             "passed": {m: sum(p.stock.market == m for p in passed) for m in MARKETS}}
+    return picks, stats
 
 
 def _eok(x: float) -> str:
     return f"{x / sc.EOK:+,.0f}억"
 
 
-def message(session: str, picks: list[sc.Pick], scanned: int, passed: int, dart_on: bool) -> str:
+def message(session: str, market: str, picks: list[sc.Pick], stats: dict, dart_on: bool) -> str:
     d = picks[0].date if picks else ""
     when = f"{d[4:6]}/{d[6:]} 기준" if d else ""
-    lines = [f"📈 국내주식 수급 추천 — {SESSION_LABEL[session]} {when}".rstrip(),
-             f"스캔 {scanned}종목 · 조건 통과 {passed}종목" + ("" if dart_on else " · DART 미연결")]
+    status = f"스캔 {stats['scanned']}종목 · {market} 조건 통과 {stats['passed'][market]}종목"
+    if stats["errors"]:
+        status += f" · ⚠️ 조회 실패 {stats['errors']}종목"
+    lines = [f"📈 {market} 수급 TOP {TOP} — {SESSION_LABEL[session]} {when}".rstrip(),
+             status + ("" if dart_on else " · DART 미연결")]
     if not picks:
         lines.append("\n오늘은 조건(외국인·기관 동반 순매수 + 유동성 + 과열 제외)을 통과한 종목이 없습니다.")
     for i, p in enumerate(picks, 1):
@@ -138,11 +146,12 @@ def main(argv: list[str] | None = None) -> int:
         log.info("휴장일 %s — 건너뜀", today)
         return 0
     dart = extras.Dart.from_env()
-    picks, scanned, passed = run(a.session, client, kis_mod.load_master(), dart=dart, today=today)
-    text = message(a.session, picks, scanned, passed, dart is not None)
-    print(text)
-    if not a.dry_run:
-        send_telegram(text)
+    picks, stats = run(a.session, client, kis_mod.load_master(), dart=dart, today=today)
+    for m in MARKETS:  # 시장별로 한 통씩
+        text = message(a.session, m, picks[m], stats, dart is not None)
+        print(text, "\n")
+        if not a.dry_run:
+            send_telegram(text)
     return 0
 
 

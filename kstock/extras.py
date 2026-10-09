@@ -35,7 +35,8 @@ def news(name: str, limit: int = 3) -> list[tuple[str, str]]:
         resp = requests.get(url, headers=HEADERS, timeout=TIMEOUT)
         resp.raise_for_status()
         items = ET.fromstring(resp.content).iter("item")
-        return [(" ".join((i.findtext("title") or "").split()), i.findtext("link") or "") for i in items][:limit]
+        found = [(" ".join((i.findtext("title") or "").split()), i.findtext("link") or "") for i in items]
+        return [(t, u) for t, u in found if name in t][:limit]  # 제목에 종목명 없는 스팸·무관 기사 제외
     except Exception as e:  # 뉴스 실패는 추천을 막지 않는다
         log.warning("뉴스 실패 %s: %s", name, e)
         return []
