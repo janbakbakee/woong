@@ -16,7 +16,7 @@
 <body><main>
 <h1>📖 지표 해설</h1>
 <div class="muted">페이지·텔레그램에 나오는 숫자가 무슨 뜻이고, 값에 따라 어떻게 읽는지. 배점은 검증 전 가설이며 기록이 쌓이면 다시 맞춥니다.</div>
-<nav class="tabs"><a href="guide.html" class="on">📖 지표 해설</a>{% for t in tabs %}<a href="{{ t }}.html">{{ t|label }}</a>{% endfor %}</nav>
+<nav class="tabs">{% for t in tabs %}<a href="{{ t }}.html">{{ t|label }}</a>{% endfor %}<a href="guide.html" class="on">📖 지표 해설</a></nav>
 
 <div class="box sum"><h3>한눈에 — 좋은 조합</h3>
 <table>

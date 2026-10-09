@@ -9,7 +9,7 @@
 <body><main>
 <h1>📈 국장 수급 TOP — {{ day.date|label }} 장 마감</h1>
 <div class="muted">외국인·기관(금융투자 제외) 순매수 + 거래량·캔들 + 추세·위치 + 재무 · 관찰 후보 (매수 신호 아님) · 배점은 검증 전 가설</div>
-<nav class="tabs"><a href="guide.html">📖 지표 해설</a>{% for t in tabs %}<a href="{{ t }}.html" class="{{ 'on' if t == day.date }}">{{ t|label }}</a>{% endfor %}</nav>
+<nav class="tabs">{% for t in tabs %}<a href="{{ t }}.html" class="{{ 'on' if t == day.date }}">{{ t|label }}</a>{% endfor %}<a href="guide.html">📖 지표 해설</a></nav>
 
 {% for m, mk in day.markets.items() %}{% set h = hist[m] %}
 <h2 id="{{ m|lower }}">{{ mk.light }} {{ m }} <span class="muted">{{ "%.2f"|format(mk.close) }} ({{ mk.chg|pct }}) · 20일선 {{ '위' if mk.above_ma20 else '아래' }}</span></h2>
