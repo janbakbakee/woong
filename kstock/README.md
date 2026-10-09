@@ -21,6 +21,7 @@ COT와 별개로 돌아가는 패키지. `cot/`를 import 하지 않고, 워크�
 필터: 20일 평균 거래대금 50억↑, 5일 외국인·기관 각각 순매수 + 합계 코스피 50억/코스닥 20억↑, 당일 +15%↑·5일 +30%↑ 제외.
 기준값은 `kstock/score.py` 상단 상수.
 
-**Secrets**: `KIS_APP_KEY`, `KIS_APP_SECRET` (필수), `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`, `DART_API_KEY` (선택 — 넣으면 다음 실행부터 자동 사용)
+**Secrets**: `KIS_APP_KEY`, `KIS_APP_SECRET` (필수), `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`, `DART_API_KEY` (선택 — 넣으면 다음 실행부터 자동 사용),
+`KSTOCK_TELEGRAM_BOT_TOKEN` / `KSTOCK_TELEGRAM_CHAT_ID` (선택 — 국장 전용 봇/방. 없으면 COT 봇/방으로 전송)
 
 로컬 실행: `python -m kstock.main --session close --dry-run`

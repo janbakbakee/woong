@@ -5,7 +5,8 @@
     python -m kstock.main --session close --dry-run   # 전송 없이 출력만
     python -m kstock.main --failure https://github.com/.../actions/runs/123
 
-환경변수: KIS_APP_KEY, KIS_APP_SECRET (필수) · TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID · DART_API_KEY (선택)
+환경변수: KIS_APP_KEY, KIS_APP_SECRET (필수) · TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID
+          (국장 전용 KSTOCK_TELEGRAM_BOT_TOKEN, KSTOCK_TELEGRAM_CHAT_ID 우선) · DART_API_KEY (선택)
 """
 from __future__ import annotations
 
@@ -96,7 +97,9 @@ def message(session: str, picks: list[sc.Pick], scanned: int, passed: int, dart_
 
 
 def send_telegram(text: str) -> bool:
-    token, chat = os.environ.get("TELEGRAM_BOT_TOKEN"), os.environ.get("TELEGRAM_CHAT_ID")
+    # 국장 전용 봇/방(KSTOCK_*)이 있으면 그쪽으로, 없으면 COT와 같은 봇/방으로
+    token = os.environ.get("KSTOCK_TELEGRAM_BOT_TOKEN") or os.environ.get("TELEGRAM_BOT_TOKEN")
+    chat = os.environ.get("KSTOCK_TELEGRAM_CHAT_ID") or os.environ.get("TELEGRAM_CHAT_ID")
     if not (token and chat):
         log.warning("텔레그램 미설정 — 전송 생략")
         return False
