@@ -41,78 +41,146 @@ def test_parse_master_fields_and_filters():
     assert not by["069500"].ok and not by["123456"].ok and not by["654321"].ok
 
 
-def _rows(n=60, frgn=20000, orgn=10000, vol_today=3_000_000, chg=2.0, price=50000):
-    d = date(2026, 10, 9)
+def _rows(n=60, frgn=20000, orgn=10000, scrt=0, vol_today=3_000_000, chg=2.0, price=50000, wick=100,
+          start=date(2026, 10, 9)):
+    """최신일 먼저. 종가가 매일 50원씩 오르는 상승 추세, 오늘은 고가 근처 마감(윗꼬리 wick원)."""
     rows = []
     for i in range(n):
+        c = price - i * 50
         rows.append({
-            "stck_bsop_date": (d - timedelta(days=i)).strftime("%Y%m%d"),
-            "stck_clpr": str(price - i * 50), "stck_hgpr": str(price - i * 50 + 100),
+            "stck_bsop_date": (start - timedelta(days=i)).strftime("%Y%m%d"),
+            "stck_clpr": str(c), "stck_oprc": str(c - 300), "stck_hgpr": str(c + (wick if i == 0 else 100)),
+            "stck_lwpr": str(c - 400),
             "acml_vol": str(vol_today if i == 0 else 1_500_000), "prdy_ctrt": str(chg if i == 0 else 0.1),
             "frgn_ntby_qty": str(frgn if i < 4 else -100), "orgn_ntby_qty": str(orgn if i < 4 else 50),
+            "scrt_ntby_qty": str(scrt if i < 4 else 0),
             "fund_ntby_qty": str(orgn // 2), "ivtr_ntby_qty": "1000", "pe_fund_ntby_vol": "0",
         })
     return rows
+
+
+def _index(start=date(2026, 10, 9), n=60):
+    return {(start - timedelta(days=i)).strftime("%Y%m%d"): 1000 - i * 0.5 for i in range(n)}
 
 
 STOCK = kis.Stock("005930", "테스트전자", "KOSPI", mcap=20000, op_profit=100, roe=12, ok=True, prev_value=1e11)
 
 
 def test_analyze_and_score():
-    p = sc.score(sc.analyze(STOCK, _rows()))
-    assert p.streak == 4
-    assert round(p.vol_ratio, 1) == 2.0
-    assert p.frgn5 > 0 and p.orgn5 > 0 and p.above_ma20 and p.ma_aligned and p.near_high
-    assert p.parts == {"수급": p.parts["수급"], "거래량·추세": 25, "재무": 20, "뉴스": 15}
-    assert 0 < p.parts["수급"] <= 40 and p.score == sum(p.parts.values())
+    p = sc.score(sc.analyze(STOCK, _rows(), _index()))
+    assert (p.streak, p.frgn_streak, round(p.vol_ratio, 1)) == (4, 4, 2.0)
+    assert round(p.clv, 2) == 0.8 and round(p.upper_wick, 2) == 0.2   # 고가 근처 마감
+    assert p.above_ma20 and p.ma_aligned and p.near_high and 0 < p.ext_atr < 2
+    assert p.rs20 is not None and 0 < p.rs20 < 3                       # 지수보다 약간 강함
+    assert p.parts["거래량·캔들"] == 25 and p.parts["재무"] == 15
+    assert p.parts["추세·위치"] == 12 + 5 + 2 and "뉴스" not in p.parts  # 뉴스 없음 = 가점 없음
+    assert p.score == sum(p.parts.values()) <= 100
+    assert sc.score(sc.analyze(STOCK, _rows())).rs20 is None             # 지수 없으면 상대강도 미검증(0점)
+
+
+def test_score_bounds():
+    p = sc.analyze(STOCK, _rows(frgn=2_000_000, orgn=2_000_000), _index())
+    p.rs20, p.quality5 = 20, p.orgn5
+    assert sc.score(p).score == 100
+    p.flags = ["악재"] * 5
+    assert sc.score(p).parts["뉴스"] == -15                              # 감점 상한
+    weak = sc.analyze(kis.Stock("1", "약", "KOSPI", 20000, -1, -5, True, 1e11), _rows(wick=3000))
+    weak.flags = ["악재"] * 5
+    assert sc.score(weak).score >= 0
+
+
+def test_volume_spike_with_upper_wick_is_penalized():
+    good = sc.score(sc.analyze(STOCK, _rows(), _index()))
+    wick = sc.score(sc.analyze(STOCK, _rows(wick=3000), _index()))     # 같은 거래량, 긴 윗꼬리
+    assert wick.upper_wick > 0.5 and wick.clv < 0.4
+    assert wick.parts["거래량·캔들"] == 10 and good.parts["거래량·캔들"] - wick.parts["거래량·캔들"] == 15
 
 
 def test_filters_reject():
-    assert sc.analyze(STOCK, _rows(orgn=-5000)) is None          # 기관 순매도 → 쌍끌이 아님
-    assert sc.analyze(STOCK, _rows(chg=16)) is None               # 당일 과열
-    assert sc.analyze(STOCK, _rows(frgn=10, orgn=10)) is None     # 잡음 수준 금액
+    assert sc.analyze(STOCK, _rows(orgn=-5000)) is None              # 기관 순매도
+    assert sc.analyze(STOCK, _rows(orgn=10000, scrt=20000)) is None  # 기관 매수가 전부 금융투자 → 제외
+    assert sc.analyze(STOCK, _rows(chg=16)) is None                   # 당일 과열
+    assert sc.analyze(STOCK, _rows(frgn=10, orgn=10)) is None         # 잡음 수준 금액
+    assert sc.analyze(STOCK, _rows(n=15)) is None                     # 데이터 부족
+    zero = _rows()
+    zero[5]["stck_clpr"] = "0"
+    assert sc.analyze(STOCK, zero) is None                            # 잘못된 가격 → 0으로 나누지 않고 제외
     small = kis.Stock("1", "소형", "KOSDAQ", mcap=1000, op_profit=1, roe=1, ok=True, prev_value=1e11)
     assert sc.analyze(small, _rows()) is None
 
 
+def test_large_caps_get_lower_cap_ratio_bar():
+    big = kis.Stock("005930", "대형", "KOSPI", mcap=200_000, op_profit=1, roe=12, ok=True, prev_value=1e12)
+    pb = sc.analyze(big, _rows(frgn=400_000, orgn=200_000))
+    pb.flow20 = 0.2 / 100 * 200_000 * sc.EOK
+    s_big = sc.score(pb).parts["수급"]
+    pb.flow20 = 0.35 / 100 * 200_000 * sc.EOK
+    assert sc.score(pb).parts["수급"] - s_big == 4  # 0.2% → 6점, 0.35% → 10점 (10조↑ 만점 0.3%)
+
+
 class FakeKIS:
-    def __init__(self, data):
-        self.data = data
+    def __init__(self, data, fail=()):
+        self.data, self.fail = data, fail
 
     def investor_daily(self, code, ymd):
+        if code in self.fail:
+            raise RuntimeError("boom")
         return self.data[code]
 
+    def index_daily(self, code, start, end):
+        return _index()
 
-def test_run_ranks_excludes_bad_news_and_skips_today_in_morning():
-    good = kis.Stock("000001", "좋은기업", "KOSPI", 20000, 100, 15, True, 1e11)
-    weak = kis.Stock("000002", "보통기업", "KOSPI", 20000, -5, 1, True, 1e11)
-    bad = kis.Stock("000003", "악재기업", "KOSPI", 20000, 100, 15, True, 1e11)
+
+def test_market_context_light_and_morning_ref():
+    ctx = main.market_context(FakeKIS({}), "close", "20261009")
+    assert ctx["KOSPI"]["ref"] == "20261009" and ctx["KOSPI"]["light"] == "🟢"
+    assert main.market_context(FakeKIS({}), "morning", "20261009")["KOSDAQ"]["ref"] == "20261008"
+
+
+def test_run_ranks_by_market_excludes_stale_errors_and_bad_news(tmp_path):
+    mk = lambda code, name, market="KOSPI", op=100, roe=15: kis.Stock(code, name, market, 20000, op, roe, True, 1e11)
+    good, weak, bad, kq = mk("000001", "좋은기업"), mk("000002", "보통기업", op=-5, roe=1), mk("000003", "악재기업"), \
+        mk("000005", "코닥기업", "KOSDAQ")
+    stale, err = mk("000006", "정지기업"), mk("000007", "에러기업")
     skip = kis.Stock("000004", "관리", "KOSPI", 20000, 100, 15, False, 1e11)
-    data = {"000001": _rows(), "000002": _rows(), "000003": _rows()}
-    fake_news = lambda name: [(f"{name} 유상증자 결정", "u")] if name == "악재기업" else [(f"{name} 수주", "u")]
+    data = {s.code: _rows() for s in (good, weak, bad, kq)}
+    data["000006"] = _rows(start=date(2026, 10, 8))  # 기준일보다 하루 늦은 데이터
+    fake = FakeKIS(data, fail={"000007"})
+    news = lambda name: [(f"{name} 유상증자 결정", "u")] if name == "악재기업" else [(f"{name} 수주", "u")]
+    ctx = main.market_context(fake, "close", "20261009")
 
-    kq = kis.Stock("000005", "코닥기업", "KOSDAQ", 20000, 100, 15, True, 1e11)
-    data["000005"] = _rows()
-    by, stats = main.run("close", FakeKIS(data), [good, weak, bad, skip, kq], news=fake_news,
-                                      today="20261009")
-    picks = by["KOSPI"]
-    assert stats == {"scanned": 4, "errors": 0, "passed": {"KOSPI": 3, "KOSDAQ": 1}}
-    assert [p.stock.name for p in picks] == ["좋은기업", "악재기업", "보통기업"]  # 시장별로 따로 순위
-    assert [p.stock.name for p in by["KOSDAQ"]] == ["코닥기업"]
-    assert picks[1].flags and picks[1].parts["뉴스"] == 10
+    by, passed, stats = main.run("close", fake, [good, weak, bad, kq, stale, err, skip], ctx, news=news,
+                                 today="20261009")
+    assert stats == {"scanned": 6, "errors": 1, "stale": 1, "dq": 0, "passed": {"KOSPI": 3, "KOSDAQ": 1}}
+    assert [p.stock.name for p in by["KOSPI"]] == ["좋은기업", "악재기업", "보통기업"]
+    assert by["KOSPI"][1].parts["뉴스"] == -5 and [p.stock.name for p in by["KOSDAQ"]] == ["코닥기업"]
 
-    morning, _ = main.run("morning", FakeKIS({"000001": _rows(frgn=40000)}), [good], news=lambda n: [], today="20261009")
-    assert morning["KOSPI"][0].date == "20261008"
+    text = main.message("close", "KOSPI", by["KOSPI"], stats, ctx, False, "20261009")
+    for s in ("KOSPI 수급 TOP 5", "🟢", "조회 실패 1", "기준일 불일치 1", "DART 미연결", "기관(금투제외)",
+              "고가 마감", "지수대비", "⚠️ 악재기업 유상증자 결정", "m.stock.naver.com/domestic/stock/000001/total",
+              "조건 충족 3종목"):
+        assert s in text, s
+    assert "당일 데이터 미갱신" in main.message("close", "KOSPI", [], stats, ctx, False, "20261010")
 
-    text = main.message("close", "KOSPI", picks, {**stats, "errors": 2}, dart_on=False)
-    assert "KOSPI 수급 TOP 5" in text and "조회 실패 2종목" in text
-    assert "m.stock.naver.com/domestic/stock/000001/total" in text
-    assert "좋은기업 (000001·KOSPI)" in text and "⚠️ 악재기업 유상증자 결정" in text and "DART 미연결" in text
-    assert "통과한 종목이 없습니다" in main.message("morning", "KOSDAQ", [], {"scanned": 10, "errors": 0, "passed": {"KOSDAQ": 0}}, True)
+    main.save_csv(tmp_path / "c.csv", "close", passed)
+    lines = (tmp_path / "c.csv").read_text(encoding="utf-8").splitlines()
+    assert len(lines) == 1 + 4 and lines[0].startswith("date,session,market,code")
 
 
-def test_bad_words():
+def test_morning_drops_today_row():
+    good = kis.Stock("000001", "좋은기업", "KOSPI", 20000, 100, 15, True, 1e11)
+    fake = FakeKIS({"000001": _rows(frgn=40000)})
+    ctx = main.market_context(fake, "morning", "20261009")
+    by, _, _ = main.run("morning", fake, [good], ctx, news=lambda n: [], today="20261009")
+    assert by["KOSPI"][0].date == "20261008"
+    text = main.message("morning", "KOSPI", by["KOSPI"], {"scanned": 1, "errors": 0, "stale": 0, "dq": 0,
+                        "passed": {"KOSPI": 1}}, ctx, True, "20261009", "🌎 나스닥 +0.50%")
+    assert "🌎 나스닥 +0.50%" in text and "갭상승" in text
+
+
+def test_bad_words_and_relief():
     assert extras.is_bad("OO전자, 300억 규모 전환사채 발행") and not extras.is_bad("OO전자 신규 수주")
+    assert not extras.is_bad("OO전자 유상증자 철회") and not extras.is_bad("OO바이오 특허 소송 승소")
 
 
 def test_telegram_prefers_kstock_chat(monkeypatch):
@@ -133,34 +201,6 @@ def test_telegram_prefers_kstock_chat(monkeypatch):
     assert sent == {"url": "https://api.telegram.org/botk-bot/sendMessage", "chat": "k-chat"}
 
 
-def test_zero_close_rows_and_per_stock_errors_dont_crash():
-    rows = _rows()
-    rows[5]["stck_clpr"] = "0"
-    assert sc.analyze(STOCK, rows) is None  # 0으로 나누기 없이 제외
-
-    class Flaky(FakeKIS):
-        def investor_daily(self, code, ymd):
-            if code == "000002":
-                raise RuntimeError("boom")
-            return super().investor_daily(code, ymd)
-
-    a = kis.Stock("000001", "정상", "KOSPI", 20000, 100, 15, True, 1e11)
-    b = kis.Stock("000002", "에러", "KOSPI", 20000, 100, 15, True, 1e11)
-    by, stats = main.run("close", Flaky({"000001": _rows()}), [a, b], news=lambda n: [],
-                                      today="20261009")
-    assert stats["scanned"] == 2 and stats["errors"] == 1 and by["KOSPI"][0].stock.name == "정상"
-
-
-def test_large_caps_get_lower_cap_ratio_bar():
-    big = kis.Stock("005930", "대형", "KOSPI", mcap=200_000, op_profit=1, roe=12, ok=True, prev_value=1e12)
-    rows = _rows(frgn=400_000, orgn=200_000)  # 20일 누적 약 0.6조원
-    pb = sc.analyze(big, rows)
-    pb.flow20 = 0.2 / 100 * 200_000 * sc.EOK
-    s_big = sc.score(pb).parts["수급"]
-    pb.flow20 = 0.35 / 100 * 200_000 * sc.EOK
-    assert sc.score(pb).parts["수급"] - s_big == 4  # 0.2% → 6점, 0.35% → 10점
-
-
 def test_news_keeps_only_titles_with_name(monkeypatch):
     xml = ("<rss><channel><item><title>미코 주가 상승</title><link>a</link></item>"
            "<item><title>무료 슬롯 머신 가이드</title><link>b</link></item></channel></rss>").encode()
@@ -173,3 +213,22 @@ def test_news_keeps_only_titles_with_name(monkeypatch):
 
     monkeypatch.setattr(extras.requests, "get", lambda *a, **k: R())
     assert extras.news("미코") == [("미코 주가 상승", "a")]
+    xml = ("<rss><channel><item><title>개그맨, '미코' 출신 아내와 이혼</title><link>c</link></item>"
+           "</channel></rss>").encode()
+    R.content = xml
+    assert extras.news("미코") == []  # 짧은 이름은 증권 단어 없으면 제외
+
+
+def test_cron_is_kst_weekday_0747_and_1807_and_no_cot_dependency():
+    from pathlib import Path
+
+    import pytest
+
+    yaml = pytest.importorskip("yaml")
+
+    root = Path(__file__).resolve().parents[1]
+    crons = [c["cron"] for c in yaml.safe_load((root / ".github/workflows/kstock-daily.yml").read_text())[True]["schedule"]]
+    # UTC 일~목 22:47 = KST 월~금 07:47, UTC 월~금 09:07 = KST 월~금 18:07
+    assert crons == ["47 22 * * 0-4", "7 9 * * 1-5"]
+    for f in (root / "kstock").glob("*.py"):
+        assert "from cot" not in f.read_text() and "import cot" not in f.read_text(), f

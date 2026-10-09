@@ -59,6 +59,16 @@ jobs:
           python -m kstock.main --session "$SESSION" \
             ${{ inputs.dry_run && '--dry-run' || '' }} ${{ inputs.force && '--force' || '' }}
 
+      # 백테스트용 후보 기록 — 레포에 커밋하지 않고 Actions 아티팩트로 90일 보관
+      - name: 후보 기록 보관
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kstock-${{ github.run_id }}
+          path: work/kstock-*.csv
+          retention-days: 90
+          if-no-files-found: ignore
+
       - name: 실패 알림
         if: failure()
         run: python -m kstock.main --failure "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
