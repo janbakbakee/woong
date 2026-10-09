@@ -30,8 +30,31 @@ COT와 별개로 돌아가는 패키지. `cot/`를 import 하지 않고, 워크�
 **Secrets**: `KIS_APP_KEY`, `KIS_APP_SECRET` (필수), `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`, `DART_API_KEY` (선택 — 넣으면 다음 실행부터 자동 사용),
 `KSTOCK_TELEGRAM_BOT_TOKEN` / `KSTOCK_TELEGRAM_CHAT_ID` (선택 — 국장 전용 봇/방. 없으면 COT 봇/방으로 전송)
 
-로컬 실행: `python -m kstock.main --session close --dry-run` (`--session pre` = `morning`)
 
-웹페이지: 종목별 60일 캔들·20일선·거래량·외인/기관 순매수 차트(인라인 SVG), 최근 20일 순매수 표(외인·기관·연기금·투신),
+## 웹페이지 — https://janbakbakee.github.io/woong/kstock/
+
+종목별 60일 캔들·20일선·거래량·외인/기관 순매수 차트(인라인 SVG, JS 없음), 최근 20일 순매수 표(외인·기관·연기금·투신),
 영역별 점수 막대와 세부 지표, 현재가(기준일 종가)·평균 목표가(최근 리포트 건수·기간·증권사), 10일 중 등장 횟수·첫 등장 대비 수익률,
 전일 TOP에서 이탈한 종목, 네이버증권 모바일/PC 링크.
+
+양식은 템플릿 한 곳(`templates/day.html.j2`)에서만 정한다. 장 마감마다 보관 중인 10거래일 JSON으로 모든 탭을 다시 그리므로
+양식을 고치면 과거 탭까지 같은 모양으로 바뀐다. 색은 고정값(상승 빨강·하락 파랑·흰 배경).
+
+## 파일
+
+| 파일 | 역할 |
+|---|---|
+| `main.py` | 실행 진입점: 휴장일·지수·후보 조회 → 점수 → 뉴스·공시 → 웹페이지·메시지 |
+| `kis.py` | KIS Open API(토큰·투자자 일별·지수·해외지수·투자의견·휴장일)와 종목 마스터 파싱 |
+| `score.py` | 필터·100점 점수 (기준값은 상단 상수) |
+| `extras.py` | Google News 헤드라인, DART 공시 (키 있을 때만) |
+| `site.py`, `templates/day.html.j2` | 웹페이지 데이터 저장·10거래일 보관·차트·렌더링 |
+
+## 실행
+
+```
+python -m kstock.main --session close --dry-run    # 전송 없이 출력 (pre = morning)
+python -m kstock.main --send work/kstock-20261012-close-msg.json   # 저장된 메시지만 전송
+```
+Actions에서는 `--dry-run`으로 분석·페이지 생성 → 페이지 커밋·Pages 업로드 → `--send`로 텔레그램 전송 순서로 돈다
+(링크를 눌렀을 때 새 페이지가 열리도록). 수동 실행의 `dry_run`을 켜면 커밋·전송 단계를 건너뛴다.
