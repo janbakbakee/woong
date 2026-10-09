@@ -38,6 +38,9 @@ jobs:
       DART_API_KEY: ${{ secrets.DART_API_KEY }}
       TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
       TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+      # 국장톡 분리용 (있으면 우선 사용, 없으면 위 COT 봇/방으로 전송)
+      KSTOCK_TELEGRAM_BOT_TOKEN: ${{ secrets.KSTOCK_TELEGRAM_BOT_TOKEN }}
+      KSTOCK_TELEGRAM_CHAT_ID: ${{ secrets.KSTOCK_TELEGRAM_CHAT_ID }}
     steps:
       - uses: actions/checkout@v4
 

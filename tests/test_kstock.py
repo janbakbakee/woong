@@ -107,3 +107,21 @@ def test_run_ranks_excludes_bad_news_and_skips_today_in_morning():
 
 def test_bad_words():
     assert extras.is_bad("OO전자, 300억 규모 전환사채 발행") and not extras.is_bad("OO전자 신규 수주")
+
+
+def test_telegram_prefers_kstock_chat(monkeypatch):
+    sent = {}
+
+    class R:
+        def raise_for_status(self):
+            pass
+
+    monkeypatch.setattr(main.requests, "post", lambda url, **kw: sent.update(url=url, chat=kw["json"]["chat_id"]) or R())
+    monkeypatch.setenv("TELEGRAM_BOT_TOKEN", "cot-bot")
+    monkeypatch.setenv("TELEGRAM_CHAT_ID", "cot-chat")
+    main.send_telegram("x")
+    assert sent == {"url": "https://api.telegram.org/botcot-bot/sendMessage", "chat": "cot-chat"}
+    monkeypatch.setenv("KSTOCK_TELEGRAM_BOT_TOKEN", "k-bot")
+    monkeypatch.setenv("KSTOCK_TELEGRAM_CHAT_ID", "k-chat")
+    main.send_telegram("x")
+    assert sent == {"url": "https://api.telegram.org/botk-bot/sendMessage", "chat": "k-chat"}
