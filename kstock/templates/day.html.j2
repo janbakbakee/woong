@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>국장 수급 TOP — {{ day.date|label }}</title>
 {% include "_style.html.j2" %}
+{% import "_tips.html.j2" as tip %}
 </head>
 <body><main>
 <h1>📈 국장 수급 TOP — {{ day.date|label }} 장 마감</h1>
@@ -12,12 +13,12 @@
 <nav class="tabs">{% for t in tabs %}<a href="{{ t }}.html" class="{{ 'on' if t == day.date }}">{{ t|label }}</a>{% endfor %}<a href="guide.html">📖 지표 해설</a></nav>
 
 {% for m, mk in day.markets.items() %}{% set h = hist[m] %}
-<h2 id="{{ m|lower }}">{{ mk.light }} {{ m }} <span class="muted">{{ "%.2f"|format(mk.close) }} ({{ mk.chg|pct }}) · 20일선 {{ '위' if mk.above_ma20 else '아래' }}</span></h2>
+<h2 id="{{ m|lower }}">{{ tip.t("light", mk.light) }} {{ m }} <span class="muted">{{ "%.2f"|format(mk.close) }} ({{ mk.chg|pct }}) · 20일선 {{ '위' if mk.above_ma20 else '아래' }}</span></h2>
 <div class="muted">스캔 {{ day.stats.scanned }} · 조건 통과 {{ day.stats.passed[m] }}{% if day.stats.errors %} · 조회 실패 {{ day.stats.errors }}{% endif %}{% if day.stats.stale %} · 기준일 불일치 {{ day.stats.stale }}{% endif %}{% if not day.dart %} · DART 미연결(공시 미검증){% endif %}</div>
-{% if h.exits %}<div class="box">🚪 전일 TOP에서 이탈: {{ h.exits|join(", ") }} <span class="muted">— 수급 꺾임 여부 확인</span></div>{% endif %}
+{% if h.exits %}<div class="box">{{ tip.t("exit", "🚪 전일 TOP에서 이탈") }}: {{ h.exits|join(", ") }} <span class="muted">— 수급 꺾임 여부 확인</span></div>{% endif %}
 
 <div class="box scroll"><table>
-<tr><th>#</th><th>종목</th><th>점수</th><th>현재가</th><th>등락</th><th>외인5일</th><th>기관5일</th><th>등장</th><th>목표가</th></tr>
+<tr><th>#</th><th>종목</th><th>{{ tip.t("parts", "점수") }}</th><th>현재가</th><th>등락</th><th>{{ tip.t("flow5", "외인5일") }}</th><th>{{ tip.t("flow5", "기관5일") }}</th><th>{{ tip.t("seen", "등장") }}</th><th>{{ tip.t("target", "목표가") }}</th></tr>
 {% for p in mk.picks %}{% set s = h.seen.get(p.code) %}
 <tr><td>{{ p.rank }}</td><td><a href="#{{ p.code }}">{{ p.name }}</a></td><td>{{ p.score }}</td><td>{{ p.close|num }}</td>
 <td class="{{ 'up' if p.chg > 0 else 'down' if p.chg < 0 }}">{{ p.chg|pct }}</td><td>{{ p.frgn5|eok }}</td><td>{{ p.orgn5|eok }}</td>
@@ -36,7 +37,7 @@
 <div><a href="https://m.stock.naver.com/domestic/stock/{{ p.code }}/total">네이버증권 모바일</a> · <a href="https://finance.naver.com/item/main.naver?code={{ p.code }}">네이버증권 PC</a></div>
 
 <div class="box"><b>현재가</b> {{ p.close|num }}원 <span class="muted">({{ day.date|label }} 종가)</span><br>
-<b>목표가</b> {% if p.opinion %}{{ p.opinion.avg|num }}원 <span class="{{ 'up' if p.opinion.upside > 0 else 'down' }}">({{ p.opinion.upside|pct }})</span>
+<b>{{ tip.t("target", "목표가") }}</b> {% if p.opinion %}{{ p.opinion.avg|num }}원 <span class="{{ 'up' if p.opinion.upside > 0 else 'down' }}">({{ p.opinion.upside|pct }})</span>
 <span class="muted">— 최근 리포트 {{ p.opinion.n }}건 평균 · {{ p.opinion.from|label }} ~ {{ p.opinion.to|label }} · 출처: KIS 종목투자의견</span>
 <div class="muted">{% for o in p.opinion.latest %}{{ o.date|label }} {{ o.broker or '증권사 미표기' }} {{ o.opinion }} {{ o.target|num }}원{% if not loop.last %} · {% endif %}{% endfor %}</div>
 {% else %}<span class="muted">최근 3개월 리포트 없음</span>{% endif %}</div>
@@ -44,19 +45,19 @@
 {{ chart(p.series)|safe }}
 
 <div class="box">
-{% for k, mx in parts_max.items() %}<div>{{ k }} <b>{{ p.parts.get(k, 0) }}</b><span class="muted">/{{ mx }}</span></div>
+{% for k, mx in parts_max.items() %}<div>{{ tip.t({"수급": "flow5", "거래량·캔들": "vol", "추세·위치": "ext", "재무": "fin"}[k], k) }} <b>{{ p.parts.get(k, 0) }}</b><span class="muted">/{{ mx }}</span></div>
 <div class="bar"><i style="width:{{ (p.parts.get(k, 0) / mx * 100)|round }}%"></i></div>{% endfor %}
 {% if p.parts.get('뉴스') %}<div class="up">뉴스 감점 {{ p.parts['뉴스'] }}</div>{% endif %}
 <div class="grid">
-<div>5일 외인 <b>{{ p.frgn5|eok }}</b></div><div>5일 기관(금투제외) <b>{{ p.orgn5|eok }}</b></div>
-<div>연기금·투신·사모 5일 <b>{{ p.quality5|eok }}</b></div><div>20일 누적 ÷ 시총 <b>{{ "%.2f"|format(p.flow20_pct) }}%</b></div>
-<div>쌍끌이 <b>{{ p.streak }}일</b> · 외인 {{ p.frgn_streak }}일 · 연기금 {{ p.fund_streak }}일</div>
-<div>거래량 <b>{{ "%.1f"|format(p.vol_ratio) }}배</b> (20일 평균 대비)</div>
-<div>종가 위치 <b>{{ (p.clv * 100)|round|int }}%</b> · 윗꼬리 {{ (p.upper_wick * 100)|round|int }}%</div>
-<div>20일선 이격 <b>{{ p.disparity|pct }}</b> (ATR {{ "%.1f"|format(p.ext_atr) }}배)</div>
-<div>지수 대비 20일 <b>{% if p.rs20 is none %}미검증{% else %}{{ "%+.1f"|format(p.rs20) }}%p{% endif %}</b></div>
-<div>{{ '20일선 위' if p.above_ma20 else '20일선 아래' }} · {{ '정배열' if p.ma_aligned else '역배열' }}{{ ' · 고점 근접' if p.near_high }}</div>
-<div>영업이익 <b>{{ '흑자' if p.op_profit > 0 else '적자' }}</b> · ROE {{ p.roe }}</div>
+<div>{{ tip.t("flow5", "5일 외인") }} <b>{{ p.frgn5|eok }}</b></div><div>{{ tip.t("flow5", "5일 기관(금투제외)") }} <b>{{ p.orgn5|eok }}</b></div>
+<div>{{ tip.t("quality", "연기금·투신·사모 5일") }} <b>{{ p.quality5|eok }}</b></div><div>{{ tip.t("cap", "20일 누적 ÷ 시총") }} <b>{{ "%.2f"|format(p.flow20_pct) }}%</b></div>
+<div>{{ tip.t("streak", "쌍끌이") }} <b>{{ p.streak }}일</b> · 외인 {{ p.frgn_streak }}일 · 연기금 {{ p.fund_streak }}일</div>
+<div>{{ tip.t("vol", "거래량") }} <b>{{ "%.1f"|format(p.vol_ratio) }}배</b> (20일 평균 대비)</div>
+<div>{{ tip.t("clv", "종가 위치") }} <b>{{ (p.clv * 100)|round|int }}%</b> · 윗꼬리 {{ (p.upper_wick * 100)|round|int }}%</div>
+<div>{{ tip.t("ext", "20일선 이격") }} <b>{{ p.disparity|pct }}</b> (ATR {{ "%.1f"|format(p.ext_atr) }}배)</div>
+<div>{{ tip.t("rs", "지수 대비 20일") }} <b>{% if p.rs20 is none %}미검증{% else %}{{ "%+.1f"|format(p.rs20) }}%p{% endif %}</b></div>
+<div>{{ tip.t('trend', '20일선 위' if p.above_ma20 else '20일선 아래') }} · {{ '정배열' if p.ma_aligned else '역배열' }}{{ ' · 고점 근접' if p.near_high }}</div>
+<div>{{ tip.t('fin', '영업이익') }} <b>{{ '흑자' if p.op_profit > 0 else '적자' }}</b> · ROE {{ p.roe }}</div>
 </div></div>
 
 <div class="box scroll"><b>최근 20일 순매수 (억원)</b>
@@ -71,4 +72,5 @@
 {% endfor %}
 {% endfor %}
 <p class="muted">생성 {{ generated }} · 최근 {{ tabs|length }}거래일 보관 · 데이터: 한국투자증권 Open API, Google News{% if day.dart %}, DART{% endif %}</p>
+{{ tip.all() }}
 </main></body></html>

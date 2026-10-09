@@ -181,7 +181,8 @@ def test_run_ranks_by_market_excludes_stale_errors_and_bad_news(tmp_path):
     h = site.history(days, "KOSPI")
     assert h["seen"]["000001"]["count"] == 2 and h["exits"] == ["코닥기업"] and h["window"] == 2
     page = (root / "index.html").read_text(encoding="utf-8")
-    for s in ("10/09(금)", 'href="20261008.html"', "<svg", "OO증권 매수 60,000원", "+20.0%", "🚪 전일 TOP에서 이탈: 코닥기업",
+    for s in ("10/09(금)", 'href="20261008.html"', "<svg", "OO증권 매수 60,000원", "+20.0%", "이탈<sup>ⓘ</sup></button>: 코닥기업",
+              'popovertarget="tip-ext"', 'id="tip-ext"', 'href="guide.html#ext"',
               "m.stock.naver.com/domestic/stock/000001/total", "finance.naver.com/item/main.naver?code=000001",
               "2일 중 2일"):
         assert s in page, s
@@ -189,6 +190,10 @@ def test_run_ranks_by_market_excludes_stale_errors_and_bad_news(tmp_path):
     guide = (root / "guide.html").read_text(encoding="utf-8")
     assert 'href="20261009.html"' in guide and "ATR 배수" in guide and "종가 위치" in guide
     assert 'href="guide.html"' in page
+    import re
+    targets = set(re.findall(r'popovertarget="(tip-[a-z0-9]+)"', page))
+    assert targets <= set(re.findall(r'id="(tip-[a-z0-9]+)"', page))          # 누르는 곳마다 설명 상자가 있음
+    assert set(re.findall(r'guide\.html#([a-z0-9]+)', page)) <= set(re.findall(r'id="([a-z0-9]+)"', guide))
 
 
 def test_site_keeps_only_recent_days(tmp_path):
