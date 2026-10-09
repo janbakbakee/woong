@@ -3,6 +3,7 @@
     python -m kstock.main --session morning      # 장 전 (전일 확정 수급 + 밤사이 뉴스 + 미국 시장)  ※ pre 도 가능
     python -m kstock.main --session close        # 장 마감 후
     python -m kstock.main --session close --dry-run   # 전송 없이 출력만
+    python -m kstock.main --send work/kstock-20261012-close-msg.json   # 저장된 메시지만 전송
     python -m kstock.main --failure https://github.com/.../actions/runs/123
 
 환경변수: KIS_APP_KEY, KIS_APP_SECRET (필수) · TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID
@@ -12,6 +13,8 @@ from __future__ import annotations
 
 import argparse
 import csv
+import html
+import json
 import logging
 import os
 import sys
@@ -22,7 +25,7 @@ from pathlib import Path
 
 import requests
 
-from . import extras, kis as kis_mod, score as sc
+from . import extras, kis as kis_mod, score as sc, site
 
 log = logging.getLogger("kstock")
 KST = timezone(timedelta(hours=9))
@@ -35,7 +38,8 @@ WORKERS = 8                    # 동시 조회 수 (초당 한도는 KIS 클래�
 SESSION_LABEL = {"morning": "장 전 브리핑", "close": "장 마감"}
 # 해외 지수·환율 코드 (2026-10 실조회 확인). 조회 실패 항목은 메시지에서 빠짐
 MACRO = (("나스닥", "N", "COMP"), ("S&P500", "N", "SPX"), ("필라델피아반도체", "N", "SOX"), ("원/달러", "X", "FX@KRW"))
-WORK = Path("work")            # 후보 기록 CSV (Actions 아티팩트로 보관, 레포 커밋 안 함)
+WORK = Path("work")            # 후보 기록 CSV·메시지 원문 (Actions 아티팩트로 보관, 레포 커밋 안 함)
+SITE = Path("docs/kstock")     # 웹페이지 (장 마감 실행만 갱신·커밋)
 
 
 def candidates(stocks: list[kis_mod.Stock]) -> list[kis_mod.Stock]:
@@ -111,19 +115,32 @@ def run(session: str, client, stocks: list[kis_mod.Stock], ctx: dict, dart=None,
     return picks, passed, stats
 
 
-def save_csv(path: Path, session: str, passed: list[sc.Pick]) -> None:
-    """백테스트용: 조건 통과 전체 후보와 지표·점수를 날짜별로 남긴다."""
+def save_csv(path: Path, session: str, passed: list[sc.Pick], picks: dict[str, list[sc.Pick]]) -> None:
+    """백테스트용: 조건 통과 전체 후보와 지표·점수를 날짜별로 남긴다. top_rank = 텔레그램 TOP 순위(아니면 빈칸)."""
+    rank = {id(p): i for ps in picks.values() for i, p in enumerate(ps, 1)}
     path.parent.mkdir(parents=True, exist_ok=True)
-    cols = ["date", "session", "market", "code", "name", "score", "close", "chg", "mcap", "frgn5", "orgn5",
+    cols = ["date", "session", "market", "top_rank", "code", "name", "score", "close", "chg", "mcap", "frgn5", "orgn5",
             "quality5", "flow20", "streak", "vol_ratio", "clv", "upper_wick", "disparity", "ext_atr", "rs20",
             "news_flags", *sorted({k for p in passed for k in p.parts})]
     with path.open("w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, cols)
         w.writeheader()
         for p in passed:
-            w.writerow({"session": session, "market": p.stock.market, "code": p.stock.code, "name": p.stock.name,
+            w.writerow({"session": session, "market": p.stock.market, "top_rank": rank.get(id(p), ""), "code": p.stock.code, "name": p.stock.name,
                         "mcap": p.stock.mcap, "news_flags": len(p.flags), **p.parts,
                         **{k: getattr(p, k) for k in cols if hasattr(p, k) and k != "stock"}})
+
+
+def attach_opinions(client, picks: dict[str, list[sc.Pick]], today: str) -> None:
+    """TOP 종목에 최근 3개월 증권사 투자의견·목표가를 붙인다 (웹페이지용, 실패해도 진행)."""
+    start = (datetime.strptime(today, "%Y%m%d") - timedelta(days=90)).strftime("%Y%m%d")
+    for p in (p for ps in picks.values() for p in ps):
+        try:
+            p.opinions = client.invest_opinion(p.stock.code, start, today)
+        except Exception as e:
+            log.warning("투자의견 실패 %s: %s", p.stock.name, e)
+    sample = next((p.opinions[0] for ps in picks.values() for p in ps if p.opinions), None)
+    log.info("투자의견 응답 필드: %s", sorted(sample) if sample else "없음")  # 증권사명 필드 확인용
 
 
 def macro_line(client, today: str) -> str:
@@ -145,54 +162,57 @@ def _eok(x: float) -> str:
 
 
 def message(session: str, market: str, picks: list[sc.Pick], stats: dict, ctx: dict, dart_on: bool,
-            today: str, macro: str = "") -> str:
+            today: str, macro: str = "", hist: dict | None = None, url: str = "") -> str:
+    """텔레그램 HTML 메시지: 순위와 한 줄 코멘트만. 근거(차트·수급표·목표가)는 웹페이지."""
+    e = html.escape
     c = ctx[market]
     ref = c["ref"]
-    lines = [f"📈 {market} 수급 TOP {TOP} — {SESSION_LABEL[session]} {ref[4:6]}/{ref[6:]} 기준"]
+    hist = hist or {"seen": {}, "window": 0, "exits": []}
+    lines = [f"<b>📈 {market} TOP {TOP}</b> — {ref[4:6]}/{ref[6:]} {SESSION_LABEL[session]} "
+             f"{c['light']} {c['close']:,.2f} ({c['chg']:+.2f}%)"]
     if macro:
-        lines.append(macro)
-    lines.append(f"{c['light']} {market} {c['close']:,.2f} ({c['chg']:+.2f}%) · 20일선 {'위' if c['above_ma20'] else '아래'}"
-                 + (" → 시장 약세, 신규 진입은 관찰 위주" if c["light"] == "🔴" else ""))
+        lines.append(e(macro))
+    if c["light"] == "🔴":
+        lines.append("🔴 시장 약세(20·60일선 아래) — 신규 진입은 관찰 위주")
     if session == "close" and ref != today:
         lines.append(f"⚠️ 당일 데이터 미갱신 — {ref[4:6]}/{ref[6:]} 데이터로 분석")
+    if session == "morning":
+        lines.append("※ 전일 종가 기준 — 시초가 갭상승 시 추격 주의")
+    lines.append("")
+    if not picks:
+        lines.append("조건(외인·기관 동반 순매수 + 유동성 + 과열 제외)을 충족한 종목이 없습니다.")
+    for i, p in enumerate(picks, 1):
+        tags = [f"외인 {_eok(p.frgn5)}", f"기관 {_eok(p.orgn5)}",
+                "고가 마감" if p.clv >= 0.7 else "윗꼬리" if p.upper_wick >= 0.5 else f"거래량 {p.vol_ratio:.1f}배"]
+        seen = hist["seen"].get(p.stock.code)
+        tags.append(f"🔁 {seen['count']}/{hist['window']}일" if seen and seen["count"] > 1 else "🆕")
+        if p.ext_atr > 3.5:
+            tags.append("⚠️과열")
+        if p.flags:
+            tags.append("⚠️악재뉴스")
+        lines += [f"{i}) <b>{e(p.stock.name)}</b> <code>{p.stock.code}</code> {p.score}점",
+                  "    " + " · ".join(tags)]
+    if 0 < len(picks) < TOP:
+        lines.append(f"(조건 충족 {len(picks)}종목 — 기준 미달로 채우지 않음)")
+    top_sector = Counter(p.stock.sector for p in picks if p.stock.sector).most_common(1)
+    if top_sector and top_sector[0][1] >= 3:
+        lines.append(f"⚠️ 같은 업종 {top_sector[0][1]}종목 집중 — 분산 유의")
+    if hist["exits"]:
+        lines.append("🚪 이탈: " + e(", ".join(hist["exits"])))
+    if url:
+        lines.append(f'\n<a href="{e(url)}#{market.lower()}">📊 상세 보기 — 차트·수급표·목표가</a>')
     status = f"스캔 {stats['scanned']} · 통과 {stats['passed'][market]}"
     for key, label in (("errors", "조회 실패"), ("stale", "기준일 불일치"), ("dq", "공시 악재 제외")):
         if stats[key]:
             status += f" · {label} {stats[key]}"
-    lines.append(status + ("" if dart_on else " · ⚠️ DART 미연결(공시 미검증)"))
-    if session == "morning":
-        lines.append("※ 전일 종가 기준 신호 — 시초가 갭상승 시 추격 주의")
-    if len(picks) < TOP:
-        lines.append(f"\n조건 충족 {len(picks)}종목 (기준 미달 종목으로 채우지 않음)")
-
-    for i, p in enumerate(picks, 1):
-        s = p.stock
-        candle = "고가 마감" if p.clv >= 0.7 else "윗꼬리 매물" if p.upper_wick >= 0.5 else "중간 마감"
-        trend = "·".join(t for t, ok in (("20일선↑", p.above_ma20), ("정배열", p.ma_aligned),
-                                          ("고점근접", p.near_high)) if ok) or "추세 약함"
-        rs = "상대강도 미검증" if p.rs20 is None else f"지수대비 {p.rs20:+.1f}%p(20일)"
-        flow = (f"쌍끌이 {p.streak}일" if p.streak else "당일 쌍끌이 아님") + f" · 외인 {p.frgn_streak}일·연기금 {p.fund_streak}일 연속"
-        lines += [
-            "",
-            f"{i}) {s.name} ({s.code}) {p.score}점",
-            f"   종가 {p.close:,.0f} ({p.chg:+.1f}%) · 시총 {s.mcap:,.0f}억",
-            f"   5일 외인 {_eok(p.frgn5)} · 기관(금투제외) {_eok(p.orgn5)}",
-            f"   {flow}",
-            f"   거래량 {p.vol_ratio:.1f}배 · {candle} · {trend}",
-            f"   {rs} · 20일선 이격 {p.disparity:+.1f}% (ATR {p.ext_atr:.1f}배)",
-            f"   영업이익 {'흑자' if s.op_profit > 0 else '적자'} · ROE {s.roe:g}",
-            "   " + " · ".join(f"{k} {v}" for k, v in p.parts.items()),
-        ]
-        if p.ext_atr > 3.5:
-            lines.append("   ⚠️ 단기 과열 — 눌림 확인 후 접근")
-        lines += [f"   {'⚠️' if t in p.flags else '📰'} {t}" for t, _ in p.news[:2]]
-        # PC용 finance.naver.com 주소는 모바일에서 증권 홈으로 튕겨서 모바일 종목 페이지로 연결
-        lines.append(f"   🔗 https://m.stock.naver.com/domestic/stock/{s.code}/total")
-    top_sector = Counter(p.stock.sector for p in picks if p.stock.sector).most_common(1)
-    if top_sector and top_sector[0][1] >= 3:
-        lines.append(f"\n⚠️ 같은 업종 {top_sector[0][1]}종목 집중 — 분산 유의")
-    lines.append("\n※ 관찰 후보 (매수 신호 아님) · 배점은 검증 전 가설")
+    lines.append(status + ("" if dart_on else " · DART 미연결") + "\n※ 관찰 후보 · 투자 권유 아님 · 코드를 누르면 복사")
     return "\n".join(lines)[:4000]
+
+
+def site_url() -> str:
+    """GitHub Pages 주소 (Actions 의 GITHUB_REPOSITORY = owner/repo)."""
+    owner, _, repo = os.environ.get("GITHUB_REPOSITORY", "/").partition("/")
+    return f"https://{owner.lower()}.github.io/{repo}/kstock/" if owner and repo else ""
 
 
 def send_telegram(text: str) -> bool:
@@ -203,7 +223,7 @@ def send_telegram(text: str) -> bool:
         log.warning("텔레그램 미설정 — 전송 생략")
         return False
     resp = requests.post(f"https://api.telegram.org/bot{token}/sendMessage", timeout=20, json={
-        "chat_id": chat, "text": text, "disable_web_page_preview": True})
+        "chat_id": chat, "text": text, "parse_mode": "HTML", "disable_web_page_preview": True})
     resp.raise_for_status()
     return True
 
@@ -215,11 +235,16 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--force", action="store_true", help="휴장일에도 실행")
     ap.add_argument("--failure", metavar="RUN_URL")
+    ap.add_argument("--send", metavar="MSG_JSON", help="저장된 메시지만 전송 (웹페이지 배포 뒤에 보낼 때)")
     a = ap.parse_args(argv)
+    if a.send:
+        for text in json.loads(Path(a.send).read_text(encoding="utf-8")):
+            send_telegram(text)
+        return 0
     session = "morning" if a.session == "pre" else a.session
 
     if a.failure:
-        send_telegram(f"⚠️ 국내주식 추천 실패\n실행 로그를 확인해 주세요.\n🔗 {a.failure}")
+        send_telegram(f"⚠️ 국내주식 추천 실패\n실행 로그를 확인해 주세요.\n🔗 {html.escape(a.failure)}")
         return 0
 
     client = kis_mod.KIS()
@@ -230,10 +255,22 @@ def main(argv: list[str] | None = None) -> int:
     ctx = market_context(client, session, today)
     dart = extras.Dart.from_env()
     picks, passed, stats = run(session, client, kis_mod.load_master(), ctx, dart=dart, today=today)
-    save_csv(WORK / f"kstock-{today}-{session}.csv", session, passed)
+    save_csv(WORK / f"kstock-{today}-{session}.csv", session, passed, picks)
+    url = os.environ.get("KSTOCK_SITE_URL") or site_url()
+    if session == "close":  # 웹페이지는 장 마감만 갱신 (장 전 데이터는 전일 장 마감과 같음)
+        attach_opinions(client, picks, today)
+        site.save_day(SITE, ctx[MARKETS[0]]["ref"], picks, ctx, stats, dart is not None)
+        site.build(SITE, url)
+    days = site.load_days(SITE)
     macro = macro_line(client, today) if session == "morning" else ""
+    texts = []
     for m in MARKETS:  # 시장별로 한 통씩
-        text = message(session, m, picks[m], stats, ctx, dart is not None, today, macro)
+        hist = site.history(days, m) if days else None
+        if hist and session == "morning":
+            hist["exits"] = []  # 이탈은 장 마감 간 비교에서만 의미
+        texts.append(message(session, m, picks[m], stats, ctx, dart is not None, today, macro, hist, url))
+    (WORK / f"kstock-{today}-{session}-msg.json").write_text(json.dumps(texts, ensure_ascii=False), encoding="utf-8")
+    for text in texts:
         print(text, "\n")
         if not a.dry_run:
             send_telegram(text)

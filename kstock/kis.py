@@ -103,7 +103,12 @@ class KIS:
                 slot = max(time.monotonic(), self._last + MIN_INTERVAL)
                 self._last = slot
             time.sleep(max(0.0, slot - time.monotonic()))
-            body = self.s.get(BASE + path, headers=headers, params=params, timeout=TIMEOUT).json()
+            try:
+                body = self.s.get(BASE + path, headers=headers, params=params, timeout=TIMEOUT).json()
+            except (requests.ConnectionError, requests.Timeout) as e:  # 일시적 연결 끊김은 재시도
+                log.info("KIS %s 재시도 (%s)", tr_id, e)
+                time.sleep(1 + attempt)
+                continue
             if body.get("rt_cd") == "0":
                 return body
             if body.get("msg_cd") == "EGW00201":  # 초당 거래건수 초과
@@ -145,3 +150,11 @@ class KIS:
             "FID_INPUT_DATE_2": end, "FID_PERIOD_DIV_CODE": "D"})
         return {r["stck_bsop_date"]: float(r["ovrs_nmix_prpr"]) for r in body.get("output2", [])
                 if r.get("stck_bsop_date") and float(r.get("ovrs_nmix_prpr") or 0) > 0}
+
+    def invest_opinion(self, code: str, start: str, end: str) -> list[dict]:
+        """증권사 투자의견·목표가 (최신 먼저). 날짜 인자는 YYYYMMDD — API는 앞에 00을 붙인 10자리를 받는다."""
+        body = self.get("/uapi/domestic-stock/v1/quotations/invest-opinion", "FHKST663300C0", {
+            "FID_COND_MRKT_DIV_CODE": "J", "FID_COND_SCR_DIV_CODE": "16633", "FID_INPUT_ISCD": code,
+            "FID_INPUT_DATE_1": "00" + start, "FID_INPUT_DATE_2": "00" + end})
+        rows = [r for r in body.get("output", []) if r.get("stck_bsop_date")]
+        return sorted(rows, key=lambda r: r["stck_bsop_date"], reverse=True)
