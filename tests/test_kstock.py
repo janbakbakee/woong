@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from datetime import date, timedelta
 
-from kstock import extras, kis, main, score as sc, site
+from kstock import extras, kis, main, score as sc, signals as sg, site
 
 
 def _master_line(market, code, name, *, grp="ST", mang="N", warn="00", mcap=5000, op=100, roe=12.5):
@@ -149,7 +149,7 @@ def test_run_ranks_by_market_excludes_stale_errors_and_bad_news(tmp_path):
     news = lambda name: [(f"{name} 유상증자 결정", "u")] if name == "악재기업" else [(f"{name} 수주", "u")]
     ctx = main.market_context(fake, "close", "20261009")
 
-    by, passed, stats = main.run("close", fake, [good, weak, bad, kq, stale, err, skip], ctx, news=news,
+    by, passed, stats, sigs = main.run("close", fake, [good, weak, bad, kq, stale, err, skip], ctx, news=news,
                                  today="20261009")
     assert stats == {"scanned": 6, "errors": 1, "stale": 1, "dq": 0, "passed": {"KOSPI": 3, "KOSDAQ": 1}}
     assert [p.stock.name for p in by["KOSPI"]] == ["좋은기업", "악재기업", "보통기업"]
@@ -211,7 +211,7 @@ def test_morning_drops_today_row():
     good = kis.Stock("000001", "좋은기업", "KOSPI", 20000, 100, 15, True, 1e11)
     fake = FakeKIS({"000001": _rows(frgn=40000)})
     ctx = main.market_context(fake, "morning", "20261009")
-    by, _, _ = main.run("morning", fake, [good], ctx, news=lambda n: [], today="20261009")
+    by, _, _, _ = main.run("morning", fake, [good], ctx, news=lambda n: [], today="20261009")
     assert by["KOSPI"][0].date == "20261008"
     text = main.message("morning", "KOSPI", by["KOSPI"], {"scanned": 1, "errors": 0, "stale": 0, "dq": 0,
                         "passed": {"KOSPI": 1}}, ctx, True, "20261009", "🌎 나스닥 +0.50%")
@@ -268,7 +268,134 @@ def test_cron_is_kst_weekday_0747_and_1807_and_no_cot_dependency():
 
     root = Path(__file__).resolve().parents[1]
     crons = [c["cron"] for c in yaml.safe_load((root / ".github/workflows/kstock-daily.yml").read_text())[True]["schedule"]]
-    # UTC 일~목 22:47 = KST 월~금 07:47, UTC 월~금 09:07 = KST 월~금 18:07
-    assert crons == ["47 22 * * 0-4", "7 9 * * 1-5"]
+    # UTC 일~목 21:50 = KST 월~금 06:50, UTC 월~금 05:35 = KST 14:35, UTC 월~금 09:07 = KST 18:07
+    assert crons == ["50 21 * * 0-4", "35 5 * * 1-5", "7 9 * * 1-5"]
+    wf = (root / ".github/workflows/kstock-daily.yml").read_text()
+    assert all(f"github.event.schedule == '{c}'" in wf for c in crons[:2])  # 예약별 세션 판별이 cron과 일치
     for f in (root / "kstock").glob("*.py"):
         assert "from cot" not in f.read_text() and "import cot" not in f.read_text(), f
+
+
+
+def _bars(closes, vols, highs=None, lows=None, opens=None, flow=1000, start=date(2026, 10, 9)):
+    """오래된 날 먼저 받은 값으로 최신일 먼저인 일봉 행을 만든다."""
+    n, rows = len(closes), []
+    for k, c in enumerate(closes):
+        rows.append({"stck_bsop_date": (start - timedelta(days=n - 1 - k)).strftime("%Y%m%d"), "stck_clpr": str(c),
+                     "stck_oprc": str(opens[k] if opens else c - 50), "stck_hgpr": str(highs[k] if highs else c + 100),
+                     "stck_lwpr": str(lows[k] if lows else c - 100), "acml_vol": str(vols[k]), "prdy_ctrt": "1",
+                     "frgn_ntby_qty": str(flow), "orgn_ntby_qty": str(flow), "scrt_ntby_qty": "0"})
+    return rows[::-1]
+
+
+def _pullback(**kw):
+    """50일 상승 → 3일 거래량 줄며 20일선 근처까지 눌림 → 오늘 고가권 반등."""
+    cl = [10000 + 100 * i for i in range(50)] + [14700, 14400, 14150, 14450]
+    hi, lo, op = [c + 100 for c in cl], [c - 100 for c in cl], [c - 50 for c in cl]
+    hi[-1], lo[-1], op[-1] = 14480, 14100, 14150
+    return _bars(cl, [1_000_000] * 50 + [600_000] * 3 + [1_100_000], hi, lo, op, **kw)
+
+
+def _breakout(vol_today=2_500_000, **kw):
+    """좁은 박스(약 6%) 55일 → 오늘 거래량 실어 고가권 돌파."""
+    cl = [10000 + (i % 5) * 100 for i in range(55)] + [11000]
+    hi, lo, op = [c + 100 for c in cl], [c - 100 for c in cl], [c - 50 for c in cl]
+    hi[-1], lo[-1], op[-1] = 11050, 10350, 10400
+    return _bars(cl, [1_000_000] * 55 + [vol_today], hi, lo, op, **kw)
+
+
+def test_setup_a_pullback_and_sizing():
+    x = sg.evaluate(STOCK, _pullback(), "🟢", 5, [])
+    assert (x.setup, x.grade, x.entry) == ("A", "A", 14450)
+    assert x.stop < 14100 and 0 < x.stop_pct < sg.MAX_STOP_PCT
+    assert abs(x.weight - sg.RISK_PCT / x.stop_pct * 100) < 1e-9 and x.weight <= sg.MAX_WEIGHT
+    assert x.r1 - x.entry == x.entry - x.stop and x.r2 - x.entry == 2 * (x.entry - x.stop)
+    assert x.shares(10_000_000) == int(10_000_000 * x.weight / 100 // x.entry)
+    assert sg.evaluate(STOCK, _pullback(flow=-5000), "🟢", 5, []) is None   # 눌림 중 큰손 순매도 → 무효
+
+
+def test_setup_b_breakout_and_gates():
+    x = sg.evaluate(STOCK, _breakout(), "🟢", 5, [])
+    assert (x.setup, x.grade) == ("B", "A") and x.stop == 10350
+    assert sg.evaluate(STOCK, _breakout(vol_today=1_200_000), "🟢", 5, []) is None   # 거래량 부족
+    assert "이벤트" in " ".join(sg.evaluate(STOCK, _breakout(vol_today=6_000_000), "🟢", 5, []).notes)
+    assert sg.evaluate(STOCK, _breakout(), "🔴", 5, []) is None                       # 🔴 신규 금지
+    assert sg.evaluate(STOCK, _breakout(), "🟢", 5, ["악재"]) is None                 # 악재 뉴스
+    assert sg.evaluate(STOCK, _breakout(), "🟡", 1, []) is None                       # 🟡는 A급만
+    y = sg.evaluate(STOCK, _breakout(), "🟡", 5, [])
+    assert y and y.risk_pct == sg.RISK_PCT / 2
+    assert sg.evaluate(STOCK, _breakout(), "🟢", 1, []).grade == "B"
+
+
+class IntradayKIS(FakeKIS):
+    def price(self, code):
+        return {"stck_prpr": "11000", "stck_oprc": "10400", "stck_hgpr": "11050", "stck_lwpr": "10350",
+                "acml_vol": "2000000", "prdy_ctrt": "10"}
+
+    def investor_estimate(self, code):
+        return {"bsop_hour_gb": "4", "frgn_fake_ntby_qty": "5000", "orgn_fake_ntby_qty": "3000"}
+
+
+def test_intraday_signals_message_and_site_box(tmp_path):
+    from datetime import datetime
+    hist = _breakout()[1:]  # 오늘(장중) 행은 현재가로 대신한다
+    fake = IntradayKIS({})   # 장중에는 일별 투자자 API를 부르지 않는다 (KIS 00:00~15:40 조회 불가)
+    ctx = main.market_context(fake, "morning", "20261009")
+    for c in ctx.values():
+        c["light"] = "🟢"
+    watch = [{"code": "000001", "name": "돌파기업", "market": "KOSPI", "sector": ""}]
+    now = datetime(2026, 10, 9, 14, 35, tzinfo=main.KST)
+    assert main.run_intraday(fake, ctx, watch, {}, "20261009", now) == {"KOSPI": [], "KOSDAQ": []}  # 캐시 없음
+    sigs = main.run_intraday(fake, ctx, watch, {"000001": hist}, "20261009", now)
+    x = sigs["KOSPI"][0]
+    assert x.setup == "B" and x.entry == 11000 and x.vol_ratio > 2   # 2,000,000주를 하루치로 환산
+    assert "잠정 외인" in x.notes[-1]
+    text = main.intraday_message(sigs, now, "https://x/", 10_000_000)
+    assert "⏱ 장중 예비 신호 14:35" in text and "<code>000001</code>" in text and "주" in text
+
+    root = tmp_path / "site"
+    site.save_day(root, "20261008", {"KOSPI": [], "KOSDAQ": []}, {m: {**c, "close": 1.0, "chg": 0.0,
+                  "above_ma20": True} for m, c in ctx.items()}, {"scanned": 0, "errors": 0, "stale": 0, "dq": 0,
+                  "passed": {"KOSPI": 0, "KOSDAQ": 0}}, False, {"KOSPI": [x], "KOSDAQ": []}, [])
+    site.save_intraday(root, "20261009", "14:35", sigs)
+    site.build(root)
+    page = (root / "index.html").read_text(encoding="utf-8")
+    assert "⏱ 장중 예비 신호" in page and "돌파기업" in page and "다음 거래일 진입 후보" in page
+    morning = main.morning_message("KOSPI", site.load_days(root)[0], "🌎 나스닥 +1.00%", "https://x/", 0)
+    assert "🌅 KOSPI 장 전 브리핑" in morning and "오늘 진입 계획" in morning and "돌파기업" in morning
+    assert "나스닥" in morning and "시초가" in morning
+    site.save_day(root, "20261009", {"KOSPI": [], "KOSDAQ": []}, {m: {**c, "close": 1.0, "chg": 0.0,
+                  "above_ma20": True} for m, c in ctx.items()}, {"scanned": 0, "errors": 0, "stale": 0, "dq": 0,
+                  "passed": {"KOSPI": 0, "KOSDAQ": 0}}, False)
+    site.build(root)
+    assert not (root / "intraday.json").exists()                   # 장 마감 기록이 생기면 장중 상자 제거
+    assert "⏱ 장중 예비 신호" not in (root / "index.html").read_text(encoding="utf-8")
+
+
+def test_save_rows_keeps_only_needed_fields(tmp_path):
+    p = sc.analyze(STOCK, _rows(), _index())
+    main.save_rows(tmp_path / "rows.json", [p])
+    import json
+    rows = json.loads((tmp_path / "rows.json").read_text())["005930"]
+    assert len(rows) == 40 and set(rows[0]) == set(main.ROW_KEYS)
+    assert sg.evaluate(STOCK, _pullback(), "🟢", 5, []) is not None
+
+
+def test_signal_lines_in_close_message():
+    x = sg.evaluate(STOCK, _pullback(), "🟢", 5, [])
+    text = "\n".join(main.signal_lines([x], "close", 10_000_000))
+    assert "🎯 내일 진입 후보" in text and "매수 14,450~" in text and "시초가" in text and "자동감시주문" in text
+    assert "없음" in "\n".join(main.signal_lines([], "close")) and main.signal_lines([], "intraday") == []
+
+
+
+def test_demo_builds_three_messages(tmp_path, monkeypatch):
+    from kstock import demo
+    texts = demo.build(main, "https://x/", 10_000_000)
+    assert len(texts) == 3 and all(t.startswith(demo.TAG) for t in texts)
+    assert "① 장 전" in texts[0] and "오늘 진입 계획" in texts[0] and "🌎" in texts[0]
+    assert "② 장중" in texts[1] and "⏱ 장중 예비 신호" in texts[1]
+    assert "③ 장 마감" in texts[2] and "내일 진입 후보" in texts[2] and "🅐눌림" in texts[2] and "🅑돌파" in texts[2]
+    assert all(len(t) <= 4096 for t in texts)
+    monkeypatch.chdir(tmp_path)
+    assert main.main(["--demo", "--dry-run"]) == 0 and (tmp_path / "work/kstock-demo-demo-msg.json").exists()

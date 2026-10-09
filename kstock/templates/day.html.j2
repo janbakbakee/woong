@@ -6,15 +6,30 @@
 <title>국장 수급 TOP — {{ day.date|label }}</title>
 {% include "_style.html.j2" %}
 {% import "_tips.html.j2" as tip %}
+{% macro sigbox(list, kind) %}{% for x in list %}
+<div style="margin:6px 0"><b>{{ x.grade }}급 {{ '🅐 눌림' if x.setup == 'A' else '🅑 돌파' }} · <a href="#{{ x.code }}">{{ x.name }}</a></b> <span class="muted">{{ x.code }}</span><br>
+{% if kind == 'intraday' %}현재가 {{ x.entry|num }}{% else %}매수 {{ x.entry|num }}~{{ x.buy_max|num }}{% endif %}
+· 손절 <b>{{ x.stop|num }}</b> (−{{ "%.1f"|format(x.stop_pct) }}%) · 1R {{ x.r1|num }} / 2R {{ x.r2|num }}<br>
+<span class="muted">비중 계좌의 {{ x.weight|round|int }}% (위험 {{ x.risk_pct }}%){% if kind != 'intraday' %} · 시초가 {{ x.gap_skip|num }}↑면 패스{% endif %}{% for n in x.notes %} · {{ n }}{% endfor %}</span></div>
+{% endfor %}{% endmacro %}
+
 </head>
 <body><main>
 <h1>📈 국장 수급 TOP — {{ day.date|label }} 장 마감</h1>
 <div class="muted">외국인·기관(금융투자 제외) 순매수 + 거래량·캔들 + 추세·위치 + 재무 · 관찰 후보 (매수 신호 아님) · 배점은 검증 전 가설</div>
 <nav class="tabs">{% for t in tabs %}<a href="{{ t }}.html" class="{{ 'on' if t == day.date }}">{{ t|label }}</a>{% endfor %}<a href="guide.html">📖 지표 해설</a></nav>
 
+{% if intraday %}<div class="box intra"><b>⏱ 장중 예비 신호 · {{ intraday.date|label }} {{ intraday.time }}</b>
+<div class="muted">잠정 수급·예상 거래량 기준 — 장 마감(18:07) 확정 데이터로 바뀌며 이 상자는 사라집니다. 15:20 종가 동시호가, 놓치면 15:40 시간외 종가.</div>
+{% for m, v in intraday.signals.items() %}{% if v %}<div style="margin-top:6px"><b>{{ m }}</b></div>{{ sigbox(v, 'intraday') }}{% endif %}{% endfor %}
+{% if not intraday.signals.values()|select|list %}<div style="margin-top:6px">장중 신호 없음</div>{% endif %}</div>{% endif %}
+
 {% for m, mk in day.markets.items() %}{% set h = hist[m] %}
 <h2 id="{{ m|lower }}">{{ tip.t("light", mk.light) }} {{ m }} <span class="muted">{{ "%.2f"|format(mk.close) }} ({{ mk.chg|pct }}) · 20일선 {{ '위' if mk.above_ma20 else '아래' }}</span></h2>
 <div class="muted">스캔 {{ day.stats.scanned }} · 조건 통과 {{ day.stats.passed[m] }}{% if day.stats.errors %} · 조회 실패 {{ day.stats.errors }}{% endif %}{% if day.stats.stale %} · 기준일 불일치 {{ day.stats.stale }}{% endif %}{% if not day.dart %} · DART 미연결(공시 미검증){% endif %}</div>
+<div class="box"><b>{{ tip.t("setup", "🎯 다음 거래일 진입 후보") }}</b>
+{% if mk.signals %}{{ sigbox(mk.signals, 'close') }}<div class="muted">※ 손절가는 키움 자동감시주문으로 미리 걸어두기</div>
+{% else %}<div class="muted">없음 — 쉬는 것도 매매</div>{% endif %}</div>
 {% if h.exits %}<div class="box">{{ tip.t("exit", "🚪 전일 TOP에서 이탈") }}: {{ h.exits|join(", ") }} <span class="muted">— 수급 꺾임 여부 확인</span></div>{% endif %}
 
 <div class="box scroll"><table>

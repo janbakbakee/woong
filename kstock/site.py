@@ -64,14 +64,33 @@ def record(p: sc.Pick, rank: int) -> dict:
     }
 
 
-def save_day(root: Path, ref: str, picks: dict, ctx: dict, stats: dict, dart_on: bool) -> Path:
+def signal_record(x) -> dict:
+    return {**{k: v for k, v in vars(x).items()}, "r1": x.r1, "r2": x.r2, "buy_max": x.buy_max,
+            "gap_skip": x.gap_skip}
+
+
+def save_day(root: Path, ref: str, picks: dict, ctx: dict, stats: dict, dart_on: bool,
+             sigs: dict | None = None, passed: list | None = None) -> Path:
+    """장 마감 기록. watch = 조건 통과 전체 (다음 날 장중 재판정 대상). 장중 예비 상자는 지운다."""
     data = {"date": ref, "dart": dart_on, "stats": stats, "markets": {
         m: {k: ctx[m][k] for k in ("close", "chg", "above_ma20", "light")}
-        | {"picks": [record(p, i) for i, p in enumerate(picks[m], 1)]} for m in picks}}
+        | {"picks": [record(p, i) for i, p in enumerate(picks[m], 1)],
+           "signals": [signal_record(x) for x in (sigs or {}).get(m, [])]} for m in picks},
+        "watch": [{"code": p.stock.code, "name": p.stock.name, "market": p.stock.market,
+                   "sector": p.stock.sector} for p in passed or []]}
     path = root / "data" / f"{ref}.json"
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
+    (root / "intraday.json").unlink(missing_ok=True)
     return path
+
+
+def save_intraday(root: Path, today: str, time: str, sigs: dict) -> None:
+    """장중 예비 신호 — 최신 탭 위 노란 상자. 다음 장 마감 기록이 생기면 사라진다."""
+    root.mkdir(parents=True, exist_ok=True)
+    (root / "intraday.json").write_text(json.dumps(
+        {"date": today, "time": time, "signals": {m: [signal_record(x) for x in v] for m, v in sigs.items()}},
+        ensure_ascii=False), encoding="utf-8")
 
 
 def load_days(root: Path) -> list[dict]:
@@ -158,9 +177,14 @@ def build(root: Path, url: str = "") -> None:
                        label=_label)
     tpl = env.get_template("day.html.j2")
     tabs = [d["date"] for d in days]
+    ipath = root / "intraday.json"
+    intraday = json.loads(ipath.read_text(encoding="utf-8")) if ipath.exists() else None
+    if intraday and days and intraday["date"] <= days[0]["date"]:
+        intraday = None  # 그날 장 마감 기록이 이미 있으면 장중 상자는 의미 없음
     for i, d in enumerate(days):
         hist = {m: history(days, m, i) for m in d["markets"]}
         html = tpl.render(day=d, tabs=tabs, hist=hist, chart=chart, parts_max=PARTS_MAX, url=url,
+                          intraday=intraday if i == 0 else None,
                           generated=datetime.now().strftime("%Y-%m-%d %H:%M"))
         (root / f"{d['date']}.html").write_text(html, encoding="utf-8")
         if i == 0:
