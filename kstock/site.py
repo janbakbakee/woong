@@ -49,6 +49,13 @@ def opinion_summary(rows: list[dict], close: float) -> dict | None:
             "from": rows[-1]["stck_bsop_date"], "to": rows[0]["stck_bsop_date"], "latest": latest}
 
 
+def stock_light(rec: dict, signaled: bool) -> str:
+    """종목 신호등 (시장 신호등과 별개): 🟢 진입 셋업 · 🟡 관찰 · 🔴 악재·과열·윗꼬리."""
+    if rec["flags"] or rec["ext_atr"] > 3.5 or rec["upper_wick"] >= 0.5:
+        return "🔴"
+    return "🟢" if signaled else "🟡"
+
+
 def record(p: sc.Pick, rank: int) -> dict:
     s = p.stock
     return {
@@ -175,6 +182,7 @@ def build(root: Path, url: str = "") -> None:
     env = Environment(loader=FileSystemLoader(Path(__file__).parent / "templates"), autoescape=True)
     env.filters.update(eok=lambda v: f"{v:+,.0f}억", pct=lambda v: f"{v:+.1f}%", num=lambda v: f"{v:,.0f}",
                        label=_label)
+    env.globals["stock_light"] = stock_light
     tpl = env.get_template("day.html.j2")
     tabs = [d["date"] for d in days]
     ipath = root / "intraday.json"

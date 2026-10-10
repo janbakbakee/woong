@@ -33,9 +33,10 @@
 {% if h.exits %}<div class="box">{{ tip.t("exit", "🚪 전일 TOP에서 이탈") }}: {{ h.exits|join(", ") }} <span class="muted">— 수급 꺾임 여부 확인</span></div>{% endif %}
 
 <div class="box scroll"><table>
-<tr><th>#</th><th>종목</th><th>{{ tip.t("parts", "점수") }}</th><th>현재가</th><th>등락</th><th>{{ tip.t("flow5", "외인5일") }}</th><th>{{ tip.t("flow5", "기관5일") }}</th><th>{{ tip.t("seen", "등장") }}</th><th>{{ tip.t("target", "목표가") }}</th></tr>
+<tr><th>{{ tip.t("slight", "#") }}</th><th>종목</th><th>{{ tip.t("parts", "점수") }}</th><th>현재가</th><th>등락</th><th>{{ tip.t("flow5", "외인5일") }}</th><th>{{ tip.t("flow5", "기관5일") }}</th><th>{{ tip.t("seen", "등장") }}</th><th>{{ tip.t("target", "목표가") }}</th></tr>
+{% set sig = (mk.signals or [])|map(attribute="code")|list %}
 {% for p in mk.picks %}{% set s = h.seen.get(p.code) %}
-<tr><td>{{ p.rank }}</td><td><a href="#{{ p.code }}">{{ p.name }}</a></td><td>{{ p.score }}</td><td>{{ p.close|num }}</td>
+<tr><td>{{ stock_light(p, p.code in sig) }} {{ p.rank }}</td><td><a href="#{{ p.code }}">{{ p.name }}</a></td><td>{{ p.score }}</td><td>{{ p.close|num }}</td>
 <td class="{{ 'up' if p.chg > 0 else 'down' if p.chg < 0 }}">{{ p.chg|pct }}</td><td>{{ p.frgn5|eok }}</td><td>{{ p.orgn5|eok }}</td>
 <td>{{ s.count if s else 1 }}/{{ h.window }}</td><td>{% if p.opinion %}{{ p.opinion.upside|pct }}{% else %}-{% endif %}</td></tr>
 {% endfor %}
@@ -43,7 +44,7 @@
 
 {% for p in mk.picks %}{% set s = h.seen.get(p.code) %}
 <details id="{{ p.code }}" {{ 'open' if p.rank == 1 }}>
-<summary><span class="score">{{ p.score }}</span><b>{{ p.rank }}) {{ p.name }}</b> <span class="muted">{{ p.code }} · 시총 {{ p.mcap|num }}억</span><br>
+<summary><span class="score">{{ p.score }}</span><b>{{ stock_light(p, p.code in sig) }} {{ p.rank }}) {{ p.name }}</b> <span class="muted">{{ p.code }} · 시총 {{ p.mcap|num }}억</span><br>
 <span class="{{ 'up' if p.chg > 0 else 'down' if p.chg < 0 }}">{{ p.close|num }}원 ({{ p.chg|pct }})</span>
 {% if s and s.count > 1 %}<span class="tag">🔁 {{ h.window }}일 중 {{ s.count }}일 · 첫 등장 {{ s.first|label }} 대비 {{ ((p.close / s.first_close - 1) * 100)|pct }}</span>{% else %}<span class="tag">🆕 신규</span>{% endif %}
 {% if p.ext_atr > 3.5 %}<span class="tag warn">⚠️ 단기 과열</span>{% endif %}{% if p.flags %}<span class="tag warn">⚠️ 악재 뉴스 {{ p.flags|length }}</span>{% endif %}

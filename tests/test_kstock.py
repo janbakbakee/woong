@@ -406,6 +406,6 @@ def test_stock_light_and_flow_line():
            "streak": 0, "vol_ratio": 1.8, "clv": 0.8, "upper_wick": 0.1, "ext_atr": 1.0, "flags": []}
     head, tags = main.pick_lines(rec, signaled=True)
     assert head.startswith("🟢 1) <b>가&lt;나&gt;</b>") and "외인 +87억 · 기관 -3억 · 거래량 1.8배 · 고가 마감" in tags
-    assert main.stock_light(rec, False) == "🟡"
-    assert main.stock_light({**rec, "ext_atr": 4.0}, True) == "🔴"
-    assert main.stock_light({**rec, "flags": ["횡령"]}, True) == "🔴"
+    assert site.stock_light(rec, False) == "🟡"
+    assert site.stock_light({**rec, "ext_atr": 4.0}, True) == "🔴"
+    assert site.stock_light({**rec, "flags": ["횡령"]}, True) == "🔴"
