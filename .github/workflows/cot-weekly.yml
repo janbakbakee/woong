@@ -50,6 +50,7 @@ jobs:
       deploy: ${{ steps.upload.outcome == 'success' }}
       ran: ${{ steps.prep.outputs.run }}
       date: ${{ steps.prep.outputs.date }}
+      waiting: ${{ steps.prep.outputs.waiting }}
     steps:
       - uses: actions/checkout@v4
 
@@ -139,8 +140,8 @@ jobs:
   # 텔레그램 / ntfy 알림 (Secrets에 설정된 채널로만 전송)
   notify:
     needs: [report, deploy]
-    # 새 리포트 생성·실패 시에만 알림. cron-job.org의 정시 요청(workflow_dispatch)이 새 데이터 없이 끝나면 조용히 종료
-    if: always() && (needs.report.result == 'failure' || needs.deploy.result == 'failure' || needs.report.outputs.ran == 'true' || inputs.notify_latest == true)
+    # 새 리포트 생성·실패 시 알림. 정시 요청(workflow_dispatch)에서 CFTC 데이터가 없으면 '발표 지연' 안내
+    if: always() && (needs.report.result == 'failure' || needs.deploy.result == 'failure' || needs.report.outputs.ran == 'true' || inputs.notify_latest == true || (github.event_name == 'workflow_dispatch' && needs.report.outputs.waiting != ''))
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -157,10 +158,14 @@ jobs:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
           FAILED: ${{ needs.report.result == 'failure' || needs.deploy.result == 'failure' }}
           REPORT_DATE: ${{ needs.report.outputs.date }}
+          WAITING: ${{ needs.report.outputs.waiting }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           if [[ "$FAILED" == "true" ]]; then
             python -m cot.notify --failure --run-url "$RUN_URL"
+          elif [[ -n "$WAITING" && -z "$REPORT_DATE" ]]; then
+            # 토요일 정시 실행 때 CFTC 데이터가 아직 없음 → 지연 안내 (재시도는 일·월·화 예약 실행)
+            python -m cot.notify --waiting "$WAITING"
           else
             python -m cot.notify ${REPORT_DATE:+--date "$REPORT_DATE"}
           fi

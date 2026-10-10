@@ -393,3 +393,17 @@ def test_rebuild_tolerates_old_data_without_chart(tmp_path, fake_fetch):
     p.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
     assert main.main(["rebuild", "--out", str(tmp_path)]) == 0
     assert "2026년 7월 4주차" in (tmp_path / "index.html").read_text(encoding="utf-8")
+
+
+def test_waiting_output_and_message(tmp_path, fake_fetch, monkeypatch):
+    from cot import notify
+    gh_out = tmp_path / "gh_output"
+    monkeypatch.setenv("GITHUB_OUTPUT", str(gh_out))
+    future = TARGET + timedelta(days=7)
+    assert main.main(["prepare", "--date", future.isoformat(), "--out", str(tmp_path / "docs"),
+                      "--work", str(tmp_path / "work")]) == 0
+    out = gh_out.read_text()
+    assert f"waiting={future.isoformat()}" in out and "run=false" in out
+    title, body, link = notify.waiting_message(future.isoformat())
+    assert "미발표" in title and "8월 1주차" in title and "자동으로 다시 확인" in body
+    assert link.startswith("https://www.cftc.gov/")

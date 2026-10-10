@@ -46,6 +46,14 @@ def success_message(meta: dict) -> tuple[str, str, str]:
     return title, "\n".join(lines), link
 
 
+def waiting_message(report_date: str) -> tuple[str, str, str]:
+    d = date.fromisoformat(report_date)
+    return (f"⏳ COT 데이터 미발표 — {fetch.week_label(d)}",
+            f"CFTC가 {d.month}/{d.day}(화) 기준 데이터를 아직 발표하지 않았습니다 "
+            "(미 정부 셧다운·공휴일 등).\n일·월·화에 자동으로 다시 확인하고, 발표되면 리포트와 함께 알려드립니다.",
+            config.SOURCE_PAGES["tff"])
+
+
 def failure_message(run_url: str) -> tuple[str, str, str]:
     return ("⚠️ COT 리포트 생성 실패",
             "이번 주 워크플로가 실패했습니다. 실행 로그를 확인해 주세요.", run_url)
@@ -89,12 +97,15 @@ def main(argv=None) -> int:
     p.add_argument("--date", help="기준일 YYYY-MM-DD (생략 시 최신 리포트)")
     p.add_argument("--out", default="docs")
     p.add_argument("--failure", action="store_true", help="실패 알림")
+    p.add_argument("--waiting", metavar="DATE", help="CFTC 발표 지연 알림 (기준일)")
     p.add_argument("--run-url", default="")
     args = p.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 
     if args.failure:
         msg = failure_message(args.run_url)
+    elif args.waiting:
+        msg = waiting_message(args.waiting)
     else:
         reports = Path(args.out) / "data" / "reports"
         if args.date:

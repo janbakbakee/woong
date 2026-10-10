@@ -106,6 +106,7 @@ def prepare(args) -> dict | None:
                                    ", ".join(f"{k}={v}" for k, v in latest_seen.items()) or None)
         log.warning("기준일 %s 데이터 없음.\n%s", target, msg)
         _gh_summary(f"### ⏳ {target} 기준 COT 데이터 미확인\n\n```\n{msg}\n```")
+        _gh_output(waiting=target.isoformat())  # 정시 실행이면 '발표 지연' 알림용
         if args.strict:
             raise SystemExit(3)
         return None
