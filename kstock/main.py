@@ -326,13 +326,6 @@ def message(session: str, market: str, picks: list[sc.Pick], stats: dict, ctx: d
 LIGHT_LEGEND = "<i>종목 신호등 🟢 진입 자리 · 🟡 관찰 · 🔴 주의(악재·과열·윗꼬리)</i>"
 
 
-def stock_light(rec: dict, signaled: bool) -> str:
-    """종목 신호등: 시장 신호등과 별개로 '지금 이 종목을 어떻게 볼지'."""
-    if rec["flags"] or rec["ext_atr"] > 3.5 or rec["upper_wick"] >= 0.5:
-        return "🔴"
-    return "🟢" if signaled else "🟡"
-
-
 def pick_lines(rec: dict, signaled: bool, seen: str = "") -> list[str]:
     """TOP 종목 2줄 (rec = site.record 형식, 금액은 억 단위)."""
     tags = [f"외인 {rec['frgn5']:+,.0f}억", f"기관 {rec['orgn5']:+,.0f}억"]
@@ -349,7 +342,7 @@ def pick_lines(rec: dict, signaled: bool, seen: str = "") -> list[str]:
         tags.append("⚠️과열")
     if rec["flags"]:
         tags.append("⚠️악재뉴스")
-    return [f"{stock_light(rec, signaled)} {rec['rank']}) <b>{html.escape(rec['name'])}</b> "
+    return [f"{site.stock_light(rec, signaled)} {rec['rank']}) <b>{html.escape(rec['name'])}</b> "
             f"<code>{rec['code']}</code> {rec['score']}점",
             "    " + " · ".join(tags)]
 
