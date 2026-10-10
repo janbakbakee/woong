@@ -40,7 +40,50 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # GitHub 예약 실행은 이 repo에서 매번 5~6시간 늦게 도착한다(정시 실행은 cron-job.org 등 외부 트리거가 담당).
+  # 예약 실행은 백업으로만 쓰고, ① 같은 날 같은 세션이 이미 전송됐거나 ② 너무 늦어 의미가 없으면 건너뛴다.
+  guard:
+    runs-on: ubuntu-latest
+    outputs:
+      go: ${{ steps.check.outputs.go }}
+      key: ${{ steps.key.outputs.key }}
+    steps:
+      - id: key
+        run: |
+          SESSION="${{ inputs.session || (github.event.schedule == '50 21 * * 0-4' && 'morning' || (github.event.schedule == '35 5 * * 1-5' && 'intraday' || 'close')) }}"
+          echo "session=$SESSION" >> "$GITHUB_OUTPUT"
+          echo "key=kstock-sent-$(TZ=Asia/Seoul date +%F)-$SESSION" >> "$GITHUB_OUTPUT"
+      - id: sent
+        if: github.event_name == 'schedule'
+        uses: actions/cache/restore@v4
+        with:
+          path: work/sent
+          key: ${{ steps.key.outputs.key }}
+          lookup-only: true
+      - id: check
+        env:
+          EVENT: ${{ github.event_name }}
+          SESSION: ${{ steps.key.outputs.session }}
+          HIT: ${{ steps.sent.outputs.cache-hit }}
+        run: |
+          go=true; reason=""
+          if [ "$EVENT" = "schedule" ]; then
+            now=$((10#$(TZ=Asia/Seoul date +%H%M)))
+            case "$SESSION" in
+              morning)  [ "$now" -gt 930 ] && reason="장 전 메시지 유효시간(09:30) 경과" ;;
+              intraday) [ "$now" -gt 1530 ] && reason="장중 메시지 유효시간(15:30) 경과" ;;
+              close)    [ "$now" -lt 1600 ] && reason="장 마감 메시지 유효시간(당일 자정) 경과" ;;
+            esac
+            [ "$HIT" = "true" ] && reason="오늘 $SESSION 세션은 이미 전송됨"
+            [ -n "$reason" ] && go=false
+          fi
+          echo "go=$go" >> "$GITHUB_OUTPUT"
+          echo "### 실행 판단: go=$go ${reason:+— $reason}" >> "$GITHUB_STEP_SUMMARY"
+          echo "go=$go $reason"
+
   recommend:
+    needs: guard
+    if: needs.guard.outputs.go == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     outputs:
@@ -127,6 +170,18 @@ jobs:
           for f in work/kstock-*-${{ steps.run.outputs.session }}-msg.json; do
             if [ -e "$f" ]; then python -m kstock.main --send "$f"; fi
           done
+
+      # 전송 완료 표시 → 늦게 도착한 예약 실행이 같은 메시지를 다시 보내지 않게 함
+      - name: 전송 완료 표시
+        if: ${{ success() && !inputs.dry_run && !inputs.demo && !inputs.site_only }}
+        run: mkdir -p work/sent && date -u > work/sent/at
+      - name: 전송 완료 기록
+        if: ${{ success() && !inputs.dry_run && !inputs.demo && !inputs.site_only }}
+        uses: actions/cache/save@v4
+        continue-on-error: true   # 같은 키가 이미 있으면(수동 재실행) 저장 실패는 무시
+        with:
+          path: work/sent
+          key: ${{ needs.guard.outputs.key }}
 
       # 백테스트용 후보 기록 — 레포에 커밋하지 않고 Actions 아티팩트로 90일 보관
       - name: 후보 기록 보관
