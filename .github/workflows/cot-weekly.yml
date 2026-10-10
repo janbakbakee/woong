@@ -24,6 +24,10 @@ on:
         description: "Claude 분석 없이 수치만 생성"
         type: boolean
         default: false
+      notify_latest:
+        description: "새 리포트가 없어도 최신 리포트 알림 보내기 (텔레그램 연결 테스트용)"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -135,8 +139,8 @@ jobs:
   # 텔레그램 / ntfy 알림 (Secrets에 설정된 채널로만 전송)
   notify:
     needs: [report, deploy]
-    # 새 리포트 생성·실패 시, 그리고 수동 실행(Run workflow) 시에는 항상 알림 (텔레그램 설정 확인용)
-    if: always() && (needs.report.result == 'failure' || needs.deploy.result == 'failure' || needs.report.outputs.ran == 'true' || github.event_name == 'workflow_dispatch')
+    # 새 리포트 생성·실패 시에만 알림. cron-job.org의 정시 요청(workflow_dispatch)이 새 데이터 없이 끝나면 조용히 종료
+    if: always() && (needs.report.result == 'failure' || needs.deploy.result == 'failure' || needs.report.outputs.ran == 'true' || inputs.notify_latest == true)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
