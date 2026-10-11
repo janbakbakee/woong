@@ -61,6 +61,7 @@ def record(p: sc.Pick, rank: int) -> dict:
     return {
         "rank": rank, "code": s.code, "name": s.name, "market": s.market, "score": p.score, "parts": p.parts,
         "close": p.close, "chg": p.chg, "mcap": s.mcap, "op_profit": s.op_profit, "roe": s.roe,
+        "fin": {**p.fin, **sc.fin_metrics(p.fin)} if p.fin else None,
         "frgn5": p.frgn5 / sc.EOK, "orgn5": p.orgn5 / sc.EOK, "quality5": p.quality5 / sc.EOK,
         "flow20_pct": p.flow20 / (s.mcap * sc.EOK) * 100 if s.mcap else 0,
         "streak": p.streak, "frgn_streak": p.frgn_streak, "fund_streak": p.fund_streak,
