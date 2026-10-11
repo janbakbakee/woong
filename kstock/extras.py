@@ -86,3 +86,67 @@ class Dart:
             log.warning("DART 조회 실패 %s: %s", stock_code, e)
             return []
         return [r.get("report_nm", "") for r in body.get("list", [])]
+
+    # 정기보고서 주요계정 (상장사 다중회사, 금융업 제외). 최신 보고서부터 찾아 내려감
+    REPORTS = (("11014", 9, "3분기"), ("11012", 6, "반기"), ("11013", 3, "1분기"), ("11011", 12, "사업보고서"))
+
+    def financials(self, codes: list[str], today: date | None = None) -> dict[str, dict]:
+        """{종목코드: {period, fs, months, op, op_prev, net, equity, liab}} — 금액은 억원, 손익은 누적."""
+        today = today or date.today()
+        left = {self.corp[c]: c for c in codes if c in self.corp}
+        out: dict[str, dict] = {}
+        periods = [(today.year, r) for r in self.REPORTS[:3]] + [(today.year - 1, self.REPORTS[3]), (today.year - 1, self.REPORTS[0])]
+        for year, (rc, months, label) in periods:
+            if not left:
+                break
+            corps = list(left)
+            for i in range(0, len(corps), 100):
+                try:
+                    body = requests.get("https://opendart.fss.or.kr/api/fnlttMultiAcnt.json", timeout=TIMEOUT, params={
+                        "crtfc_key": self.key, "corp_code": ",".join(corps[i:i + 100]),
+                        "bsns_year": str(year), "reprt_code": rc}).json()
+                except Exception as e:
+                    log.warning("DART 재무 조회 실패 %s %s: %s", year, label, e)
+                    continue
+                if body.get("status") not in ("000", "013"):
+                    log.warning("DART 재무 %s %s: %s %s", year, label, body.get("status"), body.get("message"))
+                for code, fin in _parse_fin(body.get("list", []), months, f"{year} {label}").items():
+                    corp = self.corp.get(code)
+                    if corp in left:
+                        out[left.pop(corp)] = fin
+        log.info("DART 재무: %d/%d종목", len(out), len(codes))
+        return out
+
+
+def _amount(v) -> float | None:
+    v = (v or "").replace(",", "").strip()
+    try:
+        return float(v) / 1e8
+    except ValueError:
+        return None
+
+
+def _parse_fin(rows: list[dict], months: int, period: str) -> dict[str, dict]:
+    """주요계정 행 → 종목별 값. 연결(CFS)이 있으면 연결, 없으면 별도(OFS). 영업이익이 없으면 제외."""
+    by: dict[tuple, dict] = {}
+    for r in rows:
+        code = (r.get("stock_code") or "").strip()
+        name = (r.get("account_nm") or "").replace(" ", "")
+        acc = by.setdefault((code, r.get("fs_div", "")), {})
+        cum = r.get("thstrm_add_amount") or r.get("thstrm_amount")
+        prev = r.get("frmtrm_add_amount") or r.get("frmtrm_amount")
+        if name == "영업이익":
+            acc["op"], acc["op_prev"] = _amount(cum), _amount(prev)
+        elif name.startswith("당기순이익"):
+            acc.setdefault("net", _amount(cum))
+        elif name == "자본총계":
+            acc["equity"] = _amount(r.get("thstrm_amount"))
+        elif name == "부채총계":
+            acc["liab"] = _amount(r.get("thstrm_amount"))
+    out = {}
+    for (code, fs), acc in sorted(by.items(), key=lambda kv: kv[0][1] != "CFS"):  # CFS 먼저
+        if code and code not in out and acc.get("op") is not None:
+            out[code] = {"period": period, "fs": "연결" if fs == "CFS" else "별도", "months": months,
+                         "op": acc["op"], "op_prev": acc.get("op_prev"), "net": acc.get("net"),
+                         "equity": acc.get("equity"), "liab": acc.get("liab")}
+    return out

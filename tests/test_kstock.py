@@ -72,7 +72,7 @@ def test_analyze_and_score():
     assert round(p.clv, 2) == 0.8 and round(p.upper_wick, 2) == 0.2   # 고가 근처 마감
     assert p.above_ma20 and p.ma_aligned and p.near_high and 0 < p.ext_atr < 2
     assert p.rs20 is not None and 0 < p.rs20 < 3                       # 지수보다 약간 강함
-    assert p.parts["거래량·캔들"] == 25 and p.parts["재무"] == 15
+    assert p.parts["거래량·캔들"] == 25 and p.parts["재무"] == 9   # DART 없음: 흑자 4 + ROE 12% 2 + 모름 3
     assert p.parts["추세·위치"] == 12 + 5 + 2 and "뉴스" not in p.parts  # 뉴스 없음 = 가점 없음
     assert p.score == sum(p.parts.values()) <= 100
     assert sc.score(sc.analyze(STOCK, _rows())).rs20 is None             # 지수 없으면 상대강도 미검증(0점)
@@ -81,6 +81,7 @@ def test_analyze_and_score():
 def test_score_bounds():
     p = sc.analyze(STOCK, _rows(frgn=2_000_000, orgn=2_000_000), _index())
     p.rs20, p.quality5 = 20, p.orgn5
+    p.fin = {"months": 6, "op": 120, "op_prev": 100, "net": 100, "equity": 1000, "liab": 500}
     assert sc.score(p).score == 100
     p.flags = ["악재"] * 5
     assert sc.score(p).parts["뉴스"] == -15                              # 감점 상한
@@ -409,3 +410,44 @@ def test_stock_light_and_flow_line():
     assert site.stock_light(rec, False) == "🟡"
     assert site.stock_light({**rec, "ext_atr": 4.0}, True) == "🔴"
     assert site.stock_light({**rec, "flags": ["횡령"]}, True) == "🔴"
+
+
+def test_dart_financials_parse_and_score():
+    row = lambda fs, acc, cur, prev="", add="", padd="": {"stock_code": "005930", "fs_div": fs, "account_nm": acc,
+        "thstrm_amount": cur, "frmtrm_amount": prev, "thstrm_add_amount": add, "frmtrm_add_amount": padd}
+    rows = [row("OFS", "영업이익", "1", "1", "1", "1"),
+            row("CFS", "영업이익", "50,000,000,000", "40,000,000,000", "100,000,000,000", "80,000,000,000"),
+            row("CFS", "당기순이익(손실)", "", "", "60,000,000,000"),
+            row("CFS", "자본총계", "1,000,000,000,000"), row("CFS", "부채총계", "2,500,000,000,000")]
+    fin = extras._parse_fin(rows, 6, "2026 반기")["005930"]
+    assert fin["fs"] == "연결" and fin["op"] == 1000 and fin["op_prev"] == 800 and fin["net"] == 600
+    m = sc.fin_metrics(fin)
+    assert round(m["growth"]) == 25 and round(m["roe"]) == 12 and round(m["debt"]) == 250
+    p = sc.analyze(STOCK, _rows(), _index())
+    p.fin = fin
+    assert sc.fin_score(p) == 4 + 5 + 2 + 0          # 흑자 · 성장 25% · ROE 12% · 부채 250%
+    p.fin = {**fin, "op": -10}
+    assert sc.fin_score(p) == 2                      # 적자: ROE만
+    p.fin = {**fin, "op": 10, "op_prev": -5}
+    assert sc.fin_score(p) == 4 + 5 + 2              # 흑자전환
+    p.fin = {**fin, "equity": -1}
+    assert sc.fin_score(p) == 0                      # 자본잠식
+
+
+def test_run_rescores_finance_with_dart():
+    a, b = (kis.Stock(c, n, "KOSPI", 20000, 100, 15, True, 1e11) for c, n in (("000001", "성장"), ("000002", "역성장")))
+    fake = FakeKIS({s.code: _rows() for s in (a, b)})
+    ctx = main.market_context(fake, "close", "20261009")
+    base = {"period": "2026 반기", "fs": "연결", "months": 6, "net": 100, "equity": 1000, "liab": 500}
+
+    class FakeDart:
+        def financials(self, codes):
+            return {"000001": {**base, "op": 120, "op_prev": 100}, "000002": {**base, "op": 50, "op_prev": 100}}
+
+        def recent(self, code):
+            return []
+
+    by, passed, _, _ = main.run("close", fake, [a, b], ctx, dart=FakeDart(), news=lambda n: [], today="20261009")
+    fin = {p.stock.name: p.parts["재무"] for p in passed}
+    assert fin == {"성장": 15, "역성장": 10} and by["KOSPI"][0].stock.name == "성장"
+    assert site.record(by["KOSPI"][0], 1)["fin"]["period"] == "2026 반기"

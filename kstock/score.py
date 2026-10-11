@@ -74,6 +74,7 @@ class Pick:
     parts: dict = field(default_factory=dict)
     news: list = field(default_factory=list)   # [(title, url)]
     flags: list = field(default_factory=list)  # 악재 헤드라인
+    fin: dict | None = None  # DART 정기보고서 주요계정 (extras.Dart.financials), 없으면 KIS 마스터
     opinions: list = field(default_factory=list)  # 증권사 투자의견 원본 행 (웹페이지용)
     rows: list = field(default_factory=list, repr=False)  # 일별 원본 (웹페이지 차트·표용, 최신 먼저)
 
@@ -134,6 +135,34 @@ def analyze(stock: Stock, rows: list[dict], index: dict[str, float] | None = Non
     )
 
 
+def fin_metrics(fin: dict) -> dict:
+    """DART 누적 손익 → 이익 증가율·연환산 ROE·부채비율 (계산 불가면 None)."""
+    op, prev, net, eq, liab = fin["op"], fin.get("op_prev"), fin.get("net"), fin.get("equity"), fin.get("liab")
+    return {"growth": (op - prev) / abs(prev) * 100 if prev else None,
+            "turnaround": op > 0 and prev is not None and prev <= 0,
+            "roe": net * 12 / fin["months"] / eq * 100 if net is not None and eq and eq > 0 else None,
+            "debt": liab / eq * 100 if liab is not None and eq and eq > 0 else None,
+            "impaired": eq is not None and eq <= 0}
+
+
+def fin_score(p: Pick) -> int:
+    """재무 15 = 영업이익 흑자 4 + 이익 성장(전년 동기 누적 대비) 5 + ROE(연환산) 4 + 부채비율 2.
+    DART가 없으면(금융업·조회 실패) KIS 마스터의 흑자·ROE만 보고 모르는 성장·부채는 절반(3점)."""
+    if not p.fin:
+        roe = p.stock.roe
+        return (4 if p.stock.op_profit > 0 else 0) + (4 if roe >= 15 else 2 if roe >= 8 else 0) + 3
+    m, op = fin_metrics(p.fin), p.fin["op"]
+    if m["impaired"]:
+        return 0
+    s = 4 if op > 0 else 0
+    g = m["growth"]
+    s += 5 if m["turnaround"] or (op > 0 and g is not None and g >= 20) else 3 if op > 0 and g is not None and g >= 0 else 0
+    roe = m["roe"]
+    s += 4 if roe is not None and roe >= 15 else 2 if roe is not None and roe >= 8 else 0
+    s += 2 if m["debt"] is not None and m["debt"] <= 200 else 0
+    return s
+
+
 def score(p: Pick) -> Pick:
     # ① 수급 35 (기관은 금융투자 제외)
     r5 = p.flow5 / p.avg_value
@@ -152,8 +181,8 @@ def score(p: Pick) -> Pick:
     s_trend = 4 * p.above_ma20 + 4 * p.ma_aligned + 4 * p.near_high
     s_ext = 5 if p.ext_atr <= 2 else 2 if p.ext_atr <= 3.5 else 0
     s_rs = 0 if p.rs20 is None else 8 if p.rs20 >= 10 else 5 if p.rs20 >= 3 else 2 if p.rs20 > 0 else 0
-    # ④ 재무 15 (KIS 마스터 기준 — 최소 안정성)
-    s_fin = (6 if p.stock.op_profit > 0 else 0) + (9 if p.stock.roe >= 10 else 5 if p.stock.roe >= 5 else 0)
+    # ④ 재무 15
+    s_fin = fin_score(p)
     # 뉴스: 감점 전용 (DART 중대 악재는 main에서 아예 제외)
     s_news = -min(NEWS_PENALTY_MAX, NEWS_PENALTY * len(p.flags))
 

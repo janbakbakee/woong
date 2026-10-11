@@ -106,6 +106,11 @@ def run(session: str, client, stocks: list[kis_mod.Stock], ctx: dict, dart=None,
     if pool and errors > len(pool) / 2:
         raise RuntimeError(f"KIS 조회 실패 {errors}/{len(pool)}")
 
+    if dart and passed:  # 재무는 DART 최신 정기보고서로 다시 채점 (조건 통과 종목만 — 수십 종목, 호출 몇 번)
+        fins = dart.financials([p.stock.code for p in passed])
+        for p in passed:
+            p.fin = fins.get(p.stock.code)
+            sc.score(p)
     passed.sort(key=lambda p: p.score, reverse=True)
     picks, dq = {}, 0
     for m in MARKETS:
