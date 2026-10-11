@@ -74,7 +74,7 @@
 <div>{{ tip.t("rs", "지수 대비 20일") }} <b>{% if p.rs20 is none %}미검증{% else %}{{ "%+.1f"|format(p.rs20) }}%p{% endif %}</b></div>
 <div>{{ tip.t('trend', '20일선 위' if p.above_ma20 else '20일선 아래') }} · {{ '정배열' if p.ma_aligned else '역배열' }}{{ ' · 고점 근접' if p.near_high }}</div>
 {% if p.fin %}{% set f = p.fin %}<div>{{ tip.t('fin', '재무') }} <span class="muted">DART {{ f.period }} {{ f.fs }}</span><br>
-영업이익(누적) <b>{{ f.op|num }}억</b>{% if f.growth is not none %} · 전년 동기 대비 <b class="{{ 'up' if f.growth > 0 else 'down' }}">{{ f.growth|pct }}</b>{% elif f.turnaround %} · <b class="up">흑자전환</b>{% endif %}
+영업이익(누적) <b>{{ f.op|num }}억</b>{% if f.turnaround %} · <b class="up">흑자전환</b>{% elif f.growth is not none %} · 전년 동기 대비 <b class="{{ 'up' if f.growth > 0 else 'down' }}">{{ f.growth|pct }}</b>{% endif %}
 · ROE(연환산) {% if f.roe is not none %}{{ "%.1f"|format(f.roe) }}%{% else %}-{% endif %} · 부채비율 {% if f.debt is not none %}{{ f.debt|num }}%{% else %}-{% endif %}{% if f.impaired %} <span class="tag warn">⚠️ 자본잠식</span>{% endif %}</div>
 {% else %}<div>{{ tip.t('fin', '재무') }} <span class="muted">KIS 마스터 (DART 없음)</span> 영업이익 <b>{{ '흑자' if p.op_profit > 0 else '적자' }}</b> · ROE {{ p.roe }}</div>{% endif %}
 </div></div>
