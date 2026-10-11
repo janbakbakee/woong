@@ -138,7 +138,7 @@ def analyze(stock: Stock, rows: list[dict], index: dict[str, float] | None = Non
 def fin_metrics(fin: dict) -> dict:
     """DART 누적 손익 → 이익 증가율·연환산 ROE·부채비율 (계산 불가면 None)."""
     op, prev, net, eq, liab = fin["op"], fin.get("op_prev"), fin.get("net"), fin.get("equity"), fin.get("liab")
-    return {"growth": (op - prev) / abs(prev) * 100 if prev else None,
+    return {"growth": (op - prev) / prev * 100 if prev and prev > 0 else None,  # 전년 적자면 증가율 대신 흑자전환/적자지속
             "turnaround": op > 0 and prev is not None and prev <= 0,
             "roe": net * 12 / fin["months"] / eq * 100 if net is not None and eq and eq > 0 else None,
             "debt": liab / eq * 100 if liab is not None and eq and eq > 0 else None,
