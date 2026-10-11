@@ -430,6 +430,7 @@ def test_dart_financials_parse_and_score():
     assert sc.fin_score(p) == 2                      # 적자: ROE만
     p.fin = {**fin, "op": 10, "op_prev": -5}
     assert sc.fin_score(p) == 4 + 5 + 2              # 흑자전환
+    assert sc.fin_metrics(p.fin)["growth"] is None and sc.fin_metrics(p.fin)["turnaround"]
     p.fin = {**fin, "equity": -1}
     assert sc.fin_score(p) == 0                      # 자본잠식
 
