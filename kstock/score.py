@@ -75,6 +75,7 @@ class Pick:
     news: list = field(default_factory=list)   # [(title, url)]
     flags: list = field(default_factory=list)  # 악재 헤드라인
     fin: dict | None = None  # DART 정기보고서 주요계정 (extras.Dart.financials), 없으면 KIS 마스터
+    profile: dict = field(default_factory=dict)  # 회사 정보 (업종·사업의 개요, 웹페이지용)
     opinions: list = field(default_factory=list)  # 증권사 투자의견 원본 행 (웹페이지용)
     rows: list = field(default_factory=list, repr=False)  # 일별 원본 (웹페이지 차트·표용, 최신 먼저)
 

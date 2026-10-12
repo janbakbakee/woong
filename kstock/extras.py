@@ -1,9 +1,11 @@
 """뉴스(Google News RSS, 키 불필요)와 DART 공시 악재 체크 (DART_API_KEY 있을 때만)."""
 from __future__ import annotations
 
+import html
 import io
 import logging
 import os
+import re
 import xml.etree.ElementTree as ET
 import zipfile
 from datetime import date, timedelta
@@ -116,6 +118,61 @@ class Dart:
                         out[left.pop(corp)] = fin
         log.info("DART 재무: %d/%d종목", len(out), len(codes))
         return out
+
+
+def company(dart: "Dart", stock_code: str) -> dict:
+    """DART 기업개황 + 최신 정기보고서의 '사업의 개요' 앞부분. 실패한 항목은 비운다."""
+    corp = dart.corp.get(stock_code)
+    if not corp:
+        return {}
+    out: dict = {}
+    try:
+        b = requests.get("https://opendart.fss.or.kr/api/company.json", timeout=TIMEOUT,
+                         params={"crtfc_key": dart.key, "corp_code": corp}).json()
+        if b.get("status") == "000":
+            out.update(ceo=b.get("ceo_nm", ""), est=b.get("est_dt", ""), homepage=b.get("hm_url", ""),
+                       acc_mt=b.get("acc_mt", ""))
+    except Exception as e:
+        log.warning("DART 기업개황 실패 %s: %s", stock_code, e)
+    try:
+        today = date.today()
+        b = requests.get("https://opendart.fss.or.kr/api/list.json", timeout=TIMEOUT, params={
+            "crtfc_key": dart.key, "corp_code": corp, "pblntf_ty": "A", "page_count": 20,
+            "bgn_de": (today - timedelta(days=400)).strftime("%Y%m%d"), "end_de": today.strftime("%Y%m%d")}).json()
+        rep = next((r for r in b.get("list", []) if any(k in r.get("report_nm", "") for k in ("사업보고서", "반기보고서", "분기보고서"))
+                    and "기재정정" not in r.get("report_nm", "")), None) or next(iter(b.get("list", [])), None)
+        if rep:
+            out.update(report=rep["report_nm"].strip(), rcept_no=rep["rcept_no"])
+            out["summary"] = business_overview(dart.key, rep["rcept_no"])
+    except Exception as e:
+        log.warning("DART 사업의 개요 실패 %s: %s", stock_code, e)
+    return out
+
+
+def business_overview(key: str, rcept_no: str, limit: int = 600) -> str:
+    """정기보고서 원문(XML)에서 'II. 사업의 내용 > 1. 사업의 개요' 본문 앞부분."""
+    resp = requests.get("https://opendart.fss.or.kr/api/document.xml", timeout=60,
+                        params={"crtfc_key": key, "rcept_no": rcept_no})
+    resp.raise_for_status()
+    with zipfile.ZipFile(io.BytesIO(resp.content)) as z:
+        name = min(z.namelist(), key=len)  # 본문은 접수번호.xml (첨부는 접수번호_00760.xml 형태)
+        raw = z.read(name)
+    text = raw.decode("utf-8", errors="ignore")
+    return overview_from_xml(text, limit)
+
+
+def overview_from_xml(text: str, limit: int = 600) -> str:
+    m = re.search(r"<TITLE[^>]*>\s*(?:\d+\.\s*)?사업의\s*개요\s*</TITLE>(.*?)(?=<TITLE|$)", text, re.S)
+    if not m:
+        return ""
+    body = re.sub(r"<TABLE.*?</TABLE>", " ", m.group(1), flags=re.S)  # 표는 빼고 문단만
+    body = html.unescape(re.sub(r"<[^>]+>", " ", body))
+    body = re.sub(r"\s+", " ", body).strip()
+    if len(body) <= limit:
+        return body
+    cut = body[:limit]
+    end = max(cut.rfind(". "), cut.rfind("다. "))
+    return (cut[:end + 1] if end > limit // 2 else cut).strip() + " …"
 
 
 def _amount(v) -> float | None:

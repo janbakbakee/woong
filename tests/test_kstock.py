@@ -452,3 +452,21 @@ def test_run_rescores_finance_with_dart():
     fin = {p.stock.name: p.parts["재무"] for p in passed}
     assert fin == {"성장": 15, "역성장": 10} and by["KOSPI"][0].stock.name == "성장"
     assert site.record(by["KOSPI"][0], 1)["fin"]["period"] == "2026 반기"
+
+
+def test_business_overview_and_profiles():
+    xml = ('<TITLE ATOC="Y">II. 사업의 내용</TITLE><TITLE ATOC="Y">1. 사업의 개요</TITLE>'
+           '<P>당사는 반도체 &amp; 패키징을 합니다.</P><TABLE><TR><TD>표</TD></TR></TABLE><P>주요 제품은 WLP입니다.</P>'
+           '<TITLE ATOC="Y">2. 주요 제품 및 서비스</TITLE><P>무관</P>')
+    assert extras.overview_from_xml(xml) == "당사는 반도체 & 패키징을 합니다. 주요 제품은 WLP입니다."
+    assert extras.overview_from_xml("<P>없음</P>") == ""
+    long = extras.overview_from_xml('<TITLE>사업의 개요</TITLE><P>' + "가나다라마바사입니다. " * 80 + '</P>', limit=100)
+    assert long.endswith("…") and len(long) <= 103
+
+    class Client:
+        def stock_info(self, code):
+            return {"std_idst_clsf_cd_name": "반도체 제조업 ", "idx_bztp_scls_cd_name": "", "idx_bztp_mcls_cd_name": "전기·전자"}
+    p = sc.analyze(STOCK, _rows(), _index())
+    main.attach_profiles(Client(), None, {"KOSPI": [p]})
+    assert p.profile == {"sector": "반도체 제조업", "krx": "전기·전자"}
+    assert site.record(p, 1)["profile"]["krx"] == "전기·전자"
