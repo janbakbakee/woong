@@ -21,6 +21,10 @@
   details{background:#fff;border:1px solid #e3e5e8;border-radius:10px;margin:8px 0}
   summary{padding:10px 12px;cursor:pointer;list-style:none}
   summary::-webkit-details-marker{display:none}
+  summary{position:relative;padding-bottom:22px}
+  summary::after{content:"▼ 펼치기";position:absolute;left:12px;bottom:4px;font-size:12px;color:#8a8f98}
+  details[open]>summary::after{content:"▲ 접기"}
+  .fold{display:block;width:100%;margin:10px 0 2px;padding:10px;border:1px solid #e3e5e8;border-radius:8px;background:#f6f7f9;color:#555;font-size:14px;cursor:pointer}
   .card{padding:0 12px 12px}
   .score{font-weight:700;font-size:18px;float:right}
   .bar{height:8px;background:#eef0f2;border-radius:4px;overflow:hidden;margin:2px 0 6px}
@@ -84,7 +88,7 @@
 </table></div>
 
 
-<details id="096770" open>
+<details id="096770">
 <summary><span class="score">73</span><b>🟡 1) SK이노베이션</b> <span class="muted">096770 · 시총 269,808억</span><br>
 <span class="up">161,500원 (+1.2%)</span>
 <span class="tag">🆕 신규</span>
@@ -169,9 +173,10 @@
 </table></div>
 
 <div class="box"><b>뉴스</b><div>📰 <a href="https://news.google.com/rss/articles/CBMia0FVX3lxTFBxVmd6aWU2Q2Q2V29iMWtuV3Z3Q2o1Uk5iY29LdHRNMjFaUk00dmVQWE1ZeE5hVTBRLVBMWUtFaVpNZ0YzSk9RT0JQZ2VBZDAxbDhfNm5Qbmk2YVI4OGFGSklhTzhxQ2RncVow?oc=5">SK이노베이션 짓누르는 70조 부채∙∙∙자회사 빚까지 떠안아 - 한국신용신문</a></div><div>📰 <a href="https://news.google.com/rss/articles/CBMic0FVX3lxTFBRZExKSnl0S1ZJSldRbXR6ZGlOSTRGMTlha2I2bXowbmdOSUUtOG9mbVhFaVdvRVdpNjhuUFJEcVliVzAza1NCTXlGQUtybEI0MUpONnpUUmI0Rko2NWdXMWFTZ1k1eC1YcldLeXR3T2F0NGfSAXdBVV95cUxOT0E2eVpBRnR4Z2J6cUt4Mnk3ZTVuYjE2ZFprdzFER1VHZzhRUGRqS1IyM3pEOXZBMUphczh1bnE4bUR3SldBNUFaX0NiVzdLcGdGdmg5UjB0UlJsUzdZcjJaQ0RFNFZVNDlyUWFoOV9Jc3JVUzR6OA?oc=5">SK이노베이션, 연 130만톤 LNG 장기 물량 확보…현물 조달 부담 낮춘다 - 핀포인트뉴스</a></div><div>📰 <a href="https://news.google.com/rss/articles/CBMic0FVX3lxTE02THBMT29ybTdHT2tKdGdjbF9Nc2NKbGlBdkRrMFl0QzMtTG5TSWwyUnJWbFdzMVJJeU9uTjhnREpxaTR2QldSZGhzQkVDdjdCU05Db2dNaTBKUkNnaDVfMVZMR255OUNWU2tFckpMRkNKVXPSAXdBVV95cUxNSU1yaG1EQ1p5UzNZZEhna3RNOHJXRHJ3UUdFd1BVaFk3T2RhaUJQdnYtQXEyYUxQUFRkMGlyMHFyVm5mbjZIR09vU2RYaDVROUJCaGpyQ2FJcVpaVDdPVWgtLXhDZVE3T3YydHNtMzVJb2tUbTYtZw?oc=5">[주간 거래소 기관] SK스퀘어 삼성SDI SK이노베이션 LG에너지솔루션 LG이노텍 쓸어 담았다 - 핀포인트뉴스</a></div></div>
+<button type="button" class="fold" onclick="var d=this.closest('details');d.open=false;d.scrollIntoView({block:'nearest'})">▲ 접기</button>
 </div></details>
 
-<details id="028670" >
+<details id="028670">
 <summary><span class="score">70</span><b>🟡 2) 팬오션</b> <span class="muted">028670 · 시총 33,196억</span><br>
 <span class="down">6,090원 (-1.9%)</span>
 <span class="tag">🆕 신규</span>
@@ -256,9 +261,10 @@
 </table></div>
 
 <div class="box"><b>뉴스</b><div>📰 <a href="https://news.google.com/rss/articles/CBMic0FVX3lxTE1RTEFZYzlMVWkzWTRadmxlNnFjNUt2dF96alN6NUpSWUg5allYQWhjeE9vaXlaNVlwLXh3ZnhINHNpT24tbml5TG9VTW1yeVpYejRtT29ZYmdQTE0talpwV0F5YWZTLUNRbDlTc3JZandjX3c?oc=5">원유 물동량 회복에도 운송 병목, 팬오션·HMM &#39;탱커 호황&#39; 수혜주로 부각 - 비즈니스포스트</a></div><div>📰 <a href="https://news.google.com/rss/articles/CBMiakFVX3lxTE1CclgyQjFrdHhwMFhUVlZ6bEd6NUNQRmVVRkF3dXFyWC1WU1dxMEozRUJGWVFlZjlycnV5SkZuejc2U0lKX0lWXzN1dEtYV19SM2tpYnM4d0E4YjRDWWtvLWZrbUVydzk3SVHSAWpBVV95cUxNQnJYMkIxa3R4cDBYVFZWemxHejVDUEZlVUZBd3VxclgtVlNXcTBKM0VCRllRZWY5cnJ1eUpGbno3NlNJSl9JVl8zdXRLWFdfUjNraWJzOHdBOGI0Q1lrby1ma21Fcnc5N0lR?oc=5">팬오션, 3분기 영업이익 52% 증가 전망... VLCC 효과 - 센트럴경제</a></div><div>📰 <a href="https://news.google.com/rss/articles/CBMic0FVX3lxTFBLNVM3T21zZm5tLU5oU2dmSmFpRU9ibk1uZUYtZ0FZMUxOMWFaZ29xVTBrU3l3eDRtOFFCWFFKQW9xX2ZfTTktc0xrM1RhXzlGelZOc3NzMEthVjItc2s3NFAzQmJRemM4T3c0dUowQmtXMzTSAXdBVV95cUxQY1lrOUMzYlFsb3lBQ0hycWRvUUV1MVpUUVM5cTNRMkRSODNrNHJRZmVKTngzN2l3UTc4N3ZqS19wNlpfODV0UEVvaXVFdzdQLWxVUy1pWW9MYnFJTmRkN0doQmI1cHNwTmd1QUlyLVgtblVfWVJJdw?oc=5">팬오션, BDI 상승에 벌크선 웃고 VLCC가 탱커 수익 견인 - 핀포인트뉴스</a></div></div>
+<button type="button" class="fold" onclick="var d=this.closest('details');d.open=false;d.scrollIntoView({block:'nearest'})">▲ 접기</button>
 </div></details>
 
-<details id="322000" >
+<details id="322000">
 <summary><span class="score">69</span><b>🟡 3) HD현대에너지솔루션</b> <span class="muted">322000 · 시총 16,296억</span><br>
 <span class="up">146,500원 (+0.7%)</span>
 <span class="tag">🆕 신규</span>
@@ -340,9 +346,10 @@
 </table></div>
 
 <div class="box"><b>뉴스</b><div>📰 <a href="https://news.google.com/rss/articles/CBMibkFVX3lxTE1HRmpWanhIemw4TUFiU0hGbjhHSnVUODNheUp6THF6OXlkT1Q5QzduTGhISXBwaExXNW1wTGR4Y0hKUkRxTTFjZXR1X0NXTk5rcHQxQW1zMmxVTnpJMFNjUHI5WWtQM2gxeS1WUGlB0gFuQVVfeXFMTUdGalZqeEh6bDhNQWJTSEZuOEdKdVQ4M2F5SnpMcXo5eWRPVDlDN25MaEhJcHBoTFc1bXBMZHhjSEpSRHFNMWNldHVfQ1dOTmtwdDFBbXMybFVOekkwU2NQcjlZa1AzaDF5LVZQaUE?oc=5">[시선강탈] LG이노텍 vs 덕산하이메탈 vs HD현대에너지솔루션, 공략법은? - 머니투데이 - 머니투데이</a></div></div>
+<button type="button" class="fold" onclick="var d=this.closest('details');d.open=false;d.scrollIntoView({block:'nearest'})">▲ 접기</button>
 </div></details>
 
-<details id="009150" >
+<details id="009150">
 <summary><span class="score">67</span><b>🟡 4) 삼성전기</b> <span class="muted">009150 · 시총 1,198,086억</span><br>
 <span class="down">1,559,000원 (-2.8%)</span>
 <span class="tag">🆕 신규</span>
@@ -427,9 +434,10 @@
 </table></div>
 
 <div class="box"><b>뉴스</b><div>📰 <a href="https://news.google.com/rss/articles/CBMic0FVX3lxTFBPTmtLcnlPZENaSVdmb1gteDZaRFdxVWlrZHh1Z2JVRlAtU1NydW9MNXVoX0ZacjdkaVFtOEdaMDV6SW83LTZMS2YyZTJibjdEMkFEYldncDZYQ1dWNW5VT2xHVVA4TWY0ZmxEcUtmVk5uNUHSAXdBVV95cUxOTkxFNUVVWXFrR3lBeEFrNWJXMUJXY1c5UXBMQVM0SzNaS3JHYjNmM0YwVWRYSXJQR09QSjZuQ2dCc2ItblJVYXVpNHNpV1VvQ0FUM09OOVlwNXplUmJiVWxUa3R3NUNCYnY2dGJSOFgwYmFpUUNmSQ?oc=5">삼성전기, CSP부터 GPU·ASIC까지…AI 인프라 수주 넓힌다 - 핀포인트뉴스</a></div><div>📰 <a href="https://news.google.com/rss/articles/CBMiaEFVX3lxTE9xeE5YWW1JQldDaWoxWmdFdEdZTWtMckJnOFo2TGE3d1F6TEZ4U2J5VVotT2dnR1lvLW1HOWFLMEtFdXhRU3NYblQwMWhZeUIyMGJvTE9JbkJoaTYzMWhQVnJPTC11bURl?oc=5">삼성전기, AI 서버용 반도체 기판에 6조7800억원 투자…세종·베트남 생산능력 확대 - CBC뉴스</a></div><div>📰 <a href="https://news.google.com/rss/articles/CBMickFVX3lxTFBhbFRwc3VyWnB1V1U5Vzh3ZURPazRNSkZmS0I3ZTdoZGd1Ry1tSGNONzcwM0Z2Mkl4c3NOcWQ2UUl4LWJnYk9kTjNkdkxZNmZwaExwSE5mZFdOWFV5RnRlTjRaSFR3Q05ubTVZNmtYOEthZw?oc=5">10월 2주차 삼성전기 주가, 상승분 반납하며 마감 - 톱스타뉴스</a></div></div>
+<button type="button" class="fold" onclick="var d=this.closest('details');d.open=false;d.scrollIntoView({block:'nearest'})">▲ 접기</button>
 </div></details>
 
-<details id="010950" >
+<details id="010950">
 <summary><span class="score">65</span><b>🟡 5) S-Oil</b> <span class="muted">010950 · 시총 192,066억</span><br>
 <span class="down">169,000원 (-0.9%)</span>
 <span class="tag">🆕 신규</span>
@@ -514,6 +522,7 @@
 </table></div>
 
 
+<button type="button" class="fold" onclick="var d=this.closest('details');d.open=false;d.scrollIntoView({block:'nearest'})">▲ 접기</button>
 </div></details>
 
 
@@ -550,7 +559,7 @@
 </table></div>
 
 
-<details id="033640" open>
+<details id="033640">
 <summary><span class="score">89</span><b>🟡 1) 네패스</b> <span class="muted">033640 · 시총 7,182억</span><br>
 <span class="up">33,100원 (+6.3%)</span>
 <span class="tag">🆕 신규</span>
@@ -635,9 +644,10 @@
 </table></div>
 
 <div class="box"><b>뉴스</b><div>📰 <a href="https://news.google.com/rss/articles/CBMigwFBVV95cUxQbUd2TTd4VlpsZndzOVEyb0J3ZlNPbkVaOWJzZlVPZmVwQTI5NXh0RUxwdFZ3ZDFPdTZtcm1MTXBjcVIyOGwyZC1mQnVCVUMxMnY4b05mbExiaWJMMGJTMlVjWDY5QnM2VkRYLWNva2ZIT0hzU1FZSVhGZF83OGpBMDY3WQ?oc=5">네패스 : 범핑 + 전자재료 + 2차전지, 그리고 네패스아크를 거느린 사업형 지주사. - 네이버 프리미엄콘텐츠</a></div><div>📰 <a href="https://news.google.com/rss/articles/CBMigwFBVV95cUxOTVlaZVhmVjRzeWVwYzRXS29TQXZlWGxMMGt4bjZNbUtsYmJlQTdrVUZ4NC1MLUtCVmJjUDh0R2VONHJueEZHY0s0U2NVX2dDMlQxUE1VV3A5MEF6STRVajV6djgzMHFMTGVMLXFzYjRIaW9PSGE0cTQtc0ZRcjU1Z2dJUQ?oc=5">네패스아크 : 비메모리 웨이퍼 테스트업체, 모회사 네패스와 같이 보자. - 네이버 프리미엄콘텐츠</a></div></div>
+<button type="button" class="fold" onclick="var d=this.closest('details');d.open=false;d.scrollIntoView({block:'nearest'})">▲ 접기</button>
 </div></details>
 
-<details id="166090" >
+<details id="166090">
 <summary><span class="score">79</span><b>🟡 2) 하나머티리얼즈</b> <span class="muted">166090 · 시총 12,183억</span><br>
 <span class="up">64,300원 (+4.4%)</span>
 <span class="tag">🆕 신규</span>
@@ -722,9 +732,10 @@
 </table></div>
 
 <div class="box"><b>뉴스</b><div>📰 <a href="https://news.google.com/rss/articles/CBMic0FVX3lxTFBjblJvd1RiZHprdVc1QjhXak9FUHhYQ3pEd1hDTGxrb2dyTWhOaHNLQjZaZUNKQUJBNlNFQmFQT1BlcHNKZVJFejFoRHB0cXIxaTZNOEc2dHlJaHpQYTBHTG1IOVpUb1J1S0RIenNfQTBNQnM?oc=5">하나머티리얼즈 투자분석 2026. 09. 26 - 주달</a></div></div>
+<button type="button" class="fold" onclick="var d=this.closest('details');d.open=false;d.scrollIntoView({block:'nearest'})">▲ 접기</button>
 </div></details>
 
-<details id="356860" >
+<details id="356860">
 <summary><span class="score">79</span><b>🔴 3) 티엘비</b> <span class="muted">356860 · 시총 11,921억</span><br>
 <span class="up">52,900원 (+5.2%)</span>
 <span class="tag">🆕 신규</span>
@@ -809,9 +820,10 @@
 </table></div>
 
 <div class="box"><b>뉴스</b><div>📰 <a href="https://news.google.com/rss/articles/CBMic0FVX3lxTE4yVkdWMEpYYmdCUGpWWmJOcTNZampfLS11cl82WFVLLTVFdHdKdnVmbGRaVWFjSjlGOFQyeWxZTmpTbWczUFRGUHNGUWNoLTRNeEJ0bUU4RFMxc1NzWUVNYlZZaEJSdmpCSDFIa29hOE5oQVHSAXdBVV95cUxNRkpPNnRaZkRKZnVjbzdZN0NlZmNaeG81UDRjVDBFc3F6RHV5cDZ5M2xLMXR2S3BoeTFJOWt0SXJjMlI2UUMtY01McTZNZEw4Nm1ZOERXWkV5VGVEZWZNY0ZsdXpjZElsa25oV0c2Z0lzQ1h3V01ncw?oc=5">티엘비, 3분기 영업이익 93% 급증 전망…서버용 메모리 수혜 - 핀포인트뉴스</a></div><div>📰 <a href="https://news.google.com/rss/articles/CBMic0FVX3lxTE5tR0drUFMxbzRhNUtiUUVlLVRyUVFzQWh0NGJIRHdhVUtzRkp0Zkl6N3BITmd4TzlTcU43RndrcHZRcEdLTTZscGtSQVFlaFVSSm9iS0NvRVFkRjd3Q1RGMlFQOWpEZWI5cU5EMXdLMUlfdVnSAXdBVV95cUxNaENsUjNTOWdKNzE2OTNjM3N5NGRyQWhQakpTdjZQcGg2bFB4aDZDdUtTVVRUQ2xrOVpXTnNHc0w0RUZkNjYyUUdCNzZGenkwNWoxRDA4NXk4a2dYcDhuUmxyZGFGVjU0NEs4SWxRM1VkS2hQaVo5WQ?oc=5">티엘비, 고부가 메모리 모듈 확대…환율 부담에도 이익 성장 - 핀포인트뉴스</a></div></div>
+<button type="button" class="fold" onclick="var d=this.closest('details');d.open=false;d.scrollIntoView({block:'nearest'})">▲ 접기</button>
 </div></details>
 
-<details id="144960" >
+<details id="144960">
 <summary><span class="score">77</span><b>🟡 4) 뉴파워프라즈마</b> <span class="muted">144960 · 시총 5,763억</span><br>
 <span class="up">14,000원 (+6.1%)</span>
 <span class="tag">🆕 신규</span>
@@ -896,9 +908,10 @@
 </table></div>
 
 <div class="box"><b>뉴스</b><div>📰 <a href="https://news.google.com/rss/articles/CBMiXEFVX3lxTFAwMWFOYm9XYWhsY3FaUTk1VnhsTl9fNkRiWHRuN0hlZy1nRlpPLTl0VmtFSDR2djExMXZGeElnX205NVIwMkIzTGprVjV3WnNMelBNeEtrN0NLMENz?oc=5">뉴파워프라즈마(144960)밀릴때마다 물량 모아둘 기회로 보이며 이후 전망 및 대응전략. - ThinkPool</a></div><div>📰 <a href="https://news.google.com/rss/articles/CBMic0FVX3lxTE9tMWxHLWlXRFljM2JxME9EVTMxMjg4NlVpdVc2TzJCTUhzUXpPM1k5Z3lkbFhuRk5NVTRhVVJsZS1JUHJNX1BpSHJCbDhMS2JNRzhIU0NzME50c0xQZ3JFOE80MmExQlQxQ3hYYkIyc3dDWDg?oc=5">뉴파워프라즈마 투자분석 2026. 10. 09 - 주달</a></div></div>
+<button type="button" class="fold" onclick="var d=this.closest('details');d.open=false;d.scrollIntoView({block:'nearest'})">▲ 접기</button>
 </div></details>
 
-<details id="340450" >
+<details id="340450">
 <summary><span class="score">74</span><b>🟡 5) 지씨지놈</b> <span class="muted">340450 · 시총 2,398억</span><br>
 <span class="down">9,920원 (-2.2%)</span>
 <span class="tag">🆕 신규</span>
@@ -980,10 +993,11 @@
 </table></div>
 
 
+<button type="button" class="fold" onclick="var d=this.closest('details');d.open=false;d.scrollIntoView({block:'nearest'})">▲ 접기</button>
 </div></details>
 
 
-<p class="muted">생성 2026-10-12 09:09 · 최근 2거래일 보관 · 데이터: 한국투자증권 Open API, Google News, DART</p>
+<p class="muted">생성 2026-10-12 09:25 · 최근 2거래일 보관 · 데이터: 한국투자증권 Open API, Google News, DART</p>
 
 <div popover id="tip-parts" class="tip">
 <button class="x" popovertarget="tip-parts" popovertargetaction="hide">닫기</button><b>점수 구성 (100점)</b>
@@ -1116,4 +1130,9 @@
 
 <div class="more"><a href="guide.html#marks">자세히 →</a></div></div>
 
-</main></body></html>
+</main>
+<script>/* 표의 종목 이름을 누르면 해당 카드를 펼친다 (카드는 기본 접힘) */
+function openCard(id){var d=document.getElementById(id);if(d&&d.tagName==='DETAILS')d.open=true}
+document.addEventListener('click',function(e){var a=e.target.closest('a[href^="#"]');if(a)openCard(a.getAttribute('href').slice(1))});
+if(location.hash)openCard(location.hash.slice(1));</script>
+</body></html>

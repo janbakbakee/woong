@@ -21,6 +21,10 @@
   details{background:#fff;border:1px solid #e3e5e8;border-radius:10px;margin:8px 0}
   summary{padding:10px 12px;cursor:pointer;list-style:none}
   summary::-webkit-details-marker{display:none}
+  summary{position:relative;padding-bottom:22px}
+  summary::after{content:"▼ 펼치기";position:absolute;left:12px;bottom:4px;font-size:12px;color:#8a8f98}
+  details[open]>summary::after{content:"▲ 접기"}
+  .fold{display:block;width:100%;margin:10px 0 2px;padding:10px;border:1px solid #e3e5e8;border-radius:8px;background:#f6f7f9;color:#555;font-size:14px;cursor:pointer}
   .card{padding:0 12px 12px}
   .score{font-weight:700;font-size:18px;float:right}
   .bar{height:8px;background:#eef0f2;border-radius:4px;overflow:hidden;margin:2px 0 6px}

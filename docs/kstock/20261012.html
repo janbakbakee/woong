@@ -21,6 +21,10 @@
   details{background:#fff;border:1px solid #e3e5e8;border-radius:10px;margin:8px 0}
   summary{padding:10px 12px;cursor:pointer;list-style:none}
   summary::-webkit-details-marker{display:none}
+  summary{position:relative;padding-bottom:22px}
+  summary::after{content:"▼ 펼치기";position:absolute;left:12px;bottom:4px;font-size:12px;color:#8a8f98}
+  details[open]>summary::after{content:"▲ 접기"}
+  .fold{display:block;width:100%;margin:10px 0 2px;padding:10px;border:1px solid #e3e5e8;border-radius:8px;background:#f6f7f9;color:#555;font-size:14px;cursor:pointer}
   .card{padding:0 12px 12px}
   .score{font-weight:700;font-size:18px;float:right}
   .bar{height:8px;background:#eef0f2;border-radius:4px;overflow:hidden;margin:2px 0 6px}
@@ -84,7 +88,7 @@
 </table></div>
 
 
-<details id="028670" open>
+<details id="028670">
 <summary><span class="score">81</span><b>🟡 1) 팬오션</b> <span class="muted">028670 · 시총 32,234억</span><br>
 <span class="up">6,550원 (+8.6%)</span>
 <span class="tag">🔁 2일 중 2일 · 첫 등장 10/08(목) 대비 +7.6%</span>
@@ -169,9 +173,10 @@
 </table></div>
 
 <div class="box"><b>뉴스</b><div>📰 <a href="https://news.google.com/rss/articles/CBMiWkFVX3lxTFByTktiY3ZvV0MxT3hUMTJlZ2stbkFGQkZBNlVwQThvakNKMDNLQUlqelBrUEpiLWVPMml3cEZ5eUFNMjA2OWxxY1gwdVRVa2ttMEFCR0QyYTRzdw?oc=5">VLCC 호황에 돛 늘린 팬오션⋯ ‘장기·스팟 비중 조절’ 방정식 - 브릿지경제</a></div><div>📰 <a href="https://news.google.com/rss/articles/CBMiUkFVX3lxTFBYX1J4cG15NnE1U0w4YWxBRjNXMHQtTFVmNktnWVo3LXphaE1HWHJQbGZtZkNDMHktNkhqc2dGUXlhWFFDYnRJVUZwS2I4WEVmSGc?oc=5">특징주, 팬오션-해운 테마 상승세에 5.8% ↑ - 매일경제 마켓</a></div><div>📰 <a href="https://news.google.com/rss/articles/CBMicEFVX3lxTE1KY3FFUi1LRU1SdTU5VXBVdTFRdTIwRjd6VjFpc2xOcVR5RW9kVVpJNG9FYUtpREFTUmFpYS1tRzJpY192ajduOGR0b3BwRGdHOXFSOHB5NWR4NHRlSnBySmJyVE9wOWtpLVptZ3VaMnXSAXBBVV95cUxNSmNxRVItS0VNUnU1OVVwVXUxUXUyMEY3elYxaXNsTnFUeUVvZFVaSTRvRWFLaURBU1JhaWEtbUcyaWNfdmo3bjhkdG9wcERnRzlxUjhweTVkeDR0ZUpwckpiclRPcDlraS1abWd1WjJ1?oc=5">[특징주]팬오션, 중동 긴장에 탱커 운임 기대 커지며 7.46% 올라…3분기 실적 호조 전망 - 남도일보</a></div></div>
+<button type="button" class="fold" onclick="var d=this.closest('details');d.open=false;d.scrollIntoView({block:'nearest'})">▲ 접기</button>
 </div></details>
 
-<details id="011200" >
+<details id="011200">
 <summary><span class="score">79</span><b>🟡 2) HMM</b> <span class="muted">011200 · 시총 196,193억</span><br>
 <span class="up">21,900원 (+5.3%)</span>
 <span class="tag">🆕 신규</span>
@@ -256,9 +261,10 @@
 </table></div>
 
 <div class="box"><b>뉴스</b><div>📰 <a href="https://news.google.com/rss/articles/CBMickFVX3lxTE1DaWhVWU9rNi15Nm1JbWxXWGJDMl92UE83blJueU4tY0Z6WXU5RXBOZjhCNTRjTkQ3TC1oQldPcHBDb3Bkb1dxZU1MTE1Eak9pb3dPZlVMVHI4TW9XTmI4NG1tb1FsZ01vVFpNSDYyNlF4Zw?oc=5">HMM 주가, 10월 12일 애프터마켓 21,800원 4.81% 상승 - 톱스타뉴스</a></div><div>📰 <a href="https://news.google.com/rss/articles/CBMiXEFVX3lxTFBRZ29LbU9KOU4tVnJNNzI3ck5TQkRES1BMMlV1QkR5SElVbDg1bVFYd2hweXRZLVZtQ2pLTDFDRlVLM1luMG9TWkVkTDkxZWtVTi04dGZOcmo0aXVV?oc=5">[장중수급포착] HMM, 외국인/기관 동시 순매수… 주가 +5.29% - 뉴스핌</a></div><div>📰 <a href="https://news.google.com/rss/articles/CBMibEFVX3lxTE9DTEFRVm1KRDNiYWdEYzdwdW1NM1ZxVkVub1V5NmJJVkxwVGkzYTdvOXlEelUweTlVellsb1dxdW8ydzdicXNXVjNoblNNZWR2N2lxTjZWUm5qclNYTHdTTzFhdlpXNUJEeTBKVtIBcEFVX3lxTE1SUUxiNlliUTk0WXQzanU0N1BnbWN2S08zOWZuOW5Jb09IdHV5TFp5RlIycXNpelFva0RObEl3VERDOS1WUTJEUHpWMDFCNjk4aXVFNzBzcDh3UVg1OVVDYlRVbzNjMklkQ3loUk1SNGc?oc=5">[특징주]HMM, 코스피 3%대 하락 속 외국인 순매수에 5.04% 올라 마감 - 남도일보</a></div></div>
+<button type="button" class="fold" onclick="var d=this.closest('details');d.open=false;d.scrollIntoView({block:'nearest'})">▲ 접기</button>
 </div></details>
 
-<details id="096770" >
+<details id="096770">
 <summary><span class="score">69</span><b>🟡 3) SK이노베이션</b> <span class="muted">096770 · 시총 272,005억</span><br>
 <span class="down">152,400원 (-5.3%)</span>
 <span class="tag">🔁 2일 중 2일 · 첫 등장 10/08(목) 대비 -5.6%</span>
@@ -343,9 +349,10 @@
 </table></div>
 
 <div class="box"><b>뉴스</b><div>📰 <a href="https://news.google.com/rss/articles/CBMiXEFVX3lxTE03X3ZzSzRId3piUWNyN1JlQU5pTEFGRV9DWGVaSXZORVV3RXA4X1pFYmMwbFpzNVVWVmh2bEtpVGJ0SXJkd3ZTakQ0OWltRkpuM0hLdW5rX2ZSSHdl?oc=5">[리포트 브리핑]SK이노베이션, &#39;하반기 기점으로 재평가돼야 하는 E&amp;S 이익 체력과 이를 가능케 하는 근거들&#39; 목표가 250,000원 - iM증권 - 뉴스핌</a></div><div>📰 <a href="https://news.google.com/rss/articles/CBMic0FVX3lxTE9nckVvVGZ0cjFNeDZ5TzBxZGNybWhDN1F6SVVwVjFRd185ZUNsNEFQaGhNS0F0cVdwLUV4QlVEczNxNFJMQnFvSnRZUGU2dy1EbHhfR3RzSWxZcWlTZGtsZEIxdGJJOWFXbkxBRm16TENLQ0U?oc=5">하나증권 &#34;정제마진 소폭 하락에도 유가 고공행진…SK이노베이션·S-Oil 주목을&#34; - 핀포인트뉴스</a></div><div>📰 <a href="https://news.google.com/rss/articles/CBMic0FVX3lxTE0zQndBUGppY3gxWmFUXzBwWU1hRDJMclRWdnN0QmdsVlYwc1lrUmcwR1dma0NMME9pX28wNVVRQ0ZpRlpWMHlna05VMF9ub2FnUDBQcjZPbnNmdFRFREI0Y001NVdkX2pDNy1uUFZNcWgwZzA?oc=5">하나증권 &#34;호르무즈 해협 유조선 피격에 원유 공급 우려 재부각, 관련주 에쓰오일 SK이노베이션&#34; - 비즈니스포스트</a></div></div>
+<button type="button" class="fold" onclick="var d=this.closest('details');d.open=false;d.scrollIntoView({block:'nearest'})">▲ 접기</button>
 </div></details>
 
-<details id="006400" >
+<details id="006400">
 <summary><span class="score">68</span><b>🟡 4) 삼성SDI</b> <span class="muted">006400 · 시총 458,531억</span><br>
 <span class="down">553,000원 (-2.8%)</span>
 <span class="tag">🆕 신규</span>
@@ -430,9 +437,10 @@
 </table></div>
 
 <div class="box"><b>뉴스</b><div>📰 <a href="https://news.google.com/rss/articles/CBMic0FVX3lxTE5GYUt2RTM0Vmlqd2N1SHpIM2E3UkhGZzJrdlBQTlNjNFE1S3pXVXpTNzBpd21aeDBYb2Q4YkE2aDBQSXp4dDg0ZXFSVFVOTi1Lcl8zSmVZVWNtUTFtWW5QNUlORWJNUFgxQW45NS0xOTRRWVU?oc=5">LG엔솔 &#39;병목 해소&#39; 삼성SDI &#39;미국 증산&#39;, 대형 배터리주 ESS 기대감 4분기도 이어진다 - 비즈니스포스트</a></div><div>📰 <a href="https://news.google.com/rss/articles/CBMicEFVX3lxTE1wRmxiWi1tV1V6My1zOXpoZEhJUmxNb2g4SF9wUHdrUmNaSmQtWUtvYW1RNGtEMVliSUR0Qlk3RHp5UjVUNzBPSWxZQVZWbXhsVVNYTml5ZkgwYXR0YVM2QlpGX1hXQXVYS2pYY29jbUo?oc=5">증권가, 삼성SDI 3Q 실적 호조 예상…&#34;일회성 요인 반영&#34; - 연합인포맥스</a></div><div>📰 <a href="https://news.google.com/rss/articles/CBMiTkFVX3lxTE5YdU1PUVpGQ1FyZlJ4UzZ6bWVNeWROS3FyNGQ3ZzdXWmtVOWtUSWJtUXhTcWVDbE1hSmtqUHhNV0pvVTdyR1pkSUFOZkxyQQ?oc=5">ESS 올라탄 K배터리…LG엔솔·삼성SDI 3분기 실적 기대감↑ - 전자신문</a></div></div>
+<button type="button" class="fold" onclick="var d=this.closest('details');d.open=false;d.scrollIntoView({block:'nearest'})">▲ 접기</button>
 </div></details>
 
-<details id="281820" >
+<details id="281820">
 <summary><span class="score">66</span><b>🟡 5) 케이씨텍</b> <span class="muted">281820 · 시총 24,550억</span><br>
 <span class="down">111,400원 (-10.2%)</span>
 <span class="tag">🆕 신규</span>
@@ -514,6 +522,7 @@
 </table></div>
 
 
+<button type="button" class="fold" onclick="var d=this.closest('details');d.open=false;d.scrollIntoView({block:'nearest'})">▲ 접기</button>
 </div></details>
 
 
@@ -550,7 +559,7 @@
 </table></div>
 
 
-<details id="080580" open>
+<details id="080580">
 <summary><span class="score">74</span><b>🔴 1) 오킨스전자</b> <span class="muted">080580 · 시총 5,863억</span><br>
 <span class="up">28,250원 (+1.6%)</span>
 <span class="tag">🆕 신규</span>
@@ -635,9 +644,10 @@
 </table></div>
 
 
+<button type="button" class="fold" onclick="var d=this.closest('details');d.open=false;d.scrollIntoView({block:'nearest'})">▲ 접기</button>
 </div></details>
 
-<details id="166090" >
+<details id="166090">
 <summary><span class="score">72</span><b>🔴 2) 하나머티리얼즈</b> <span class="muted">166090 · 시총 12,697억</span><br>
 <span class="down">63,800원 (-0.6%)</span>
 <span class="tag">🔁 2일 중 2일 · 첫 등장 10/08(목) 대비 -0.8%</span>
@@ -722,9 +732,10 @@
 </table></div>
 
 
+<button type="button" class="fold" onclick="var d=this.closest('details');d.open=false;d.scrollIntoView({block:'nearest'})">▲ 접기</button>
 </div></details>
 
-<details id="253590" >
+<details id="253590">
 <summary><span class="score">67</span><b>🔴 3) 네오셈</b> <span class="muted">253590 · 시총 7,084억</span><br>
 <span class="down">15,810원 (-2.1%)</span>
 <span class="tag">🆕 신규</span>
@@ -806,9 +817,10 @@
 </table></div>
 
 
+<button type="button" class="fold" onclick="var d=this.closest('details');d.open=false;d.scrollIntoView({block:'nearest'})">▲ 접기</button>
 </div></details>
 
-<details id="340450" >
+<details id="340450">
 <summary><span class="score">66</span><b>🔴 4) 지씨지놈</b> <span class="muted">340450 · 시총 2,334억</span><br>
 <span class="up">9,920원 (+0.5%)</span>
 <span class="tag">🔁 2일 중 2일 · 첫 등장 10/08(목) 대비 +0.0%</span>
@@ -890,9 +902,10 @@
 </table></div>
 
 
+<button type="button" class="fold" onclick="var d=this.closest('details');d.open=false;d.scrollIntoView({block:'nearest'})">▲ 접기</button>
 </div></details>
 
-<details id="096530" >
+<details id="096530">
 <summary><span class="score">64</span><b>🔴 5) 씨젠</b> <span class="muted">096530 · 시총 17,829억</span><br>
 <span class="down">37,150원 (-2.6%)</span>
 <span class="tag">🆕 신규</span>
@@ -977,10 +990,11 @@
 </table></div>
 
 
+<button type="button" class="fold" onclick="var d=this.closest('details');d.open=false;d.scrollIntoView({block:'nearest'})">▲ 접기</button>
 </div></details>
 
 
-<p class="muted">생성 2026-10-12 09:09 · 최근 2거래일 보관 · 데이터: 한국투자증권 Open API, Google News, DART</p>
+<p class="muted">생성 2026-10-12 09:25 · 최근 2거래일 보관 · 데이터: 한국투자증권 Open API, Google News, DART</p>
 
 <div popover id="tip-parts" class="tip">
 <button class="x" popovertarget="tip-parts" popovertargetaction="hide">닫기</button><b>점수 구성 (100점)</b>
@@ -1113,4 +1127,9 @@
 
 <div class="more"><a href="guide.html#marks">자세히 →</a></div></div>
 
-</main></body></html>
+</main>
+<script>/* 표의 종목 이름을 누르면 해당 카드를 펼친다 (카드는 기본 접힘) */
+function openCard(id){var d=document.getElementById(id);if(d&&d.tagName==='DETAILS')d.open=true}
+document.addEventListener('click',function(e){var a=e.target.closest('a[href^="#"]');if(a)openCard(a.getAttribute('href').slice(1))});
+if(location.hash)openCard(location.hash.slice(1));</script>
+</body></html>
