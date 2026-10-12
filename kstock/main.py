@@ -116,7 +116,8 @@ def run(session: str, client, stocks: list[kis_mod.Stock], ctx: dict, dart=None,
     for m in MARKETS:
         checked = []
         for p in [p for p in passed if p.stock.market == m][:SHORTLIST]:
-            if dart and any(extras.is_bad(t) for t in dart.recent(p.stock.code)):
+            p.disclosures = dart.recent(p.stock.code) if dart else []
+            if any(extras.is_bad(t) for t in p.disclosures):
                 log.info("공시 악재로 제외: %s", p.stock.name)
                 dq += 1
                 continue
@@ -196,6 +197,43 @@ def attach_profiles(client, dart, picks: dict[str, list[sc.Pick]], known: dict |
     sample = next((p for ps in picks.values() for p in ps if p.profile), None)
     if sample:
         log.info("회사 정보 예시 %s: %s", sample.stock.name, {k: str(v)[:60] for k, v in sample.profile.items()})
+
+
+GOOD_DISC = ("공급계약", "수주", "자기주식", "무상증자", "배당", "잠정실적", "실적", "특허", "신규시설투자",
+             "합병", "양수", "임상", "품목허가", "기술이전", "투자판단")
+
+
+def reasons(p: sc.Pick, passed: list[sc.Pick]) -> list[str]:
+    """수급·관심이 붙은 이유 — 이미 모은 사실(공시·실적·업종·리포트·수급 주체·거래량·뉴스)만으로, 강한 근거 먼저 최대 4개."""
+    out = []
+    good = [t for t in p.disclosures if any(k in t for k in GOOD_DISC) and not extras.is_bad(t)]
+    if good:
+        out.append("📢 공시: " + " · ".join(dict.fromkeys(t.strip() for t in good[:2])))
+    if p.fin:
+        m = sc.fin_metrics(p.fin)
+        if m["turnaround"]:
+            out.append(f"📈 실적: {p.fin['period']} 영업이익 흑자전환")
+        elif m["growth"] is not None and m["growth"] >= 20:
+            out.append(f"📈 실적: {p.fin['period']} 영업이익 전년 동기 대비 {m['growth']:+.0f}%")
+    peers = [q for q in passed if q.stock.sector and q.stock.sector == p.stock.sector and q is not p]
+    if len(peers) >= 2:
+        label = p.profile.get("krx") or "같은 업종"
+        out.append(f"🔗 업종 동반: {label} {len(peers) + 1}종목에 외인·기관 동시 매수 — 종목보다 업종 흐름")
+    op = site.opinion_summary(p.opinions, p.close)
+    if op and op["n"] >= 3 and op["upside"] >= 10:
+        out.append(f"🏦 증권사: 최근 리포트 {op['n']}건, 평균 목표가가 현재가보다 {op['upside']:+.0f}%")
+    if p.orgn5 > 0 and p.quality5 >= 0.5 * p.orgn5:
+        out.append("🏛️ 수급: 연기금·투신·사모(오래 들고 가는 돈)가 기관 매수 주도")
+    elif p.frgn5 > 2 * max(p.orgn5, 0):
+        out.append("🌏 수급: 외국인 주도 매수")
+    if p.streak >= 3:
+        out.append(f"🔁 수급: 외인·기관 {p.streak}일 연속 동반 매수")
+    if p.vol_ratio >= 2:
+        out.append(f"🔊 거래량 평소의 {p.vol_ratio:.1f}배 — 시장 관심 급증")
+    head = next((t for t, _ in p.news if t not in p.flags), None)
+    if head:
+        out.append(f"📰 뉴스: {head}")
+    return out[:4]
 
 
 def macro_line(client, today: str) -> str:
@@ -513,6 +551,8 @@ def main(argv: list[str] | None = None) -> int:
         known = {r["code"]: r["profile"] for d in reversed(site.load_days(SITE))
                  for mk in d.get("markets", {}).values() for r in mk.get("picks", []) if r.get("profile")}
         attach_profiles(client, dart, picks, known)
+        for p in (p for ps in picks.values() for p in ps):
+            p.why = reasons(p, passed)
         site.save_day(SITE, ctx[MARKETS[0]]["ref"], picks, ctx, stats, dart is not None, sigs, passed)
         site.build(SITE, url)
         days = site.load_days(SITE)

@@ -65,6 +65,7 @@
 {% if pf.summary %}<p><b>사업의 개요</b> <span class="muted">({{ pf.report }})</span><br>{{ pf.summary }}</p>{% endif %}
 {% if pf.rcept_no %}<div class="more"><a href="https://dart.fss.or.kr/dsaf001/main.do?rcpNo={{ pf.rcept_no }}">DART 보고서 원문 →</a></div>{% endif %}</div>
 {% endif %}
+{% if p.why %}<div class="box why"><b>{{ tip.t("why", "💡 왜 주목받나") }}</b>{% for w in p.why %}<div>{{ w }}</div>{% endfor %}</div>{% endif %}
 <div class="box"><b>현재가</b> {{ p.close|num }}원 <span class="muted">({{ day.date|label }} 종가)</span><br>
 <b>{{ tip.t("target", "목표가") }}</b> {% if p.opinion %}{{ p.opinion.avg|num }}원 <span class="{{ 'up' if p.opinion.upside > 0 else 'down' }}">({{ p.opinion.upside|pct }})</span>
 <span class="muted">— 최근 리포트 {{ p.opinion.n }}건 평균 · {{ p.opinion.from|label }} ~ {{ p.opinion.to|label }} · 출처: KIS 종목투자의견</span>
