@@ -470,3 +470,23 @@ def test_business_overview_and_profiles():
     main.attach_profiles(Client(), None, {"KOSPI": [p]})
     assert p.profile == {"sector": "반도체 제조업", "krx": "전기·전자"}
     assert site.record(p, 1)["profile"]["krx"] == "전기·전자"
+
+
+def test_company_reuses_known_overview(monkeypatch):
+    class R:
+        def __init__(self, body):
+            self.body = body
+
+        def json(self):
+            return self.body
+    bodies = {"company.json": {"status": "000", "ceo_nm": "홍길동", "est_dt": "19900101", "hm_url": "", "acc_mt": "12"},
+              "list.json": {"list": [{"report_nm": "반기보고서 (2026.06)", "rcept_no": "R1"}]}}
+    monkeypatch.setattr(extras.requests, "get", lambda url, **kw: R(bodies[url.rsplit("/", 1)[1]]))
+    calls = []
+    monkeypatch.setattr(extras, "business_overview", lambda key, no: calls.append(no) or "새로 받은 개요")
+    dart = extras.Dart.__new__(extras.Dart)
+    dart.key, dart.corp = "k", {"005930": "C1"}
+    assert extras.company(dart, "005930", {"rcept_no": "R1", "summary": "저장된 개요"})["summary"] == "저장된 개요"
+    assert calls == []
+    assert extras.company(dart, "005930", {"rcept_no": "R0", "summary": "옛 개요"})["summary"] == "새로 받은 개요"
+    assert calls == ["R1"]

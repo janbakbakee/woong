@@ -120,8 +120,9 @@ class Dart:
         return out
 
 
-def company(dart: "Dart", stock_code: str) -> dict:
-    """DART 기업개황 + 최신 정기보고서의 '사업의 개요' 앞부분. 실패한 항목은 비운다."""
+def company(dart: "Dart", stock_code: str, known: dict | None = None) -> dict:
+    """DART 기업개황 + 최신 정기보고서의 '사업의 개요' 앞부분. 실패한 항목은 비운다.
+    known(이전에 저장한 회사 정보)의 보고서가 같으면 원문(수 MB)을 다시 받지 않는다."""
     corp = dart.corp.get(stock_code)
     if not corp:
         return {}
@@ -143,7 +144,8 @@ def company(dart: "Dart", stock_code: str) -> dict:
                     and "기재정정" not in r.get("report_nm", "")), None) or next(iter(b.get("list", [])), None)
         if rep:
             out.update(report=rep["report_nm"].strip(), rcept_no=rep["rcept_no"])
-            out["summary"] = business_overview(dart.key, rep["rcept_no"])
+            same = known and known.get("rcept_no") == rep["rcept_no"] and known.get("summary")
+            out["summary"] = known["summary"] if same else business_overview(dart.key, rep["rcept_no"])
     except Exception as e:
         log.warning("DART 사업의 개요 실패 %s: %s", stock_code, e)
     return out
