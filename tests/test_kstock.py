@@ -495,13 +495,14 @@ def test_company_reuses_known_overview(monkeypatch):
 def test_reasons_from_facts():
     mk = lambda code: kis.Stock(code, "종목" + code, "KOSPI", 20000, 100, 15, True, 1e11, "13")
     p, a, b = (sc.analyze(mk(c), _rows(), _index()) for c in ("1", "2", "3"))
-    p.disclosures = ["단일판매ㆍ공급계약체결", "유상증자결정", "주요사항보고서(자기주식취득결정)"]
+    p.disclosures = ["[기재정정]단일판매ㆍ공급계약체결", "단일판매ㆍ공급계약체결", "유상증자결정", "중간(분기)배당락",
+                     "주요사항보고서(자기주식취득결정)"]
     p.fin = {"period": "2026 반기", "months": 6, "op": 150, "op_prev": 100, "net": 1, "equity": 10, "liab": 1}
     p.profile = {"krx": "전기·전자"}
     p.news = [("종목1 신규 수주", "u")]
     w = main.reasons(p, [p, a, b])
     assert w[0] == "📢 공시: 단일판매ㆍ공급계약체결 · 주요사항보고서(자기주식취득결정)"   # 악재(유상증자)는 제외
     assert w[1] == "📈 실적: 2026 반기 영업이익 전년 동기 대비 +50%"
-    assert w[2].startswith("🔗 업종 동반: 전기·전자 3종목") and len(w) == 4
+    assert w[2].startswith("🔗 업종 동반: 같은 업종 3종목") and len(w) == 4
     q = sc.analyze(mk("4"), _rows(), _index())
     assert all(not x.startswith(("📢", "📈", "🔗")) for x in main.reasons(q, [q]))

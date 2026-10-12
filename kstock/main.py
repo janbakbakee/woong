@@ -206,9 +206,10 @@ GOOD_DISC = ("공급계약", "수주", "자기주식", "무상증자", "배당",
 def reasons(p: sc.Pick, passed: list[sc.Pick]) -> list[str]:
     """수급·관심이 붙은 이유 — 이미 모은 사실(공시·실적·업종·리포트·수급 주체·거래량·뉴스)만으로, 강한 근거 먼저 최대 4개."""
     out = []
-    good = [t for t in p.disclosures if any(k in t for k in GOOD_DISC) and not extras.is_bad(t)]
+    good = [t.replace("[기재정정]", "").strip() for t in p.disclosures
+            if any(k in t for k in GOOD_DISC) and "배당락" not in t and not extras.is_bad(t)]
     if good:
-        out.append("📢 공시: " + " · ".join(dict.fromkeys(t.strip() for t in good[:2])))
+        out.append("📢 공시: " + " · ".join(list(dict.fromkeys(good))[:2]))
     if p.fin:
         m = sc.fin_metrics(p.fin)
         if m["turnaround"]:
@@ -217,8 +218,7 @@ def reasons(p: sc.Pick, passed: list[sc.Pick]) -> list[str]:
             out.append(f"📈 실적: {p.fin['period']} 영업이익 전년 동기 대비 {m['growth']:+.0f}%")
     peers = [q for q in passed if q.stock.sector and q.stock.sector == p.stock.sector and q is not p]
     if len(peers) >= 2:
-        label = p.profile.get("krx") or "같은 업종"
-        out.append(f"🔗 업종 동반: {label} {len(peers) + 1}종목에 외인·기관 동시 매수 — 종목보다 업종 흐름")
+        out.append(f"🔗 업종 동반: 같은 업종 {len(peers) + 1}종목에 외인·기관 동시 매수 — 종목보다 업종 흐름")
     op = site.opinion_summary(p.opinions, p.close)
     if op and op["n"] >= 3 and op["upside"] >= 10:
         out.append(f"🏦 증권사: 최근 리포트 {op['n']}건, 평균 목표가가 현재가보다 {op['upside']:+.0f}%")
