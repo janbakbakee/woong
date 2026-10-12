@@ -180,6 +180,24 @@ def attach_opinions(client, picks: dict[str, list[sc.Pick]], today: str) -> None
     log.info("투자의견 응답 필드: %s", sorted(sample) if sample else "없음")  # 증권사명 필드 확인용
 
 
+def attach_profiles(client, dart, picks: dict[str, list[sc.Pick]], known: dict | None = None) -> None:
+    """TOP 종목에 회사 정보: KIS 업종(표준산업분류·KRX 업종) + DART 기업개황·사업의 개요 (웹페이지용, 실패해도 진행).
+    known = {종목코드: 이전에 저장한 회사 정보} — 같은 보고서면 사업의 개요를 다시 받지 않는다."""
+    known = known or {}
+    for p in (p for ps in picks.values() for p in ps):
+        try:
+            info = client.stock_info(p.stock.code)
+            p.profile.update(sector=info.get("std_idst_clsf_cd_name", "").strip(),
+                             krx=(info.get("idx_bztp_scls_cd_name") or info.get("idx_bztp_mcls_cd_name") or "").strip())
+        except Exception as e:
+            log.warning("종목 기본정보 실패 %s: %s", p.stock.name, e)
+        if dart:
+            p.profile.update(extras.company(dart, p.stock.code, known.get(p.stock.code)))
+    sample = next((p for ps in picks.values() for p in ps if p.profile), None)
+    if sample:
+        log.info("회사 정보 예시 %s: %s", sample.stock.name, {k: str(v)[:60] for k, v in sample.profile.items()})
+
+
 def macro_line(client, today: str) -> str:
     start = (datetime.strptime(today, "%Y%m%d") - timedelta(days=10)).strftime("%Y%m%d")
     out = []
@@ -492,6 +510,9 @@ def main(argv: list[str] | None = None) -> int:
         save_signals(WORK / f"kstock-{today}-{session}-signals.json", sigs)
         save_rows(ROWS, passed)
         attach_opinions(client, picks, today)
+        known = {r["code"]: r["profile"] for d in reversed(site.load_days(SITE))
+                 for mk in d.get("markets", {}).values() for r in mk.get("picks", []) if r.get("profile")}
+        attach_profiles(client, dart, picks, known)
         site.save_day(SITE, ctx[MARKETS[0]]["ref"], picks, ctx, stats, dart is not None, sigs, passed)
         site.build(SITE, url)
         days = site.load_days(SITE)

@@ -159,6 +159,11 @@ class KIS:
         rows = [r for r in body.get("output", []) if r.get("stck_bsop_date")]
         return sorted(rows, key=lambda r: r["stck_bsop_date"], reverse=True)
 
+    def stock_info(self, code: str) -> dict:
+        """종목 기본정보: 표준산업분류명·KRX 업종(대/중/소)·상장일 등."""
+        return self.get("/uapi/domestic-stock/v1/quotations/search-stock-info", "CTPF1002R",
+                        {"PRDT_TYPE_CD": "300", "PDNO": code}).get("output", {})
+
     def price(self, code: str) -> dict:
         """현재가 시세 (장중: 시가·고가·저가·현재가·누적거래량·등락률)."""
         return self.get("/uapi/domestic-stock/v1/quotations/inquire-price", "FHKST01010100",

@@ -44,7 +44,7 @@
 
 {% for p in mk.picks %}{% set s = h.seen.get(p.code) %}
 <details id="{{ p.code }}">
-<summary><span class="score">{{ p.score }}</span><b>{{ stock_light(p, p.code in sig) }} {{ p.rank }}) {{ p.name }}</b> <span class="muted">{{ p.code }} · 시총 {{ p.mcap|num }}억</span><br>
+<summary><span class="score">{{ p.score }}</span><b>{{ stock_light(p, p.code in sig) }} {{ p.rank }}) {{ p.name }}</b> <span class="muted">{{ p.code }} · 시총 {{ p.mcap|num }}억{% if p.profile and p.profile.krx %} · {{ p.profile.krx }}{% endif %}</span><br>
 <span class="{{ 'up' if p.chg > 0 else 'down' if p.chg < 0 }}">{{ p.close|num }}원 ({{ p.chg|pct }})</span>
 {% if s and s.count > 1 %}<span class="tag">🔁 {{ h.window }}일 중 {{ s.count }}일 · 첫 등장 {{ s.first|label }} 대비 {{ ((p.close / s.first_close - 1) * 100)|pct }}</span>{% else %}<span class="tag">🆕 신규</span>{% endif %}
 {% if p.ext_atr > 3.5 %}<span class="tag warn">⚠️ 단기 과열</span>{% endif %}{% if p.flags %}<span class="tag warn">⚠️ 악재 뉴스 {{ p.flags|length }}</span>{% endif %}
@@ -52,6 +52,19 @@
 <div class="card">
 <div><a href="https://m.stock.naver.com/domestic/stock/{{ p.code }}/total">네이버증권 모바일</a> · <a href="https://finance.naver.com/item/main.naver?code={{ p.code }}">네이버증권 PC</a></div>
 
+{% if p.profile and (p.profile.summary or p.profile.sector) %}{% set pf = p.profile %}
+<div class="box co"><b>🏢 회사</b> <span class="muted">{{ pf.sector or pf.krx }}</span>
+{% if pf.summary %}<div class="clamp">{{ pf.summary }}</div>{% endif %}
+<button class="t" popovertarget="co-{{ p.code }}">자세히<sup>ⓘ</sup></button></div>
+<div popover id="co-{{ p.code }}" class="tip"><button class="x" popovertarget="co-{{ p.code }}" popovertargetaction="hide">닫기</button><b>{{ p.name }} — 회사 개요</b>
+<table>{% if pf.sector %}<tr><td>업종</td><td>{{ pf.sector }}{% if pf.krx %} · KRX {{ pf.krx }}{% endif %}</td></tr>{% endif %}
+{% if pf.ceo %}<tr><td>대표</td><td>{{ pf.ceo }}</td></tr>{% endif %}
+{% if pf.est %}<tr><td>설립</td><td>{{ pf.est[:4] }}.{{ pf.est[4:6] }}.{{ pf.est[6:] }}</td></tr>{% endif %}
+{% if pf.acc_mt %}<tr><td>결산월</td><td>{{ pf.acc_mt }}월</td></tr>{% endif %}
+{% if pf.homepage %}<tr><td>홈페이지</td><td><a href="{{ pf.homepage if pf.homepage.startswith('http') else 'http://' ~ pf.homepage }}">{{ pf.homepage }}</a></td></tr>{% endif %}</table>
+{% if pf.summary %}<p><b>사업의 개요</b> <span class="muted">({{ pf.report }})</span><br>{{ pf.summary }}</p>{% endif %}
+{% if pf.rcept_no %}<div class="more"><a href="https://dart.fss.or.kr/dsaf001/main.do?rcpNo={{ pf.rcept_no }}">DART 보고서 원문 →</a></div>{% endif %}</div>
+{% endif %}
 <div class="box"><b>현재가</b> {{ p.close|num }}원 <span class="muted">({{ day.date|label }} 종가)</span><br>
 <b>{{ tip.t("target", "목표가") }}</b> {% if p.opinion %}{{ p.opinion.avg|num }}원 <span class="{{ 'up' if p.opinion.upside > 0 else 'down' }}">({{ p.opinion.upside|pct }})</span>
 <span class="muted">— 최근 리포트 {{ p.opinion.n }}건 평균 · {{ p.opinion.from|label }} ~ {{ p.opinion.to|label }} · 출처: KIS 종목투자의견</span>
