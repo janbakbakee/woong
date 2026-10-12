@@ -43,7 +43,7 @@
 </table>{% if not mk.picks %}<div class="muted">조건을 충족한 종목이 없습니다.</div>{% endif %}</div>
 
 {% for p in mk.picks %}{% set s = h.seen.get(p.code) %}
-<details id="{{ p.code }}" {{ 'open' if p.rank == 1 }}>
+<details id="{{ p.code }}">
 <summary><span class="score">{{ p.score }}</span><b>{{ stock_light(p, p.code in sig) }} {{ p.rank }}) {{ p.name }}</b> <span class="muted">{{ p.code }} · 시총 {{ p.mcap|num }}억</span><br>
 <span class="{{ 'up' if p.chg > 0 else 'down' if p.chg < 0 }}">{{ p.close|num }}원 ({{ p.chg|pct }})</span>
 {% if s and s.count > 1 %}<span class="tag">🔁 {{ h.window }}일 중 {{ s.count }}일 · 첫 등장 {{ s.first|label }} 대비 {{ ((p.close / s.first_close - 1) * 100)|pct }}</span>{% else %}<span class="tag">🆕 신규</span>{% endif %}
@@ -87,9 +87,15 @@
 </table></div>
 
 {% if p.news %}<div class="box"><b>뉴스</b>{% for t, u in p.news %}<div>{{ '⚠️' if t in p.flags else '📰' }} <a href="{{ u }}">{{ t }}</a></div>{% endfor %}</div>{% endif %}
+<button type="button" class="fold" onclick="var d=this.closest('details');d.open=false;d.scrollIntoView({block:'nearest'})">▲ 접기</button>
 </div></details>
 {% endfor %}
 {% endfor %}
 <p class="muted">생성 {{ generated }} · 최근 {{ tabs|length }}거래일 보관 · 데이터: 한국투자증권 Open API, Google News{% if day.dart %}, DART{% endif %}</p>
 {{ tip.all() }}
-</main></body></html>
+</main>
+<script>/* 표의 종목 이름을 누르면 해당 카드를 펼친다 (카드는 기본 접힘) */
+function openCard(id){var d=document.getElementById(id);if(d&&d.tagName==='DETAILS')d.open=true}
+document.addEventListener('click',function(e){var a=e.target.closest('a[href^="#"]');if(a)openCard(a.getAttribute('href').slice(1))});
+if(location.hash)openCard(location.hash.slice(1));</script>
+</body></html>
